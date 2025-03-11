@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+vendor/
+.pnp/
+.pnp.js
+
+# Build outputs
+build/
+dist/
+out/
+*.pyc
+__pycache__/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.python-version
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+.coverage
+.pytest_cache/
+
+# Misc
+.cache/
+.temp/
+.tmp/
+
+# Additional security-sensitive files
+*config.json
+*secrets*
+*.pem
+*.key
+*.cert
+
+# Package manager files
+yarn.lock
+package-lock.json
+composer.lock
