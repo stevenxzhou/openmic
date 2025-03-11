@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-performance_bp = Blueprint('performance', __name__)
+performance_bp = Blueprint('performance', __name__, url_prefix='/api')
 
 # Mock data
 performances = [

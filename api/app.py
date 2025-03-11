@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from routes.event_routes import event_bp
 from routes.performance_routes import performance_bp
@@ -21,6 +21,16 @@ def create_app():
     # Create database tables
     with app.app_context():
         db.create_all()
+
+    # Add a test route
+    @app.route('/api/test')
+    def test():
+        return jsonify({'message': 'API is working!'})
+
+    # Add error handlers
+    @app.errorhandler(404)
+    def not_found_error(error):
+        return jsonify({'error': 'Not Found', 'message': 'The requested URL was not found on the server.'}), 404
 
     return app
 

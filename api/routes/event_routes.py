@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-event_bp = Blueprint('event', __name__)
+event_bp = Blueprint('event', __name__, url_prefix='/api')
 
 # Mock data
 events = [

@@ -1,41 +1,35 @@
 from flask import Blueprint, jsonify, request
 from datetime import datetime
-from models.models import UserRole  # Import UserRole enum
+from models.models import db, User, UserRole  # Import db and User model
 
-user_bp = Blueprint('user', __name__)
-
-# Fake data for development
-fake_users = [
-    {
-        "user_id": 1,
-        "username": "JohnDoe",
-        "primary_social_media": "Instagram",
-        "primary_social_media_alias": "@johndoe",
-        "date_joined": datetime.utcnow().isoformat(),
-        "user_type": "Individual",
-        "role": UserRole.GUEST.value  # Added default role
-    },
-    {
-        "user_id": 2,
-        "username": "AdminUser",
-        "primary_social_media": "Twitter",
-        "primary_social_media_alias": "@admin",
-        "date_joined": datetime.utcnow().isoformat(),
-        "user_type": "Individual",
-        "role": UserRole.ADMIN.value
-    }
-]
+# Add the '/api' prefix
+user_bp = Blueprint('user', __name__, url_prefix='/api')
 
 @user_bp.route('/users', methods=['GET'])
 def get_users():
-    return jsonify(fake_users)
+    users = User.query.all()
+    return jsonify([{
+        "user_id": user.user_id,
+        "username": user.username,
+        "primary_social_media": user.primary_social_media,
+        "primary_social_media_alias": user.primary_social_media_alias,
+        "date_joined": user.date_joined.isoformat(),
+        "user_type": user.user_type,
+        "role": user.role
+    } for user in users])
 
 @user_bp.route('/users/<int:user_id>', methods=['GET'])
 def get_user(user_id):
-    user = next((user for user in fake_users if user['user_id'] == user_id), None)
-    if user is None:
-        return jsonify({"error": "User not found"}), 404
-    return jsonify(user)
+    user = User.query.get_or_404(user_id)
+    return jsonify({
+        "user_id": user.user_id,
+        "username": user.username,
+        "primary_social_media": user.primary_social_media,
+        "primary_social_media_alias": user.primary_social_media_alias,
+        "date_joined": user.date_joined.isoformat(),
+        "user_type": user.user_type,
+        "role": user.role
+    })
 
 @user_bp.route('/users', methods=['POST'])
 def create_user():
@@ -46,38 +40,63 @@ def create_user():
     if role not in [r.value for r in UserRole]:
         return jsonify({"error": f"Invalid role. Must be one of: {', '.join([r.value for r in UserRole])}"}), 400
     
-    new_user = {
-        "user_id": len(fake_users) + 1,
-        "username": data.get('username'),
-        "primary_social_media": data.get('primary_social_media'),
-        "primary_social_media_alias": data.get('primary_social_media_alias'),
-        "date_joined": datetime.utcnow().isoformat(),
-        "user_type": data.get('user_type', 'Individual'),
-        "role": role
-    }
-    fake_users.append(new_user)
-    return jsonify(new_user), 201
+    new_user = User(
+        username=data.get('username'),
+        primary_social_media=data.get('primary_social_media'),
+        primary_social_media_alias=data.get('primary_social_media_alias'),
+        user_type=data.get('user_type', 'Individual'),
+        role=role
+    )
+    
+    db.session.add(new_user)
+    db.session.commit()
+    
+    return jsonify({
+        "user_id": new_user.user_id,
+        "username": new_user.username,
+        "primary_social_media": new_user.primary_social_media,
+        "primary_social_media_alias": new_user.primary_social_media_alias,
+        "date_joined": new_user.date_joined.isoformat(),
+        "user_type": new_user.user_type,
+        "role": new_user.role
+    }), 201
 
 @user_bp.route('/users/<int:user_id>', methods=['PUT'])
 def update_user(user_id):
-    user = next((user for user in fake_users if user['user_id'] == user_id), None)
-    if user is None:
-        return jsonify({"error": "User not found"}), 404
-    
+    user = User.query.get_or_404(user_id)
     data = request.get_json()
     
     # Validate role if it's being updated
     if 'role' in data and data['role'] not in [r.value for r in UserRole]:
         return jsonify({"error": f"Invalid role. Must be one of: {', '.join([r.value for r in UserRole])}"}), 400
     
-    user.update({k: v for k, v in data.items() if k != 'user_id'})
-    return jsonify(user)
+    # Update user fields
+    if 'username' in data:
+        user.username = data['username']
+    if 'primary_social_media' in data:
+        user.primary_social_media = data['primary_social_media']
+    if 'primary_social_media_alias' in data:
+        user.primary_social_media_alias = data['primary_social_media_alias']
+    if 'user_type' in data:
+        user.user_type = data['user_type']
+    if 'role' in data:
+        user.role = data['role']
+    
+    db.session.commit()
+    
+    return jsonify({
+        "user_id": user.user_id,
+        "username": user.username,
+        "primary_social_media": user.primary_social_media,
+        "primary_social_media_alias": user.primary_social_media_alias,
+        "date_joined": user.date_joined.isoformat(),
+        "user_type": user.user_type,
+        "role": user.role
+    })
 
 @user_bp.route('/users/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
-    user = next((user for user in fake_users if user['user_id'] == user_id), None)
-    if user is None:
-        return jsonify({"error": "User not found"}), 404
-    
-    fake_users.remove(user)
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
     return '', 204 
