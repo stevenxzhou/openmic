@@ -1,30 +1,23 @@
 import React from "react"
-
-// Simple performer type
-export type Performer = {
-    id: string
-    name: string
-    socialMedia: string
-    songs: string[]
-  }
+import type { Performance } from "../api/performance"
 
 type ListViewProps = {
-  performers: Performer[]
+  performances: Performance[]
   currentPerformerIndex: number
   draggedIndex: number | null
   handleDragStart: (index: number) => void
   handleDragOver: (e: React.DragEvent, index: number) => void
   handleDragEnd: () => void
-  handleDeletePerformer: (id: string) => void
+  handleDeletePerformer: (id: number) => void
   showDeleteConfirm: boolean
   cancelDeletePerformer: () => void
-  confirmDeletePerformer: () => void
+  confirmDeletePerformer: (id: number) => void
   setView: (view: "status" | "signup" | "list") => void
   calculateWaitTime: (index: number) => string
 }
 
 const ListView: React.FC<ListViewProps> = ({
-  performers,
+  performances,
   currentPerformerIndex,
   draggedIndex,
   handleDragStart,
@@ -58,13 +51,13 @@ const ListView: React.FC<ListViewProps> = ({
     </div>
 
     <div>
-      {performers.length === 0 ? (
+      {performances.length === 0 ? (
         <div className="text-center py-10 text-gray-500">No performers signed up yet</div>
       ) : (
         <div className="space-y-4">
-          {performers.map((performer, index) => (
+          {performances.map((performer, index) => (
             <div
-              key={performer.id}
+              key={performer.performance_id}
               draggable={true}
               onDragStart={() => handleDragStart(index)}
               onDragOver={(e) => handleDragOver(e, index)}
@@ -80,18 +73,14 @@ const ListView: React.FC<ListViewProps> = ({
               <div className="flex justify-between mb-8">
                 <div>
                   <h3 className="font-medium">
-                    {performer.name}
+                    {performer.username}
                     {index === currentPerformerIndex && (
                       <span className="ml-2 text-xs bg-yellow-600 text-white px-2 py-0.5 rounded-full">Now</span>
                     )}
                   </h3>
-                  <p className="text-sm text-gray-600">{performer.socialMedia}</p>
+                  <p className="text-sm text-gray-600">{performer.social_media_alias}</p>
                   <div className="mt-2">
-                    {performer.songs.map((song, songIndex) => (
-                      <p key={songIndex} className="text-sm">
-                        {songIndex + 1}. {song}
-                      </p>
-                    ))}
+                    {performer.songs}
                   </div>
                 </div>
                 <div className="text-sm text-gray-500">{calculateWaitTime(index)}</div>
@@ -99,7 +88,7 @@ const ListView: React.FC<ListViewProps> = ({
 
               <div className="absolute bottom-2 right-2">
                 <button
-                  onClick={() => handleDeletePerformer(performer.id)}
+                  onClick={() => handleDeletePerformer(performer.performance_id)}
                   className="px-3 py-1 text-sm bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded"
                   aria-label="Skip performer"
                 >
@@ -123,7 +112,7 @@ const ListView: React.FC<ListViewProps> = ({
               Cancel
             </button>
             <button
-              onClick={confirmDeletePerformer}
+              onClick={() => confirmDeletePerformer(performances[currentPerformerIndex].performance_id)}
               className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded"
             >
               Skip

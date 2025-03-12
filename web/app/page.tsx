@@ -1,60 +1,29 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import StatusView from "../components/StatusView"
 import SignUpView from "../components/SignUpView"
 import ListView from "../components/ListView"
-
-// Simple performer type
-export type Performer = {
-  id: string
-  name: string
-  socialMedia: string
-  songs: string[]
-}
+import type { Performance } from "../api/performance"
+import getPerformanceData from "../api/performance"
 
 export default function OpenMicApp() {
   // Basic state
   const [view, setView] = useState<"status" | "signup" | "list">("status")
-  const [performers, setPerformers] = useState<Performer[]>([
-    {
-      id: "1",
-      name: "Alex Johnson",
-      socialMedia: "@alexjmusic",
-      songs: ["Wonderwall", "Hallelujah"],
-    },
-    {
-      id: "2",
-      name: "Sam Rivera",
-      socialMedia: "@samrivera",
-      songs: ["Creep"],
-    },
-    {
-      id: "3",
-      name: "Taylor Kim",
-      socialMedia: "@taylork",
-      songs: ["Someone Like You", "Stay With Me"],
-    },
-    {
-      id: "4",
-      name: "Jordan Smith",
-      socialMedia: "@jsmith",
-      songs: ["Shape of You", "Thinking Out Loud"],
-    },
-    {
-      id: "5",
-      name: "Casey Williams",
-      socialMedia: "@caseyw",
-      songs: ["Bohemian Rhapsody"],
-    },
-    {
-      id: "6",
-      name: "Morgan Lee",
-      socialMedia: "@morganlee",
-      songs: ["Shallow", "Always Remember Us This Way"],
-    },
-  ])
+  const [performances, setPerformances] = useState<Performance[]>([]);
+  
+  // Fetch performances data once after component mounts
+  useEffect(() => {
+    getPerformanceData()
+      .then((data) => {
+        setPerformances(data);
+      })
+      .catch((error) => {
+        console.error("There was a problem with the fetch operation:", error);
+      });
+  }, []); // Empty dependency array ensures this runs only once
+
   const [currentPerformerIndex, setCurrentPerformerIndex] = useState(0)
 
   // Form state
@@ -68,7 +37,7 @@ export default function OpenMicApp() {
 
   // Delete confirmation state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [performerToDelete, setPerformerToDelete] = useState<string | null>(null)
+  const [performerToDelete, setPerformerToDelete] = useState<number>(-1)
 
   // Calculate wait time based on number of songs
   const calculateWaitTime = (index: number) => {
@@ -77,7 +46,7 @@ export default function OpenMicApp() {
     let totalMinutes = 0
     // Count songs for all performers from current to this one
     for (let i = currentPerformerIndex; i < index; i++) {
-      totalMinutes += performers[i].songs.length * 5
+      totalMinutes += performances[i].songs.length * 5
     }
 
     if (totalMinutes < 60) {
@@ -93,16 +62,19 @@ export default function OpenMicApp() {
   const addPerformer = () => {
     if (!name || !socialMedia || !song1) return
 
-    const songs = [song1]
-    if (song2) songs.push(song2)
+    const songs = [song1, song2]
 
-    setPerformers([
-      ...performers,
+    setPerformances([
+      ...performances,
       {
-        id: Date.now().toString(),
-        name,
-        socialMedia,
+        event_id: 0, // Placeholder value
+        event_title: "", // Placeholder value
+        performance_id: Date.now(),
         songs,
+        status: "Pending",
+        user_id: 0, // Placeholder value
+        username: name,
+        social_media_alias: socialMedia,
       },
     ])
 
@@ -126,42 +98,30 @@ export default function OpenMicApp() {
     e.preventDefault()
     if (draggedIndex === null || draggedIndex === index) return
 
-    // // Only allow reordering performers who haven't performed yet
-    // if (draggedIndex < currentPerformerIndex && index < currentPerformerIndex) return
-
-    // Create a copy of the performers array
-    const newPerformers = [...performers]
-    const draggedPerformer = newPerformers[draggedIndex]
+    // Create a copy of the performances array
+    const newPerformances = [...performances]
+    const draggedPerformer = newPerformances[draggedIndex]
 
     // Special handling for when the current performer is being moved to a later position
     if (draggedIndex === currentPerformerIndex && index > currentPerformerIndex) {
       // Remove the current performer
-      newPerformers.splice(draggedIndex, 1)
+      newPerformances.splice(draggedIndex, 1)
 
       // Insert the performer at the new position
-      newPerformers.splice(index, 0, draggedPerformer)
+      newPerformances.splice(index, 0, draggedPerformer)
 
       // The next performer becomes the current performer
       // We keep currentPerformerIndex the same since the next performer slides up
-      setPerformers(newPerformers)
+      setPerformances(newPerformances)
       setDraggedIndex(index)
       return
     }
 
     // Regular reordering logic
-    newPerformers.splice(draggedIndex, 1)
-    newPerformers.splice(index, 0, draggedPerformer)
+    newPerformances.splice(draggedIndex, 1)
+    newPerformances.splice(index, 0, draggedPerformer)
 
-    // If we're moving a performer to before the current and the current is being pushed down
-    // if (index <= currentPerformerIndex && draggedIndex > currentPerformerIndex) {
-    //   setCurrentPerformerIndex(currentPerformerIndex + 1)
-    // }
-    // // If we're moving a performer from before the current to after it
-    // else if (draggedIndex < currentPerformerIndex && index >= currentPerformerIndex) {
-    //   setCurrentPerformerIndex(currentPerformerIndex - 1)
-    // }
-
-    setPerformers(newPerformers)
+    setPerformances(newPerformances)
     setDraggedIndex(index)
   }
 
@@ -171,48 +131,48 @@ export default function OpenMicApp() {
   }
 
   // Handle delete performer
-  const handleDeletePerformer = (id: string) => {
+  const handleDeletePerformer = (id: number) => {
     setPerformerToDelete(id)
     setShowDeleteConfirm(true)
   }
 
   // Confirm delete performer
-  const confirmDeletePerformer = () => {
+  const confirmDeletePerformer = (id: number) => {
     if (!performerToDelete) return
 
-    const index = performers.findIndex((p) => p.id === performerToDelete)
-    const newPerformers = [...performers]
+    const index = performances.findIndex((p) => p.performance_id === id)
+    const newPerformances = [...performances]
 
     // If skipping the current performer, move to the next one
-    if (index === currentPerformerIndex && performers.length > currentPerformerIndex + 1) {
+    if (index === currentPerformerIndex && performances.length > currentPerformerIndex + 1) {
       // Just remove the current performer, the next one becomes current
-      newPerformers.splice(index, 1)
+      newPerformances.splice(index, 1)
       // No need to adjust currentPerformerIndex as the next performer will slide into position
     } else if (index === currentPerformerIndex) {
       // This is the last performer, remove it
-      newPerformers.splice(index, 1)
+      newPerformances.splice(index, 1)
       // If this was the last performer, adjust the index
       if (currentPerformerIndex > 0) {
         setCurrentPerformerIndex(currentPerformerIndex - 1)
       }
     } else {
       // Not the current performer
-      newPerformers.splice(index, 1)
+      newPerformances.splice(index, 1)
       // Adjust current performer index if needed
       if (index < currentPerformerIndex) {
         setCurrentPerformerIndex(currentPerformerIndex - 1)
       }
     }
 
-    setPerformers(newPerformers)
+    setPerformances(newPerformances)
     setShowDeleteConfirm(false)
-    setPerformerToDelete(null)
+    setPerformerToDelete(-1)
   }
 
   // Cancel delete performer
   const cancelDeletePerformer = () => {
     setShowDeleteConfirm(false)
-    setPerformerToDelete(null)
+    setPerformerToDelete(-1)
   }
 
   // Main render
@@ -220,7 +180,7 @@ export default function OpenMicApp() {
     <main className="max-w-md mx-auto min-h-screen bg-white">
       {view === "status" && (
         <StatusView
-          performers={performers}
+          performances={performances}
           currentPerformerIndex={currentPerformerIndex}
           setView={setView}
           calculateWaitTime={calculateWaitTime}
@@ -242,7 +202,7 @@ export default function OpenMicApp() {
       )}
       {view === "list" && (
         <ListView
-          performers={performers}
+          performances={performances}
           currentPerformerIndex={currentPerformerIndex}
           draggedIndex={draggedIndex}
           handleDragStart={handleDragStart}

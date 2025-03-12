@@ -1,14 +1,14 @@
 import React from "react"
-import { Performer } from "../app/page"
+import { Performance } from "../api/performance"
 
 type StatusViewProps = {
-  performers: Performer[]
+  performances: Performance[]
   currentPerformerIndex: number
   setView: (view: "status" | "signup" | "list") => void
   calculateWaitTime: (index: number) => string
 }
 
-const StatusView: React.FC<StatusViewProps> = ({ performers, currentPerformerIndex, setView, calculateWaitTime }) => (
+const StatusView: React.FC<StatusViewProps> = ({ performances, currentPerformerIndex, setView, calculateWaitTime }) => (
   <div className="p-4 pb-20 relative min-h-screen">
     <div className="flex justify-between mb-6">
       <h1 className="text-2xl font-bold">Event Status</h1>
@@ -19,11 +19,11 @@ const StatusView: React.FC<StatusViewProps> = ({ performers, currentPerformerInd
 
     <div className="mb-8">
       <h2 className="text-lg font-semibold text-gray-600 mb-2">Now Performing</h2>
-      {performers[currentPerformerIndex] ? (
+      {performances[currentPerformerIndex] ? (
         <div className="border-2 border-yellow-500 p-4 rounded">
-          <h3 className="font-bold">{performers[currentPerformerIndex].name}</h3>
-          <p className="text-gray-600">{performers[currentPerformerIndex].socialMedia}</p>
-          <p className="mt-2">{performers[currentPerformerIndex].songs.join(", ")}</p>
+          <h3 className="font-bold">{performances[currentPerformerIndex].username}</h3>
+          <p className="text-gray-600">{performances[currentPerformerIndex].social_media_alias}</p>
+          <p className="mt-2">{performances[currentPerformerIndex].songs.toString()}</p>
         </div>
       ) : (
         <div className="border p-4 rounded text-center text-gray-500">No performers yet</div>
@@ -33,15 +33,15 @@ const StatusView: React.FC<StatusViewProps> = ({ performers, currentPerformerInd
     <div>
       <h2 className="text-lg font-semibold text-gray-600 mb-2">Up Next</h2>
       <div className="overflow-y-auto max-h-[calc(100vh-350px)]">
-        {performers.slice(currentPerformerIndex + 1).length > 0 ? (
+        {performances.slice(currentPerformerIndex + 1).length > 0 ? (
           <div className="space-y-4">
-            {performers.slice(currentPerformerIndex + 1).map((performer, idx) => {
+            {performances.slice(currentPerformerIndex + 1).map((performer, idx) => {
               const index = currentPerformerIndex + 1 + idx
               return (
-                <div key={performer.id} className="border p-4 rounded">
-                  <h3 className="font-bold">{performer.name}</h3>
-                  <p className="text-gray-600">{performer.socialMedia}</p>
-                  <p className="mt-2">{performer.songs.join(", ")}</p>
+                <div key={performer.performance_id} className="border p-4 rounded">
+                  <h3 className="font-bold">{performer.username}</h3>
+                  <p className="text-gray-600">{performer.social_media_alias}</p>
+                  <p className="mt-2">{performer.songs.toString()}</p>
                   <p className="text-sm text-gray-500 mt-1">Est. wait: {calculateWaitTime(index)}</p>
                 </div>
               )
