@@ -1,73 +1,62 @@
 from flask import Blueprint, jsonify, request
+from models.models import db, Event  # Import db and Event model
 
 event_bp = Blueprint('event', __name__, url_prefix='/api')
 
-# Mock data
-events = [
-    {
-        'id': 1,
-        'title': 'Summer Festival',
-        'description': 'Annual music festival',
-        'start_date': '2024-07-01',
-        'end_date': '2024-07-03',
-        'location': 'Central Park'
-    },
-    {
-        'id': 2,
-        'title': 'Jazz Night',
-        'description': 'Evening of jazz music',
-        'start_date': '2024-04-15',
-        'end_date': '2024-04-15',
-        'location': 'Jazz Club'
-    }
-]
-
 @event_bp.route('/events', methods=['GET'])
 def get_events():
-    return jsonify(events)
+    events = Event.query.all()
+    return jsonify([{
+        'id': event.event_id,
+        'title': event.title,
+        'start_date': event.event_start_datetime.isoformat(),
+        'end_date': event.event_end_datetime.isoformat(),
+    } for event in events])
 
 @event_bp.route('/events/<int:id>', methods=['GET'])
 def get_event(id):
-    event = next((e for e in events if e['id'] == id), None)
-    if event is None:
-        return jsonify({'error': 'Event not found'}), 404
-    return jsonify(event)
+    event = Event.query.get_or_404(id)
+    return jsonify({
+        'id': event.event_id,
+        'title': event.title,
+        'start_date': event.event_start_datetime.isoformat(),
+        'end_date': event.event_end_datetime.isoformat(),
+    })
 
 @event_bp.route('/events', methods=['POST'])
 def create_event():
     data = request.get_json()
-    new_event = {
-        'id': len(events) + 1,
-        'title': data.get('title'),
-        'description': data.get('description'),
-        'start_date': data.get('start_date'),
-        'end_date': data.get('end_date'),
-        'location': data.get('location')
-    }
-    events.append(new_event)
+    new_event = Event(
+        title=data.get('title'),
+        start_date=data.get('start_date'),
+        end_date=data.get('end_date'),
+        location=data.get('location')
+    )
+
+    db.session.add(new_event)
+    db.session.commit()
+
     return jsonify(new_event), 201
 
 @event_bp.route('/events/<int:id>', methods=['PUT'])
 def update_event(id):
-    event = next((e for e in events if e['id'] == id), None)
-    if event is None:
-        return jsonify({'error': 'Event not found'}), 404
-    
+    event = Event.query.get_or_404(id)    
     data = request.get_json()
-    event.update({
-        'title': data.get('title', event['title']),
-        'description': data.get('description', event['description']),
-        'start_date': data.get('start_date', event['start_date']),
-        'end_date': data.get('end_date', event['end_date']),
-        'location': data.get('location', event['location'])
-    })
+
+    # Update event fields
+    if 'title' in data:
+        event.title = data['title']
+    if 'start_date' in data:
+        event.event_start_datetime = data['start_date']
+    if 'end_date' in data:
+        event.event_end_datetime = data['end_date']
+
+    db.session.commit()
     return jsonify(event)
 
 @event_bp.route('/events/<int:id>', methods=['DELETE'])
 def delete_event(id):
-    event = next((e for e in events if e['id'] == id), None)
-    if event is None:
-        return jsonify({'error': 'Event not found'}), 404
-    
-    events.remove(event)
-    return '', 204 
+    event = Event.query.get_or_404(id)
+    db.session.delete(event)
+    db.session.commit()
+    return jsonify({"message": "Event deleted successfully"})
