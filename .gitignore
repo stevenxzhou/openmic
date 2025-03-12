@@ -55,3 +55,6 @@ coverage/
 yarn.lock
 package-lock.json
 composer.lock
+
+# Next
+.next/
