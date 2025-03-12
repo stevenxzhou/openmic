@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from routes.event_routes import event_bp
 from routes.performance_routes import performance_bp
 from routes.user_routes import user_bp
@@ -12,6 +13,9 @@ def create_app():
 
     # Initialize database
     db.init_app(app)
+
+    # Enable CORS for any website
+    CORS(app)
 
     # Register blueprints
     app.register_blueprint(event_bp)
@@ -37,4 +41,4 @@ def create_app():
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(debug=True)
