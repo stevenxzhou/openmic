@@ -1,4 +1,5 @@
 import React from "react"
+import type { Performance } from "@/api/performance"
 
 type SignUpViewProps = {
   name: string
@@ -9,7 +10,7 @@ type SignUpViewProps = {
   setSong1: (song1: string) => void
   song2: string
   setSong2: (song2: string) => void
-  addPerformer: () => void
+  addPerformanceHandler: () => void
   setView: (view: "status" | "signup" | "list") => void
 }
 
@@ -22,7 +23,7 @@ const SignUpView: React.FC<SignUpViewProps> = ({
   setSong1,
   song2,
   setSong2,
-  addPerformer,
+  addPerformanceHandler,
   setView,
 }) => (
   <div className="p-4">
@@ -80,7 +81,7 @@ const SignUpView: React.FC<SignUpViewProps> = ({
     </div>
 
     <div className="mt-6 space-y-3">
-      <button onClick={addPerformer} className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded">
+      <button onClick={addPerformanceHandler} className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded">
         Complete Sign Up
       </button>
       <button

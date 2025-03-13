@@ -1,29 +1,16 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import StatusView from "../components/StatusView"
 import SignUpView from "../components/SignUpView"
 import ListView from "../components/ListView"
-import type { Performance } from "../api/performance"
-import getPerformanceData from "../api/performance"
+import usePerformances from "@/hooks/usePerformance"
 
 export default function OpenMicApp() {
   // Basic state
   const [view, setView] = useState<"status" | "signup" | "list">("status")
-  const [performances, setPerformances] = useState<Performance[]>([]);
-  
-  // Fetch performances data once after component mounts
-  useEffect(() => {
-    getPerformanceData()
-      .then((data) => {
-        setPerformances(data);
-      })
-      .catch((error) => {
-        console.error("There was a problem with the fetch operation:", error);
-      });
-  }, []); // Empty dependency array ensures this runs only once
-
+  const { performances, addPerformance, setPerformances} = usePerformances()
   const [currentPerformerIndex, setCurrentPerformerIndex] = useState(0)
 
   // Form state
@@ -31,6 +18,30 @@ export default function OpenMicApp() {
   const [socialMedia, setSocialMedia] = useState("")
   const [song1, setSong1] = useState("")
   const [song2, setSong2] = useState("")
+
+  // Add performance handler
+  const addPerformanceHandler = () => {
+    if (!name || !song1 || !song2) {
+      alert("Please fill in all fields")
+      return
+    }
+    const newPerformance = {
+      event_id: 1,
+      event_title: "Summer Festival",
+      performance_id: performances.length + 1,
+      songs: [song1, song2],
+      status: "Upcoming",
+      user_id: 1,
+      username: name,
+      social_media_alias: socialMedia,
+    }
+    addPerformance(newPerformance)
+    setName("")
+    setSocialMedia("")
+    setSong1("")
+    setSong2("")
+    setView("status")
+  }
 
   // Drag and drop state
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
@@ -56,36 +67,6 @@ export default function OpenMicApp() {
       const minutes = totalMinutes % 60
       return `${hours}h ${minutes}m`
     }
-  }
-
-  // Add a new performer
-  const addPerformer = () => {
-    if (!name || !socialMedia || !song1) return
-
-    const songs = [song1, song2]
-
-    setPerformances([
-      ...performances,
-      {
-        event_id: 0, // Placeholder value
-        event_title: "", // Placeholder value
-        performance_id: Date.now(),
-        songs,
-        status: "Pending",
-        user_id: 0, // Placeholder value
-        username: name,
-        social_media_alias: socialMedia,
-      },
-    ])
-
-    // Reset form
-    setName("")
-    setSocialMedia("")
-    setSong1("")
-    setSong2("")
-
-    // Go to list view
-    setView("list")
   }
 
   // Handle drag start
@@ -196,7 +177,7 @@ export default function OpenMicApp() {
           setSong1={setSong1}
           song2={song2}
           setSong2={setSong2}
-          addPerformer={addPerformer}
+          addPerformanceHandler={addPerformanceHandler}
           setView={setView}
         />
       )}

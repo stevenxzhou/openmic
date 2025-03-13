@@ -40,13 +40,22 @@ async function getPerformanceData() {
     return data;
 }
 
-// Example usage
-getPerformanceData()
-    .then(data => {
-        console.log(data);
-    })
-    .catch(error => {
-        console.error('There was a problem with the fetch operation:', error);
+// Function to add new performance data
+async function addPerformanceData(newPerformance: Performance) {
+    const response = await fetch('http://127.0.0.1:5000/api/performances', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newPerformance),
     });
 
-export default getPerformanceData;
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+
+    const data = await response.json();
+    return data;
+}
+
+export { getPerformanceData, addPerformanceData };
