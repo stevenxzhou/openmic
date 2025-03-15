@@ -28,7 +28,8 @@ export default function OpenMicApp() {
     const newPerformance = {
       event_id: 1,
       event_title: "Summer Festival",
-      performance_id: performances.length + 1,
+      performance_id: 1,
+      performance_index: performances.length + 1,
       songs: [song1, song2],
       status: "Upcoming",
       user_id: 1,

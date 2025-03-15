@@ -5,10 +5,12 @@ performance_bp = Blueprint('performance', __name__, url_prefix='/api')
 
 @performance_bp.route('/performances', methods=['GET'])
 def get_performances():
+    event_id = request.args.get('event_id', type=int)
     performances = db.session.query(
         Performance.performance_id,
         Performance.songs,
         Performance.status,
+        Performance.performance_index,
         User.user_id,
         User.username,
         User.primary_social_media_alias,
@@ -19,6 +21,7 @@ def get_performances():
     
     result = [{
         "performance_id": p.performance_id,
+        "performance_index": p.performance_index,
         "songs": p.songs,
         "status": p.status.value,
         "user_id": p.user_id,
@@ -26,10 +29,9 @@ def get_performances():
         "social_media_alias": p.primary_social_media_alias,
         "event_id": p.event_id,
         "event_title": p.title
-    } for p in performances]
+    } for p in performances if (event_id is None or p.event_id == event_id)]
     
     return jsonify(result)
-
 
 @performance_bp.route('/performances/<int:id>', methods=['GET'])
 def get_performance(id):

@@ -16,7 +16,7 @@ const useUser = (user_id: number) => {
             .catch((error) => {
                 console.error("There was a problem with the fetch operation:", error);
             });
-    }, [user_id]); // Empty dependency array ensures this runs only once
+    }, []); // Empty dependency array ensures this runs only once
 
     return { user, setUser }
 }

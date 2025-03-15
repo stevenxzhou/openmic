@@ -49,5 +49,6 @@ class Performance(db.Model):
     performance_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey('events.event_id'), nullable=False)
-    songs = db.Column(JSON)  # Changed to MySQL JSON type
+    performance_index = db.Column(db.Integer, nullable=False)
+    songs = db.Column(JSON)  # Changed to MySQL JSON type to store list of strings
     status = db.Column(db.Enum(PerformanceStatus), default=PerformanceStatus.PENDING) 

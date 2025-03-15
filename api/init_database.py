@@ -1,4 +1,4 @@
-from models.models import db, User, Event, Performance, UserRole, UserType
+from models.models import db, User, UserRole, UserType
 from datetime import datetime
 from app import create_app
 

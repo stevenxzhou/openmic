@@ -73,14 +73,21 @@ const ListView: React.FC<ListViewProps> = ({
               <div className="flex justify-between mb-8">
                 <div>
                   <h3 className="font-medium">
-                    {performer.username}
+                    {performer.username}, {index}, {performer.performance_index}
                     {index === currentPerformerIndex && (
                       <span className="ml-2 text-xs bg-yellow-600 text-white px-2 py-0.5 rounded-full">Now</span>
                     )}
                   </h3>
                   <p className="text-sm text-gray-600">{performer.social_media_alias}</p>
                   <div className="mt-2">
-                    {performer.songs}
+                    {performer.songs.map((song, i) => (
+                      <span
+                        key={i}
+                        className="inline-block bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded"
+                      >
+                        {song}
+                      </span>
+                    ))}
                   </div>
                 </div>
                 <div className="text-sm text-gray-500">{calculateWaitTime(index)}</div>

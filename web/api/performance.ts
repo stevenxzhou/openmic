@@ -24,6 +24,7 @@ export type Performance = {
     event_id: number;
     event_title: string;
     performance_id: number;
+    performance_index:number;
     songs: string[];
     status: string;
     user_id: number;
@@ -32,7 +33,7 @@ export type Performance = {
 }
 
 async function getPerformanceData() {
-    const response = await fetch('http://127.0.0.1:5000/api/performances');
+    const response = await fetch('http://192.168.1.33:5001/api/performances?event_id=1');
     if (!response.ok) {
         throw new Error('Network response was not ok');
     }
@@ -42,7 +43,7 @@ async function getPerformanceData() {
 
 // Function to add new performance data
 async function addPerformanceData(newPerformance: Performance) {
-    const response = await fetch('http://127.0.0.1:5000/api/performances', {
+    const response = await fetch('http://192.168.1.33:5001/api/performances', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
