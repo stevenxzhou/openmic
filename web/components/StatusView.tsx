@@ -2,11 +2,7 @@ import React, { useState } from "react"
 import { useGlobalContext } from "@/context/useGlobalContext"
 import { Performance, PerformanceStatus } from "@/api/performance"
 
-type StatusViewProps = {
-  setView: (view: "status" | "signup") => void
-}
-
-const StatusView: React.FC<StatusViewProps> = ({setView }) => {
+const StatusView = () => {
 
   const { pendingPerformances, completedPerformances, currentPerformanceIndex, updatePerformance, calculateWaitTime} = useGlobalContext()
 
@@ -130,12 +126,12 @@ return (
     </div>
 
     <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
-      <button
-        onClick={() => setView("signup")}
-        className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded"
+      <a
+        className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-center block"
+        href="/signup"
       >
         Sign Up to Perform
-      </button>
+      </a>
     </div>
 
     {/* Delete Confirmation Modal - Updated text to reflect "Skip" instead of "Delete" */}

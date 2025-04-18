@@ -1,10 +1,17 @@
+"use client";
+
 import React, { createContext, useContext, useState } from 'react';
 import { PerformanceStatus, type Performance } from '@/api/performance';
 import usePerformances from '@/hooks/usePerformance';
+import { useEvents } from '@/hooks/useEvent';
+import { type Event } from '@/api/event';
 
 interface GlobalContextType {
     pendingPerformances: Performance[];
     completedPerformances: Performance[];
+    events: Event[] | undefined;
+    eventId: number;
+    setEventId: (eventId:number) => void;
     currentPerformanceIndex: number;
     addPerformance: (performance: Performance) => void;
     setPerformances: (performances: Performance[]) => void;
@@ -25,7 +32,8 @@ export const useGlobalContext = () => {
 };
 
 export const GlobalContextProvider = ({ children }: { children: React.ReactNode }) => {
-    const { performances, addPerformance, setPerformances, updatePerformance, removePerformance} = usePerformances();
+    const { performances, addPerformance, setPerformances, updatePerformance, removePerformance, eventId, setEventId} = usePerformances();
+    const { events } = useEvents();
     const [ currentPerformanceIndex, setCurrentPerformanceIndex] = useState<number>(0);
 
     const updateCurrentPerformanceIndex = (id: number) => {
@@ -59,6 +67,9 @@ export const GlobalContextProvider = ({ children }: { children: React.ReactNode 
             value={{
                 pendingPerformances,
                 completedPerformances,
+                events,
+                eventId,
+                setEventId,
                 currentPerformanceIndex,
                 addPerformance,
                 setPerformances,

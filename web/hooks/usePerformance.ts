@@ -4,15 +4,16 @@ import { getPerformanceData, addPerformanceData, updatePerformanceData, removePe
 
 const usePerformances = () => {
     const [performances, setPerformances] = useState<Performance[]>([]);
+    const [ eventId, setEventId ] = useState(0);
 
     // Fetch performances data once after component mounts
     useEffect(() => {
-        fetchPerformances();
+        fetchPerformances(eventId);
     }, []);
 
-    const fetchPerformances = async () => {
+    const fetchPerformances = async (event_id: number) => {
         try {
-            const data = await getPerformanceData();
+            const data = await getPerformanceData(event_id);
             setPerformances(data);
         } catch (error) {
             console.error("There was a problem with the fetch operation:", error);
@@ -23,7 +24,7 @@ const usePerformances = () => {
         try {
             await addPerformanceData(newPerformance);
             // Fetch the updated list of performances
-            fetchPerformances();
+            fetchPerformances(eventId);
         } catch (error) {
             console.error("There was a problem with the fetch operation:", error);
         }
@@ -33,7 +34,7 @@ const usePerformances = () => {
         try {
             await updatePerformanceData(performance);
             // Fetch the updated list of performances
-            fetchPerformances();
+            fetchPerformances(eventId);
         } catch (error) {
             console.error("There was a problem with the fetch operation:", error);
         }
@@ -43,13 +44,13 @@ const usePerformances = () => {
         try {
             await removePerformanceData(performance);
             // Fetch the updated list of performances
-            fetchPerformances();
+            fetchPerformances(eventId);
         } catch (error) {
             console.error("There was a problem with the fetch operation:", error);
         }
     };
 
-    return { performances, addPerformance, setPerformances, updatePerformance, removePerformance};
+    return { performances, addPerformance, setPerformances, updatePerformance, removePerformance, eventId, setEventId};
 };
 
 export default usePerformances;

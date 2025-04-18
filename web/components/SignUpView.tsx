@@ -1,14 +1,8 @@
 import React, {useState} from "react"
-import type { Performance } from "@/api/performance"
 import usePerformances from "@/hooks/usePerformance"
+import { useGlobalContext } from "@/context/useGlobalContext"
 
-type SignUpViewProps = {
-  setView: (view: "status" | "signup") => void
-}
-
-const SignUpView: React.FC<SignUpViewProps> = ({
-  setView,
-}) => {
+const SignUpView = () => {
 
   // Form state
   const [name, setName] = useState("")
@@ -39,15 +33,14 @@ const SignUpView: React.FC<SignUpViewProps> = ({
     setSocialMedia("")
     setSong1("")
     setSong2("")
-    setView("status")
   }
 
   return (
     <div className="p-4">
       <div className="flex items-center mb-6">
-        <button onClick={() => setView("status")} className="mr-2 text-yellow-600 hover:text-yellow-800">
+        <a href="/status" className="mr-2 text-yellow-600 hover:text-yellow-800">
           ← Back
-        </button>
+        </a>
         {/* <h1 className="text-2xl font-bold">Sign Up to Perform</h1> */}
       </div>
 

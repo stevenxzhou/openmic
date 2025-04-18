@@ -1,32 +1,27 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
 import StatusView from "../components/StatusView"
 import SignUpView from "../components/SignUpView"
-import ListView from "../components/ListView"
-import usePerformances from "@/hooks/usePerformance"
-import { GlobalContextProvider } from "@/context/useGlobalContext"
+import EventsView from "../components/EventsView"
+import { useRoutes, BrowserRouter } from 'react-router-dom';
 
 export default function OpenMicApp() {
   // Basic state
-  const [view, setView] = useState<"status" | "signup">("status")
-
+  const AppRoutes = () => {
+    const routes = useRoutes([
+        { path: "/", element: <EventsView /> },
+        { path: "/signup", element: <SignUpView /> },
+        { path: "/status", element: <StatusView /> },
+    ]);
+    return routes;
+};
   // Main render
   return (
-    <GlobalContextProvider>
       <main className="max-w-md mx-auto min-h-screen bg-white">
-      {view === "status" && (
-        <StatusView
-          setView={setView}
-        />
-      )}
-      {view === "signup" && (
-        <SignUpView
-          setView={setView}
-        />
-      )}
-    </main>
-  </GlobalContextProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </main>
   )}
 

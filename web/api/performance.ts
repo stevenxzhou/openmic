@@ -38,8 +38,8 @@ export type Performance = {
     social_media_alias: string;
 }
 
-async function getPerformanceData() {
-    const response = await fetch('http://192.168.1.33:5001/api/performances?event_id=2');
+async function getPerformanceData(event_id: number) {
+    const response = await fetch('http://192.168.1.33:5001/api/performances?event_id=' + event_id);
     if (!response.ok) {
         throw new Error('Network response was not ok');
     }
