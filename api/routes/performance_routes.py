@@ -19,6 +19,8 @@ def get_performances():
     ).join(User, Performance.user_id == User.user_id)\
      .join(Event, Performance.event_id == Event.event_id).all()
     
+    performances.sort(key=lambda p: p.performance_index)
+
     result = [{
         "performance_id": p.performance_id,
         "performance_index": p.performance_index,
@@ -51,7 +53,8 @@ def create_performance():
         user_id=data.get('user_id'),
         event_id=data.get('event_id'),
         songs=data.get('songs'),
-        status=data.get('status')
+        status=data.get('status'),
+        performance_index=data.get('performance_index')
     )
 
     db.session.add(new_performance)
@@ -72,6 +75,8 @@ def update_performance(id):
         performance.songs = data['songs']
     if 'status' in data:
         performance.status = PerformanceStatus[data['status'].upper()]
+    if 'performance_index' in data:
+        performance.performance_index = data['performance_index']
 
     db.session.commit()
     return jsonify({

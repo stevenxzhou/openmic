@@ -1,35 +1,98 @@
-import React from "react"
-import type { Performance } from "../api/performance"
+import React, {useState} from "react"
+import Draggable from "react-draggable"
+import { useGlobalContext } from "@/context/useGlobalContext"
 
 type ListViewProps = {
-  performances: Performance[]
-  currentPerformerIndex: number
-  draggedIndex: number | null
-  handleDragStart: (index: number) => void
-  handleDragOver: (e: React.DragEvent, index: number) => void
-  handleDragEnd: () => void
-  handleDeletePerformer: (id: number) => void
-  showDeleteConfirm: boolean
-  cancelDeletePerformer: () => void
-  confirmDeletePerformer: (id: number) => void
-  setView: (view: "status" | "signup" | "list") => void
-  calculateWaitTime: (index: number) => string
+  setView: (view: "status" | "signup") => void
 }
 
 const ListView: React.FC<ListViewProps> = ({
-  performances,
-  currentPerformerIndex,
-  draggedIndex,
-  handleDragStart,
-  handleDragOver,
-  handleDragEnd,
-  handleDeletePerformer,
-  showDeleteConfirm,
-  cancelDeletePerformer,
-  confirmDeletePerformer,
   setView,
-  calculateWaitTime,
-}) => (
+}) => {
+
+  // Drag and drop state
+  const [ draggedIndex, setDraggedIndex ] = useState<number | null>(null)
+  const { performances, currentPerformanceIndex, setPerformances, updateCurrentPerformanceIndex, calculateWaitTime} = useGlobalContext()
+  
+  // Delete confirmation state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [performerToDelete, setPerformerToDelete] = useState<number>(-1)
+
+  // Handle drag start
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index)
+  }
+
+  // Handle drag over
+  const handleDragOver = (index: number) => {
+    console.log("draggedIndex", draggedIndex)
+    console.log("index", index)
+    //e.preventDefault()
+    if (draggedIndex === null || draggedIndex === index) return
+
+    // Create a copy of the performances array
+    const newPerformances = [...performances]
+    const draggedPerformer = newPerformances[draggedIndex]
+
+    // Regular reordering logic
+    newPerformances.splice(draggedIndex, 1)
+    newPerformances.splice(index, 0, draggedPerformer)
+
+    setPerformances(newPerformances)
+    setDraggedIndex(index)
+  }
+
+  // Handle drag end
+  const handleDragEnd = () => {
+    setDraggedIndex(null)
+  }
+
+  // Handle delete performer
+  const handleDeletePerformer = (id: number) => {
+    setPerformerToDelete(id)
+    setShowDeleteConfirm(true)
+  }
+
+  // Confirm delete performer
+  const confirmDeletePerformer = (id: number) => {
+    if (!performerToDelete) return
+
+    const index = performances.findIndex((p) => p.performance_id === id)
+    const newPerformances = [...performances]
+
+    // If skipping the current performer, move to the next one
+    if (index === currentPerformanceIndex && performances.length > currentPerformanceIndex + 1) {
+      // Just remove the current performer, the next one becomes current
+      newPerformances.splice(index, 1)
+      // No need to adjust currentPerformerIndex as the next performer will slide into position
+    } else if (index === currentPerformanceIndex) {
+      // This is the last performer, remove it
+      newPerformances.splice(index, 1)
+      // If this was the last performer, adjust the index
+      if (currentPerformanceIndex > 0) {
+        updateCurrentPerformanceIndex(currentPerformanceIndex - 1)
+      }
+    } else {
+      // Not the current performer
+      newPerformances.splice(index, 1)
+      // Adjust current performer index if needed
+      if (index < currentPerformanceIndex) {
+        updateCurrentPerformanceIndex(currentPerformanceIndex - 1)
+      }
+    }
+
+    setPerformances(newPerformances)
+    setShowDeleteConfirm(false)
+    setPerformerToDelete(-1)
+  }
+
+  // Cancel delete performer
+  const cancelDeletePerformer = () => {
+    setShowDeleteConfirm(false)
+    setPerformerToDelete(-1)
+  }
+
+  return (
   <div className="p-4">
     <div className="flex justify-between items-center mb-6">
       <div className="flex items-center">
@@ -56,16 +119,13 @@ const ListView: React.FC<ListViewProps> = ({
       ) : (
         <div className="space-y-4">
           {performances.map((performer, index) => (
+            <Draggable onDrag={() => handleDragOver(index)} key={performer.performance_id} axis="y" grid={[160, 160]} onStart={() => handleDragStart(index)} onStop={handleDragEnd}>
             <div
               key={performer.performance_id}
-              draggable={true}
-              onDragStart={() => handleDragStart(index)}
-              onDragOver={(e) => handleDragOver(e, index)}
-              onDragEnd={handleDragEnd}
               className={`p-4 rounded relative ${
-                index === currentPerformerIndex
+                index === currentPerformanceIndex
                   ? "bg-yellow-100 border-l-4 border-yellow-500 cursor-move"
-                  : index < currentPerformerIndex
+                  : index < currentPerformanceIndex
                     ? "bg-gray-100 opacity-60 cursor-move"
                     : "bg-white border cursor-move"
               } ${draggedIndex === index ? "border-2 border-dashed border-yellow-400" : ""}`}
@@ -74,7 +134,7 @@ const ListView: React.FC<ListViewProps> = ({
                 <div>
                   <h3 className="font-medium">
                     {performer.username}, {index}, {performer.performance_index}
-                    {index === currentPerformerIndex && (
+                    {index === currentPerformanceIndex && (
                       <span className="ml-2 text-xs bg-yellow-600 text-white px-2 py-0.5 rounded-full">Now</span>
                     )}
                   </h3>
@@ -103,6 +163,7 @@ const ListView: React.FC<ListViewProps> = ({
                 </button>
               </div>
             </div>
+            </Draggable>
           ))}
         </div>
       )}
@@ -119,7 +180,7 @@ const ListView: React.FC<ListViewProps> = ({
               Cancel
             </button>
             <button
-              onClick={() => confirmDeletePerformer(performances[currentPerformerIndex].performance_id)}
+              onClick={() => confirmDeletePerformer(performances[currentPerformanceIndex].performance_id)}
               className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded"
             >
               Skip
@@ -129,6 +190,6 @@ const ListView: React.FC<ListViewProps> = ({
       </div>
     )}
   </div>
-)
+)}
 
 export default ListView
