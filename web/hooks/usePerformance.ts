@@ -9,7 +9,7 @@ const usePerformances = () => {
     // Fetch performances data once after component mounts
     useEffect(() => {
         fetchPerformances(eventId);
-    }, []);
+    }, [eventId]);
 
     const fetchPerformances = async (event_id: number) => {
         try {
