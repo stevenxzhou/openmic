@@ -1,15 +1,22 @@
 import React, {useState} from "react"
-import usePerformances from "@/hooks/usePerformance"
-import { useGlobalContext } from "@/context/useGlobalContext"
+import usePerformances from "@/hooks/usePerformances"
+import { useParams } from "react-router-dom"
 
 const SignUpView = () => {
+
+  const { id } = useParams();
+  
+  if (id === undefined) {
+    return;
+  } 
+  const eventId = parseInt(id, 10);
 
   // Form state
   const [name, setName] = useState("")
   const [socialMedia, setSocialMedia] = useState("")
   const [song1, setSong1] = useState("")
   const [song2, setSong2] = useState("")
-  const { performances, addPerformance, setPerformances} = usePerformances()
+  const { performances, addPerformance } = usePerformances(eventId)
 
   // Add performance handler
   const addPerformanceHandler = () => {
@@ -38,7 +45,7 @@ const SignUpView = () => {
   return (
     <div className="p-4">
       <div className="flex items-center mb-6">
-        <a href="/status" className="mr-2 text-yellow-600 hover:text-yellow-800">
+        <a href={`/events/${eventId}/performances`} className="mr-2 text-yellow-600 hover:text-yellow-800">
           ← Back
         </a>
         {/* <h1 className="text-2xl font-bold">Sign Up to Perform</h1> */}

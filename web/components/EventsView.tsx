@@ -1,10 +1,11 @@
-import { useGlobalContext } from "@/context/useGlobalContext"
 import { type Event } from "@/api/event"
 import { EventCard } from "./EventCard";
+import { useEvents } from "@/hooks/useEvents"; // Adjust the path based on your project structure
 import React from "react";
   
 const EventsView = () => {
-    const { events } = useGlobalContext();
+    const { events } = useEvents();
+
     return (
         // <!-- Event List -->
         <div className="space-y-4">

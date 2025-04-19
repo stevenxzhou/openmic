@@ -2,14 +2,13 @@ import { useState, useEffect } from "react"
 import type { Performance } from "../api/performance"
 import { getPerformanceData, addPerformanceData, updatePerformanceData, removePerformanceData } from "../api/performance"
 
-const usePerformances = () => {
+const usePerformances = (eventId: number) => {
     const [performances, setPerformances] = useState<Performance[]>([]);
-    const [ eventId, setEventId ] = useState(0);
 
     // Fetch performances data once after component mounts
     useEffect(() => {
         fetchPerformances(eventId);
-    }, [eventId]);
+    }, []);
 
     const fetchPerformances = async (event_id: number) => {
         try {
@@ -50,7 +49,7 @@ const usePerformances = () => {
         }
     };
 
-    return { performances, addPerformance, setPerformances, updatePerformance, removePerformance, eventId, setEventId};
+    return { performances, addPerformance, setPerformances, updatePerformance, removePerformance };
 };
 
 export default usePerformances;

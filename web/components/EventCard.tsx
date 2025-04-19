@@ -1,10 +1,8 @@
 import {Event} from "@/api/event"
-import { useGlobalContext } from "@/context/useGlobalContext";
 import { useNavigate } from "react-router-dom";
 
 
 export const EventCard = (props: Event) => {
-    const { setEventId } = useGlobalContext();
     const navigate = useNavigate();
 
     const convertDateFormat = (datestr: string): string => {
@@ -17,11 +15,6 @@ export const EventCard = (props: Event) => {
             month: "short",
             day: "numeric",
         });
-    }
-
-    const enterEventViewHandler = (eventId: number) => {
-        setEventId(eventId);
-        navigate("/status");
     }
 
     return (
@@ -51,13 +44,13 @@ export const EventCard = (props: Event) => {
 
                 {/* <!-- Action Button --> */}
                 <div className="flex">
-                    <button onClick={() => enterEventViewHandler(props.id)}  
+                    <a href={`/events/${props.id}/performances`}
                         className="inline-flex items-center px-4 py-2 border border-transparent 
                                 text-sm font-medium rounded-md text-white bg-indigo-600 
                                 hover:bg-indigo-700 focus:outline-none focus:ring-2 
                                 focus:ring-offset-2 focus:ring-indigo-500 hover:pointer">
                         Enter Event
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>

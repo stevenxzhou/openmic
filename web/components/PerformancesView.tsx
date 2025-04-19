@@ -1,10 +1,23 @@
 import React, { useState } from "react"
-import { useGlobalContext } from "@/context/useGlobalContext"
 import { Performance, PerformanceStatus } from "@/api/performance"
+import usePerformances from '@/hooks/usePerformances';
+import { useParams } from "react-router-dom"
 
-const StatusView = () => {
+const PerformancesView = () => {
 
-  const { pendingPerformances, completedPerformances, currentPerformanceIndex, updatePerformance, calculateWaitTime} = useGlobalContext()
+  const { id } = useParams();
+  
+  if (id === undefined) {
+    return;
+  } 
+
+  const eventId = parseInt(id, 10);
+  const { performances, updatePerformance } = usePerformances(eventId);
+
+  const [ currentPerformanceIndex ] = useState<number>(0);
+
+  const pendingPerformances = performances.filter((performance) => performance.status === PerformanceStatus.PENDING);
+  const completedPerformances = performances.filter((performance) => performance.status === PerformanceStatus.COMPLETED);
 
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
 
@@ -32,9 +45,34 @@ const StatusView = () => {
     setShowSkipConfirm(false);
   }
 
+  // Calculate wait time based on number of songs
+  const calculateWaitTime = (index: number) => {
+    if (index <= currentPerformanceIndex) return "Now"
+
+    let totalMinutes = 0
+    // Count songs for all performers from current to this one
+    for (let i = currentPerformanceIndex; i < index; i++) {
+        totalMinutes += performances[i].songs.length * 5
+    }
+
+    if (totalMinutes < 60) {
+        return `${totalMinutes} min`
+    } else {
+        const hours = Math.floor(totalMinutes / 60)
+        const minutes = totalMinutes % 60
+        return `${hours}h ${minutes}m`
+    }
+}
+
   // https://play.tailwindcss.com/Kivr97EoHt
 return (
   <div className="p-4 pb-20 relative min-h-screen">
+      <div className="flex items-center mb-6">
+        <a href="/" className="mr-2 text-yellow-600 hover:text-yellow-800">
+          ← Back
+        </a>
+        {/* <h1 className="text-2xl font-bold">Sign Up to Perform</h1> */}
+      </div>
     <div className="mb-8">
       <h2 className="text-lg font-semibold text-gray-600 mb-2">Now Performing</h2>
       {pendingPerformances[currentPerformanceIndex] ? (
@@ -128,7 +166,7 @@ return (
     <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
       <a
         className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-center block"
-        href="/signup"
+        href={`/events/${eventId}/signup/`}
       >
         Sign Up to Perform
       </a>
@@ -157,4 +195,4 @@ return (
   </div>
 )}
 
-export default StatusView
+export default PerformancesView
