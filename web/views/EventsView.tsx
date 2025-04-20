@@ -1,5 +1,5 @@
 import { type Event } from "@/api/event"
-import { EventCard } from "./EventCard";
+import { EventCard } from "@/components/EventCard";
 import { useEvents } from "@/hooks/useEvents"; // Adjust the path based on your project structure
 import React from "react";
   

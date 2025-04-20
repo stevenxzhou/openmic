@@ -11,6 +11,8 @@ def get_events():
         'title': event.title,
         'start_date': event.event_start_datetime.isoformat(),
         'end_date': event.event_end_datetime.isoformat(),
+        'location': event.location,
+        'description': event.description 
     } for event in events])
 
 @event_bp.route('/events/<int:id>', methods=['GET'])
@@ -30,7 +32,8 @@ def create_event():
         title=data.get('title'),
         start_date=data.get('start_date'),
         end_date=data.get('end_date'),
-        location=data.get('location')
+        location=data.get('location'),
+        description=data.get('description')
     )
 
     db.session.add(new_event)

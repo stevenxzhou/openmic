@@ -1,9 +1,9 @@
 "use client"
 
 import type React from "react"
-import PerformancesView from "../components/PerformancesView"
-import SignUpView from "../components/SignUpView"
-import EventsView from "../components/EventsView"
+import PerformancesView from "../views/PerformancesView"
+import SignUpView from "../views/SignUpView"
+import EventsView from "../views/EventsView"
 import { useRoutes, BrowserRouter } from 'react-router-dom';
 
 export default function OpenMicApp() {

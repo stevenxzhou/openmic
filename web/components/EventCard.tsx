@@ -17,6 +17,12 @@ export const EventCard = (props: Event) => {
         });
     }
 
+    const date = new Date(props.end_date);
+    const todayDate = new Date();
+
+    const activeEventBtnStyle= "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 hover:pointer"
+    const pastEventBtnStyle= "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 hover:pointer"
+
     return (
         <div className="bg-white rounded-lg shadow-sm border-gray-200 p-6 hover:shadow-md transition-shadow">
             <div className="flex justify-between items-center">
@@ -28,7 +34,7 @@ export const EventCard = (props: Event) => {
                 <h2 className="mt-2 text-xl font-semibold text-gray-900">{props.title}</h2>
                 
                 {/* <!-- Event Brief --> */}
-                <p className="mt-2 text-gray-600">Join us for a day of innovation and networking</p>
+                <p className="mt-2 text-gray-600">{props.description}</p>
                 
                 {/* <!-- Event Details --> */}
                 <div className="mt-4 flex items-center text-sm text-gray-500">
@@ -38,17 +44,14 @@ export const EventCard = (props: Event) => {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                             d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
-                    <span>Virtual Event</span>
+                    <span>{props.location}</span>
                 </div>
                 </div>
 
                 {/* <!-- Action Button --> */}
                 <div className="flex">
                     <a href={`/events/${props.id}/performances`}
-                        className="inline-flex items-center px-4 py-2 border border-transparent 
-                                text-sm font-medium rounded-md text-white bg-indigo-600 
-                                hover:bg-indigo-700 focus:outline-none focus:ring-2 
-                                focus:ring-offset-2 focus:ring-indigo-500 hover:pointer">
+                        className={ date < todayDate ? pastEventBtnStyle : activeEventBtnStyle}>
                         Enter Event
                     </a>
                 </div>
