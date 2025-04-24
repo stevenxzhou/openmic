@@ -2,6 +2,8 @@ import React, { useState } from "react"
 import { Performance, PerformanceStatus } from "@/api/performance"
 import usePerformances from '@/hooks/usePerformances';
 import { useParams } from "react-router-dom"
+import PerformanceCard from "@/components/PerformanceCard";
+import CurrentPerformanceCard from "@/components/CurrentPerformanceCard";
 
 const PerformancesView = () => {
 
@@ -19,7 +21,7 @@ const PerformancesView = () => {
   const pendingPerformances = performances.filter((performance) => performance.status === PerformanceStatus.PENDING);
   const completedPerformances = performances.filter((performance) => performance.status === PerformanceStatus.COMPLETED);
 
-  const [showSkipConfirm, setShowSkipConfirm] = useState(false);
+  const [showSkipConfirm, toggleSkipConfirmModal] = useState(false);
 
   const moveUpPerformanceHandler = (performance: Performance, index: number) => {
 
@@ -42,7 +44,7 @@ const PerformancesView = () => {
 
   const skipPerformanceConfirmHandler = (performance: Performance) => {
     updatePerformance({...performance, status: PerformanceStatus.COMPLETED})
-    setShowSkipConfirm(false);
+    toggleSkipConfirmModal(false);
   }
 
   // Calculate wait time based on number of songs
@@ -71,25 +73,13 @@ return (
         <a href="/" className="mr-2 text-yellow-600 hover:text-yellow-800">
           ← Back
         </a>
-        {/* <h1 className="text-2xl font-bold">Sign Up to Perform</h1> */}
       </div>
     <div className="mb-8">
       <h2 className="text-lg font-semibold text-gray-600 mb-2">Now Performing</h2>
       {pendingPerformances[currentPerformanceIndex] ? (
-        <div className="border-2 border-yellow-500 p-4 rounded">
-          <h3 className="font-bold">{pendingPerformances[currentPerformanceIndex].username}</h3>
-          <p className="text-gray-600">{pendingPerformances[currentPerformanceIndex].social_media_alias}</p>
-          <p className="mt-2">{pendingPerformances[currentPerformanceIndex].songs.toString()}</p>
-          <div className="bottom-2 right-2 text-right">
-          <button
-            className="px-3 py-1 text-sm bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded"
-            aria-label="Moveup performer"
-            onClick={() => setShowSkipConfirm(true)}
-          >
-            Skip
-          </button>
-          </div>
-        </div>
+        <CurrentPerformanceCard
+          performance={pendingPerformances[currentPerformanceIndex]} 
+          toggleSkipConfirmModal={toggleSkipConfirmModal} />
       ) : (
         <div className="border p-4 rounded text-center text-gray-500">No performers yet</div>
       )}
@@ -103,26 +93,13 @@ return (
             {pendingPerformances.slice(currentPerformanceIndex + 1).map((performance, idx) => {
               const index = currentPerformanceIndex + 1 + idx
               return (
-                <div key={performance.performance_id} className="border p-4 rounded">
-                  <h3 className="font-bold">{performance.username}</h3>
-                  <p className="text-gray-600">{performance.social_media_alias}</p>
-                  <p className="mt-2">{performance.songs.toString()}</p>
-                  <p className="text-sm text-gray-500 mt-1">Est. wait: {calculateWaitTime(index)}</p>
-                  {index > 1 ? (
-                    <div className="bottom-2 right-2 text-right">
-                    <button
-                      className="px-3 py-1 text-sm bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded"
-                      aria-label="Moveup performer"
-                      onClick={() => moveUpPerformanceHandler(performance, index)}
-                    >
-                      Up
-                    </button>
-                  </div>
-                  ) : (
-                    <></>
-                  )}
-
-                </div>           
+                <PerformanceCard 
+                  performance={performance} 
+                  index={index} 
+                  performanceHandler={moveUpPerformanceHandler} 
+                  calculateWaitTime={calculateWaitTime} 
+                  showCardBtn={index > 1}
+                  cardBtnText="Up"/>
               )
             })}
           </div>
@@ -140,20 +117,13 @@ return (
             {completedPerformances.slice(currentPerformanceIndex + 1).filter((performance) => performance.status === PerformanceStatus.COMPLETED).map((performance, idx) => {
               const index = currentPerformanceIndex + 1 + idx
               return (
-                <div key={performance.performance_id} className="border p-4 rounded">
-                  <h3 className="font-bold">{performance.username}</h3>
-                  <p className="text-gray-600">{performance.social_media_alias}</p>
-                  <p className="mt-2">{performance.songs.toString()}</p>
-                  <div className="bottom-2 right-2 text-right">
-                    <button
-                      className="px-3 py-1 text-sm bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded"
-                      aria-label="Moveup performer"
-                      onClick={() => activatePerformanceHandler(performance, index)}
-                    >
-                      Activate
-                    </button>
-                  </div>
-                </div>           
+                <PerformanceCard 
+                  performance={performance} 
+                  index={index} 
+                  performanceHandler={activatePerformanceHandler} 
+                  calculateWaitTime={calculateWaitTime} 
+                  showCardBtn={true}
+                  cardBtnText="Activate"/>
               )
             })}
           </div>
@@ -179,7 +149,7 @@ return (
           <h3 className="text-lg font-bold mb-4">Confirm Skip</h3>
           <p className="mb-6">Are you sure you want to skip this performer?</p>
           <div className="flex justify-end space-x-2">
-            <button onClick={() => setShowSkipConfirm(false)} className="px-4 py-2 border rounded hover:bg-gray-50">
+            <button onClick={() => toggleSkipConfirmModal(false)} className="px-4 py-2 border rounded hover:bg-gray-50">
               Cancel
             </button>
             <button
