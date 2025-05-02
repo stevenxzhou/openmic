@@ -18,7 +18,7 @@ export default function OpenMicApp() {
 };
   // Main render
   return (
-      <main className="max-w-md mx-auto min-h-screen bg-white">
+      <main className="max-w-xl mx-auto min-h-screen bg-white">
         <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>
