@@ -26,17 +26,22 @@ export const PerformanceStatus = {
     PENDING: 'Pending'
 }
 
-export type Performance = {
+type BasePerformance = {
     event_id: number;
     event_title: string;
     performance_id: number;
-    performance_index:number;
+    performance_index: number;
     songs: string[];
     status: string;
     user_id: number;
-    username: string;
     social_media_alias: string;
-}
+};
+
+export type Performance = BasePerformance;
+
+export type PerformanceUser = BasePerformance & {
+    first_name: string;
+};
 
 async function getPerformanceData(event_id: number) {
     const response = await fetch('http://192.168.1.33:5001/api/performances?event_id=' + event_id);

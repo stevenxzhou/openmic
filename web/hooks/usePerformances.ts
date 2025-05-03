@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react"
-import type { Performance } from "../api/performance"
+import type { Performance, PerformanceUser } from "../api/performance"
 import { getPerformanceData, addPerformanceData, updatePerformanceData, removePerformanceData } from "../api/performance"
 
 const usePerformances = (eventId: number) => {
-    const [performances, setPerformances] = useState<Performance[]>([]);
+    const [performances, setPerformances] = useState<PerformanceUser[]>([]);
 
     // Fetch performances data once after component mounts
     useEffect(() => {

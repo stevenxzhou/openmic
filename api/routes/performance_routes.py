@@ -12,7 +12,7 @@ def get_performances():
         Performance.status,
         Performance.performance_index,
         User.user_id,
-        User.username,
+        User.first_name,
         User.primary_social_media_alias,
         Event.event_id,
         Event.title
@@ -27,7 +27,7 @@ def get_performances():
         "songs": p.songs,
         "status": p.status.value,
         "user_id": p.user_id,
-        "username": p.username,
+        "first_name": p.first_name,
         "social_media_alias": p.primary_social_media_alias,
         "event_id": p.event_id,
         "event_title": p.title

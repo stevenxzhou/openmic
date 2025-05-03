@@ -6,10 +6,13 @@ from routes.performance_routes import performance_bp
 from routes.user_routes import user_bp
 from models.models import db
 from config import Config
+from flask_jwt_extended import JWTManager
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    JWTManager(app)
+    app.config['JWT_SECRET_KEY'] = 'your-secret-key'  # Change this to a strong key
 
     # Initialize database
     db.init_app(app)

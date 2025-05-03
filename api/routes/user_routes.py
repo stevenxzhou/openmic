@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from datetime import datetime
 from models.models import db, User, UserRole  # Import db and User model
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 
 # Add the '/api' prefix
 user_bp = Blueprint('user', __name__, url_prefix='/api')
@@ -10,7 +11,8 @@ def get_users():
     users = User.query.all()
     return jsonify([{
         "user_id": user.user_id,
-        "username": user.username,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
         "primary_social_media": user.primary_social_media,
         "primary_social_media_alias": user.primary_social_media_alias,
         "date_joined": user.date_joined.isoformat(),
@@ -23,7 +25,8 @@ def get_user(user_id):
     user = User.query.get_or_404(user_id)
     return jsonify({
         "user_id": user.user_id,
-        "username": user.username,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
         "primary_social_media": user.primary_social_media,
         "primary_social_media_alias": user.primary_social_media_alias,
         "date_joined": user.date_joined.isoformat(),
@@ -41,7 +44,9 @@ def create_user():
         return jsonify({"error": f"Invalid role. Must be one of: {', '.join([r.value for r in UserRole])}"}), 400
     
     new_user = User(
-        username=data.get('username'),
+        first_name=data.get('first_name'),
+        last_name=data.get('last_name'),
+        email=data.get('email'),
         primary_social_media=data.get('primary_social_media'),
         primary_social_media_alias=data.get('primary_social_media_alias'),
         user_type=data.get('user_type', 'Individual'),
@@ -53,7 +58,8 @@ def create_user():
     
     return jsonify({
         "user_id": new_user.user_id,
-        "username": new_user.username,
+        "first_name": new_user.first_name,
+        "last_name": new_user.last_name,
         "primary_social_media": new_user.primary_social_media,
         "primary_social_media_alias": new_user.primary_social_media_alias,
         "date_joined": new_user.date_joined.isoformat(),
@@ -71,8 +77,10 @@ def update_user(user_id):
         return jsonify({"error": f"Invalid role. Must be one of: {', '.join([r.value for r in UserRole])}"}), 400
     
     # Update user fields
-    if 'username' in data:
-        user.username = data['username']
+    if 'first_name' in data:
+        user.first_name = data['first_name']
+    if 'last_name' in data:
+        user.last_name = data['last_name']
     if 'primary_social_media' in data:
         user.primary_social_media = data['primary_social_media']
     if 'primary_social_media_alias' in data:
@@ -86,7 +94,8 @@ def update_user(user_id):
     
     return jsonify({
         "user_id": user.user_id,
-        "username": user.username,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
         "primary_social_media": user.primary_social_media,
         "primary_social_media_alias": user.primary_social_media_alias,
         "date_joined": user.date_joined.isoformat(),
@@ -100,3 +109,60 @@ def delete_user(user_id):
     db.session.delete(user)
     db.session.commit()
     return '', 204 
+
+
+@user_bp.route('/register', methods=['POST'])
+def register():
+    data = request.form
+    
+    # Validate role
+    role = data.get('role', UserRole.GUEST.value)
+    if role not in [r.value for r in UserRole]:
+        return jsonify({"error": f"Invalid role. Must be one of: {', '.join([r.value for r in UserRole])}"}), 400
+    
+    new_user = User(
+        first_name=data.get('first_name'),
+        last_name=data.get('last_name'),
+        password=data.get('password'),
+        email=data.get('email'),
+        primary_social_media=data.get('primary_social_media'),
+        primary_social_media_alias=data.get('primary_social_media_alias'),
+        user_type=data.get('user_type', 'Individual'),
+        role=role
+    )
+
+    user = User.query.filter_by(email=new_user.email).first()
+    if user:
+        return jsonify({
+            "message": "User already exists!",
+        }), 409
+    
+    db.session.add(new_user)
+    db.session.commit()
+    
+    access_token = create_access_token(new_user.email)
+
+    return jsonify({
+        "message": "User created successfully!",
+        "access_token": access_token
+    }), 201
+
+@user_bp.route('/login', methods=['POST'])
+def login():
+    data = request.form
+    email=data.get('email'),
+    password=data.get('password'),
+
+    user = User.query.filter_by(email=email, password=password).first()
+
+    if not user:
+        return jsonify({
+            "message": "User not exists!",
+        }), 401
+    
+    access_token = create_access_token(email)
+
+    return jsonify({
+        "message": "Login successfully!",
+        "access_token": access_token
+    }), 200

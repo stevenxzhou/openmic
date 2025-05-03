@@ -32,7 +32,7 @@ const SignUpView = () => {
       songs: [song1, song2],
       status: "Upcoming",
       user_id: 1,
-      username: name,
+      first_name: "",
       social_media_alias: socialMedia,
     }
     addPerformance(newPerformance)

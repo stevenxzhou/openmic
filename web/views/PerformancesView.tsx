@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Performance, PerformanceStatus } from "@/api/performance"
+import { Performance, PerformanceStatus, PerformanceUser } from "@/api/performance"
 import usePerformances from '@/hooks/usePerformances';
 import { useParams } from "react-router-dom"
 import PerformanceCard from "@/components/PerformanceCard";
@@ -23,7 +23,7 @@ const PerformancesView = () => {
 
   const [showSkipConfirm, toggleSkipConfirmModal] = useState(false);
 
-  const moveUpPerformanceHandler = (performance: Performance, index: number) => {
+  const moveUpPerformanceHandler = (performance: PerformanceUser, index: number) => {
 
     let performanceAboveIndex = index - 1;
     let performanceAbove: Performance = pendingPerformances[performanceAboveIndex];
