@@ -1,12 +1,25 @@
-import { ChangeEvent, FormEvent } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
+import { signup } from '../api/user';
 
 const UserSignupView = () => {
-    function handleChange(event: ChangeEvent<HTMLInputElement>): void {
-        throw new Error("Function not implemented.");
+
+    const [formData, setFormData] = useState({
+        email: '',
+        password: '',
+        rePassword:'',
+        firstName: '',
+        lastName: '',
+    });
+
+    function handleChange(e: ChangeEvent<HTMLInputElement>): void {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
     }
 
     function handleSubmit(event: FormEvent<HTMLFormElement>): void {
-        throw new Error("Function not implemented.");
+        signup(formData.email, formData.password, formData.firstName, formData.lastName);
     }
 
     return (

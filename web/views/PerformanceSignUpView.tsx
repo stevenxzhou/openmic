@@ -1,15 +1,16 @@
 import React, {useState} from "react"
 import usePerformances from "@/hooks/usePerformances"
-import { useParams } from "react-router-dom"
+import { useRouter } from "next/router"
 
 const SignUpView = () => {
 
-  const { id } = useParams();
+  const router = useRouter();
+  const { id } = router.query;
   
-  if (id === undefined) {
-    return;
+  if (!id) {
+    return null;
   } 
-  const eventId = parseInt(id, 10);
+  const eventId = parseInt(id as string, 10);
 
   // Form state
   const [name, setName] = useState("")

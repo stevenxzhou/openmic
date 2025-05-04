@@ -1,19 +1,20 @@
 import React, { useState } from "react"
 import { Performance, PerformanceStatus, PerformanceUser } from "@/api/performance"
 import usePerformances from '@/hooks/usePerformances';
-import { useParams } from "react-router-dom"
+import { useRouter } from "next/router"
 import PerformanceCard from "@/components/PerformanceCard";
 import CurrentPerformanceCard from "@/components/CurrentPerformanceCard";
 
 const PerformancesView = () => {
 
-  const { id } = useParams();
+  const router = useRouter();
+  const { id } = router.query;
   
-  if (id === undefined) {
-    return;
+  if (!id) {
+    return null;
   } 
 
-  const eventId = parseInt(id, 10);
+  const eventId = parseInt(id as string, 10);
   const { performances, updatePerformance } = usePerformances(eventId);
 
   const [ currentPerformanceIndex ] = useState<number>(0);

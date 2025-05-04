@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { login } from '../api/user';
 
 const UserLoginView = () => {
     const [formData, setFormData] = useState({
@@ -10,7 +11,7 @@ const UserLoginView = () => {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault(); // Prevent default form submission
         // Handle login logic here
-        console.log('Form submitted:', formData);
+        login(formData.email, formData.password)
     };
 
     // Handle input changes
