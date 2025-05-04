@@ -1,14 +1,14 @@
-import { type Performance } from "@/api/performance";
+import { type PerformanceUser } from "@/api/performance";
 
 type CurrentPerformanceCardProps = { 
-    performance: Performance; 
+    performance: PerformanceUser; 
     toggleSkipConfirmModal: (isShow: boolean) => void; 
 };
 
 const CurrentPerformanceCard: React.FC<CurrentPerformanceCardProps> = ({ performance, toggleSkipConfirmModal }) => {
     return (
         <div className="border-2 border-yellow-500 p-4 rounded">
-          <h3 className="font-bold">{performance.username}</h3>
+          <h3 className="font-bold">{performance.first_name}</h3>
           <p className="text-gray-600">{performance.social_media_alias}</p>
           <p className="mt-2">{performance.songs.toString()}</p>
           <div className="bottom-2 right-2 text-right">

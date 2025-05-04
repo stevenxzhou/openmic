@@ -1,4 +1,5 @@
 import {Event} from "@/api/event"
+import Link from "next/link";
 
 export const EventCard = (props: Event) => {
 
@@ -48,10 +49,10 @@ export const EventCard = (props: Event) => {
 
                 {/* <!-- Action Button --> */}
                 <div>
-                    <a href={`/events/${props.id}/performances`}
+                    <Link href={`/events/${props.id}/performances`}
                     className={ date < todayDate ? pastEventBtnStyle : activeEventBtnStyle}>
                     Enter Event
-                    </a>
+                    </Link>
                 </div>
             </div>
         </div>

@@ -1,20 +1,13 @@
 import React, { useState } from "react"
 import { Performance, PerformanceStatus, PerformanceUser } from "@/api/performance"
 import usePerformances from '@/hooks/usePerformances';
-import { useRouter } from "next/router"
 import PerformanceCard from "@/components/PerformanceCard";
 import CurrentPerformanceCard from "@/components/CurrentPerformanceCard";
+import Link from "next/link";
 
-const PerformancesView = () => {
+const PerformancesView = ({...props}) => {
 
-  const router = useRouter();
-  const { id } = router.query;
-  
-  if (!id) {
-    return null;
-  } 
-
-  const eventId = parseInt(id as string, 10);
+  const eventId = parseInt(props.eventId, 10);
   const { performances, updatePerformance } = usePerformances(eventId);
 
   const [ currentPerformanceIndex ] = useState<number>(0);
@@ -71,9 +64,9 @@ const PerformancesView = () => {
 return (
   <div className="p-4 pb-20 relative min-h-screen">
       <div className="flex items-center mb-6">
-        <a href="/" className="mr-2 text-yellow-600 hover:text-yellow-800">
+        <Link href="/events" className="mr-2 text-yellow-600 hover:text-yellow-800">
           ← Back
-        </a>
+        </Link>
       </div>
     <div className="mb-8">
       <h2 className="text-lg font-semibold text-gray-600 mb-2">Now Performing</h2>

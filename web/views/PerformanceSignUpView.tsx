@@ -1,16 +1,10 @@
 import React, {useState} from "react"
 import usePerformances from "@/hooks/usePerformances"
-import { useRouter } from "next/router"
+import Link from "next/link"
 
-const SignUpView = () => {
+const SignUpView = ({...props}) => {
 
-  const router = useRouter();
-  const { id } = router.query;
-  
-  if (!id) {
-    return null;
-  } 
-  const eventId = parseInt(id as string, 10);
+  const eventId = parseInt(props.eventId, 10);
 
   // Form state
   const [name, setName] = useState("")
@@ -46,9 +40,9 @@ const SignUpView = () => {
   return (
     <div className="p-4">
       <div className="flex items-center mb-6">
-        <a href={`/events/${eventId}/performances`} className="mr-2 text-yellow-600 hover:text-yellow-800">
+        <Link href={`/events/${eventId}/performances`} className="mr-2 text-yellow-600 hover:text-yellow-800">
           ← Back
-        </a>
+        </Link>
         {/* <h1 className="text-2xl font-bold">Sign Up to Perform</h1> */}
       </div>
 

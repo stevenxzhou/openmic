@@ -3,8 +3,8 @@
 import React from "react";
 import UserSignupView from "@/views/UserSignupView";
 
-const SignupPage = () => {
+const UserSignupPage = () => {
     return <UserSignupView />;
 };
 
-export default SignupPage;
+export default UserSignupPage;
