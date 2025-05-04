@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from datetime import datetime
 from models.models import db, User, UserRole  # Import db and User model
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required
+from flask_jwt_extended import decode_token, create_access_token
 
 # Add the '/api' prefix
 user_bp = Blueprint('user', __name__, url_prefix='/api')
@@ -142,16 +142,24 @@ def register():
     
     access_token = create_access_token(new_user.email)
 
-    return jsonify({
-        "message": "User created successfully!",
-        "access_token": access_token
-    }), 201
+    token_data = decode_token(access_token)
+    exp = token_data.get('exp')
+
+    response = jsonify({
+        "email": new_user.email,
+        "role": new_user.role,
+        "authenticated": True,
+        "exp": exp,
+    })
+
+    response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Strict')
+    return response, 201
 
 @user_bp.route('/login', methods=['POST'])
 def login():
     data = request.form
-    email=data.get('email'),
-    password=data.get('password'),
+    email = data.get('email')
+    password = data.get('password')
 
     user = User.query.filter_by(email=email, password=password).first()
 
@@ -162,7 +170,15 @@ def login():
     
     access_token = create_access_token(email)
 
-    return jsonify({
-        "message": "Login successfully!",
-        "access_token": access_token
-    }), 200
+    token_data = decode_token(access_token)
+    exp = token_data.get('exp')
+
+    response = jsonify({
+        "email": user.email,
+        "role": user.role,
+        "authenticated": True,
+        "exp": exp
+    })
+
+    response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Strict')
+    return response, 200
