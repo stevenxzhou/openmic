@@ -4,6 +4,7 @@ import { getPerformanceData, addPerformanceData, updatePerformanceData, removePe
 
 const usePerformances = (eventId: number) => {
     const [performances, setPerformances] = useState<PerformanceUser[]>([]);
+    const [error, setError] = useState<string | null>(null);
 
     // Fetch performances data once after component mounts
     useEffect(() => {
@@ -15,7 +16,7 @@ const usePerformances = (eventId: number) => {
             const data = await getPerformanceData(event_id);
             setPerformances(data);
         } catch (error) {
-            console.error("There was a problem with the fetch operation:", error);
+            setError(`There was a problem with the fetch operation:${error}`);
         }
     };
 
@@ -25,7 +26,7 @@ const usePerformances = (eventId: number) => {
             // Fetch the updated list of performances
             fetchPerformances(eventId);
         } catch (error) {
-            console.error("There was a problem with the fetch operation:", error);
+            setError(`There was a problem with the fetch operation:${error}`);
         }
     };
 
@@ -35,7 +36,7 @@ const usePerformances = (eventId: number) => {
             // Fetch the updated list of performances
             fetchPerformances(eventId);
         } catch (error) {
-            console.error("There was a problem with the fetch operation:", error);
+            setError(`There was a problem with the fetch operation:${error}`);
         }
     };
 
@@ -45,11 +46,11 @@ const usePerformances = (eventId: number) => {
             // Fetch the updated list of performances
             fetchPerformances(eventId);
         } catch (error) {
-            console.error("There was a problem with the fetch operation:", error);
+            setError(`There was a problem with the fetch operation:${error}`);
         }
     };
 
-    return { performances, addPerformance, setPerformances, updatePerformance, removePerformance };
+    return { performances, addPerformance, setPerformances, updatePerformance, removePerformance, error };
 };
 
 export default usePerformances;

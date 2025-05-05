@@ -4,11 +4,12 @@ import usePerformances from '@/hooks/usePerformances';
 import PerformanceCard from "@/components/PerformanceCard";
 import CurrentPerformanceCard from "@/components/CurrentPerformanceCard";
 import Link from "next/link";
+import ErrorView from "./ErrorView";
 
 const PerformancesView = ({...props}) => {
 
   const eventId = parseInt(props.eventId, 10);
-  const { performances, updatePerformance } = usePerformances(eventId);
+  const { performances, updatePerformance, error } = usePerformances(eventId);
 
   const [ currentPerformanceIndex ] = useState<number>(0);
 
@@ -59,6 +60,14 @@ const PerformancesView = ({...props}) => {
         return `${hours}h ${minutes}m`
     }
 }
+
+if (error) {
+  return (
+      <>
+          <ErrorView errorMessage={error}/>
+      </>
+  );
+} 
 
   // https://play.tailwindcss.com/Kivr97EoHt
 return (

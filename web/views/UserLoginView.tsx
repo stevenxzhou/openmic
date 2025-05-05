@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { login } from '../api/user';
+import { useGlobalContext, ActionType } from '@/context/useGlobalContext';
+import { useRouter } from 'next/navigation';
 
 const UserLoginView = () => {
     const [formData, setFormData] = useState({
@@ -7,11 +9,23 @@ const UserLoginView = () => {
         password: ''
     });
 
+    const { dispatch } = useGlobalContext();
+    const router = useRouter();
+
     // Handle form submission
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault(); // Prevent default form submission
         // Handle login logic here
-        login(formData.email, formData.password)
+        try {
+            const loginData = await login(formData.email, formData.password);
+            dispatch({ type: ActionType.SET_USER, payload: { first_name: loginData.first_name, authenticated: true, email: loginData.email, exp: loginData.exp } });
+
+            router.push('/events');
+        } catch (error) {
+            // Display error message on the login page
+            console.error('Login failed:', error);
+            alert('Login failed. Please check your credentials and try again.');
+        }
     };
 
     // Handle input changes
