@@ -18,8 +18,7 @@ const UserLoginView = () => {
         // Handle login logic here
         try {
             const loginData = await login(formData.email, formData.password);
-            dispatch({ type: ActionType.SET_USER, payload: { first_name: loginData.first_name, authenticated: true, email: loginData.email, exp: loginData.exp } });
-
+            dispatch({ type: ActionType.SET_USER, payload: { first_name: loginData.first_name, authenticated: true, email: loginData.email, exp: loginData.exp, role: loginData.role } });
             router.push('/events');
         } catch (error) {
             // Display error message on the login page
@@ -104,7 +103,7 @@ const UserLoginView = () => {
                     <div className="mt-6 text-center">
                         <span className="text-sm text-gray-600">Don't have an account? </span>
                         <a 
-                            href="/" 
+                            href="/signup" 
                             className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                         >
                             Sign up

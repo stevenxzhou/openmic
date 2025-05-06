@@ -2,13 +2,17 @@
 
 import React, { createContext, useContext, useReducer, useState } from 'react';
 
+
+interface LoginUserType {
+    authenticated: boolean;
+    first_name: string;
+    email: string;
+    exp: number;
+    role: string;
+}
+
 interface GlobalContextType {
-    user: {
-        authenticated: boolean;
-        first_name: string;
-        email: string;
-        exp: number;
-    };
+    user: LoginUserType;
     dispatch: React.Dispatch<Action>;
 }
 
@@ -17,7 +21,8 @@ const initialGlobalContext = {
         authenticated: false,
         first_name: "",
         email: "",
-        exp: 0
+        exp: 0,
+        role: "Guest"
     },
     dispatch: ()=>{}
 };
@@ -27,11 +32,10 @@ export enum ActionType {
 }
 
 type Action =
-    | { type: ActionType.SET_USER ; payload: { authenticated: boolean; first_name: string; email: string; exp: number } }
+    | { type: ActionType.SET_USER ; payload: LoginUserType }
     | { type: ActionType.RESET_USER };
 
 const globalContextReducer = (state: typeof initialGlobalContext, action: Action): typeof initialGlobalContext => {
-    debugger;
     switch (action.type) {
         case ActionType.SET_USER :
             return {
