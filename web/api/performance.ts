@@ -43,7 +43,7 @@ export type PerformanceUser = BasePerformance & {
     first_name: string;
 };
 
-const openmicApiBase = process.env.NEXT_PUBLIC_OPEN_MIC_API_BASE_URL || 'https://stevenxzhou.com:5124';
+const openmicApiBase = process.env.NEXT_PUBLIC_OPEN_MIC_API_BASE_URL || 'https://stevenxzhou.com';
 
 async function getPerformanceData(event_id: number) {
     const response = await fetch(`${openmicApiBase}/api/performances?event_id=${event_id}`);

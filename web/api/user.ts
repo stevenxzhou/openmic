@@ -8,7 +8,7 @@ export type User = {
     role: string;
 }
 
-const openmicApiBase = process.env.NEXT_PUBLIC_OPEN_MIC_API_BASE_URL || 'https://stevenxzhou.com:5124';
+const openmicApiBase = process.env.NEXT_PUBLIC_OPEN_MIC_API_BASE_URL || 'https://stevenxzhou.com';
 
 async function getUserData(user_id: number) {
     const response = await fetch(`${openmicApiBase}/api/users` + `/${user_id}`);

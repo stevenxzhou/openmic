@@ -7,7 +7,7 @@ export type Event = {
     location: string;
 }
 
-const openmicApiBase = process.env.NEXT_PUBLIC_OPEN_MIC_API_BASE_URL || 'https://stevenxzhou.com:5124';
+const openmicApiBase = process.env.NEXT_PUBLIC_OPEN_MIC_API_BASE_URL || 'https://stevenxzhou.com';
 
 export async function getEventData(event_id: number) {
     const response = await fetch(`${openmicApiBase}/api/events` + `/${event_id}`);
