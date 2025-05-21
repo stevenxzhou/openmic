@@ -8,8 +8,10 @@ export type User = {
     role: string;
 }
 
+const openmicApiBase = process.env.NEXT_PUBLIC_OPEN_MIC_API_BASE_URL || 'https://stevenxzhou.com:5124';
+
 async function getUserData(user_id: number) {
-    const response = await fetch('http://127.0.0.1:5000/api/users' + `/${user_id}`);
+    const response = await fetch(`${openmicApiBase}/api/users` + `/${user_id}`);
     if (!response.ok) {
         throw new Error('Network response was not ok');
     }
@@ -22,7 +24,7 @@ async function login(email: string, password: string) {
     formData.append('email', email);
     formData.append('password', password);
 
-    const response = await fetch('http://127.0.0.1:5001/api/login', {
+    const response = await fetch(`${openmicApiBase}/api/login`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -44,7 +46,7 @@ async function signup(email: string, password: string, first_name: string, last_
     formData.append('first_name', first_name);
     formData.append('last_name', last_name);
 
-    const response = await fetch('http://127.0.0.1:5001/api/signup', {
+    const response = await fetch(`${openmicApiBase}/api/signup`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',

@@ -7,8 +7,10 @@ export type Event = {
     location: string;
 }
 
+const openmicApiBase = process.env.NEXT_PUBLIC_OPEN_MIC_API_BASE_URL || 'https://stevenxzhou.com:5124';
+
 export async function getEventData(event_id: number) {
-    const response = await fetch('http://127.0.0.1:5001/api/events' + `/${event_id}`);
+    const response = await fetch(`${openmicApiBase}/api/events` + `/${event_id}`);
     if (!response.ok) {
         throw new Error('Network response was not ok');
     }
@@ -17,7 +19,7 @@ export async function getEventData(event_id: number) {
 }
 
 export async function getEventsData() {
-    const response = await fetch('http://127.0.0.1:5001/api/events');
+    const response = await fetch(`${openmicApiBase}/api/events`);
     if (!response.ok) {
         throw new Error('Network response was not ok');
     }
