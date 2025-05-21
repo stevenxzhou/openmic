@@ -1,4 +1,10 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
-  
-export default nextConfig;
+const prefix = process.env.NEXT_PUBLIC_BASE_PATH || '';
+
+const nextConfig = {
+  basePath: prefix,
+  assetPrefix: prefix,
+  trailingSlash: true,
+};
+
+module.exports = nextConfig;
