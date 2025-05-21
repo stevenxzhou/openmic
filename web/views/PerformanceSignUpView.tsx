@@ -25,7 +25,7 @@ const SignUpView = ({...props}) => {
       performance_id: 1,
       performance_index: (performances.length + 1) * 10,
       songs: [song1, song2],
-      status: "Upcoming",
+      status: "PENDING",
       user_id: 1,
       first_name: "",
       social_media_alias: socialMedia,
