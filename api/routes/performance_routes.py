@@ -91,7 +91,6 @@ def create_performance():
 
     # Convert the SQLAlchemy object to a dictionary
     return jsonify({
-        "id": new_performance.id,
         "user_id": new_performance.user_id,
         "event_id": new_performance.event_id,
         "performance_index": new_performance.performance_index,
