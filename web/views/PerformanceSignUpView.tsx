@@ -40,7 +40,7 @@ const SignUpView = ({...props}) => {
   return (
     <div className="p-4">
       <div className="flex items-center mb-6">
-        <Link href={`openmic/events/${eventId}/performances`} className="mr-2 text-yellow-600 hover:text-yellow-800">
+        <Link href={`/events/${eventId}/performances/`} className="mr-2 text-yellow-600 hover:text-yellow-800">
           ← Back
         </Link>
         {/* <h1 className="text-2xl font-bold">Sign Up to Perform</h1> */}

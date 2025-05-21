@@ -139,7 +139,7 @@ return (
     <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
       <a
         className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-center block"
-        href={`openmic/events/${eventId}/signup/`}
+        href={`/openmic/events/${eventId}/signup/`}
       >
         Sign Up to Perform
       </a>
