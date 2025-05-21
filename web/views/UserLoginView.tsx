@@ -2,15 +2,22 @@ import { useState } from 'react';
 import { login } from '../api/user';
 import { useGlobalContext, ActionType } from '@/context/useGlobalContext';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const UserLoginView = () => {
+    const { user }  = useGlobalContext();
+    const router = useRouter();
+
+    if (user.authenticated) {
+        router.push('/events');
+    }
+
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     });
 
     const { dispatch } = useGlobalContext();
-    const router = useRouter();
 
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -102,12 +109,20 @@ const UserLoginView = () => {
                     {/* Sign Up Link */}
                     <div className="mt-6 text-center">
                         <span className="text-sm text-gray-600">Don't have an account? </span>
-                        <a 
+                        <Link 
                             href="/signup" 
                             className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                         >
                             Sign up
-                        </a>
+                        </Link>
+                    </div>
+                    <div className="mt-2 text-center">
+                        <Link
+                            href="/events"
+                            className="text-sm text-gray-500 hover:text-blue-600 underline"
+                        >
+                            Continue as guest
+                        </Link>
                     </div>
                 </div>
             </div>

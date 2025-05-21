@@ -1,7 +1,16 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { signup } from '../api/user';
+import { useGlobalContext } from "@/context/useGlobalContext";
+import { useRouter } from 'next/navigation';
 
 const UserSignupView = () => {
+
+    const { user }  = useGlobalContext();
+    const router = useRouter();
+
+    if (user.authenticated) {
+        router.push('/events');
+    }
 
     const [formData, setFormData] = useState({
         email: '',

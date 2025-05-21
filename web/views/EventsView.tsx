@@ -3,19 +3,9 @@ import { EventCard } from "@/components/EventCard";
 import { useEvents } from "@/hooks/useEvents"; // Adjust the path based on your project structure
 import React from "react";
 import ErrorView from "./ErrorView";
-import { useGlobalContext } from "@/context/useGlobalContext";
   
 const EventsView = () => {
     const { events, error } = useEvents();
-    const { user }  = useGlobalContext();
-
-    if (!user.authenticated) {
-        return (
-            <>
-                {typeof window !== "undefined" && window.location.replace("/openmic/login")}
-            </>
-        );
-    }
 
     if (error) {
         return (

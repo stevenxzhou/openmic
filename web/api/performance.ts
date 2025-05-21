@@ -28,13 +28,15 @@ export const PerformanceStatus = {
 
 type BasePerformance = {
     event_id: number;
-    event_title: string;
-    performance_id: number;
+    event_title?: string;
+    performance_id?: number;
     performance_index: number;
     songs: string[];
     status: string;
-    user_id: number;
+    email: string;
     social_media_alias: string;
+    first_name: string;
+    last_name: string;
 };
 
 export type Performance = BasePerformance;

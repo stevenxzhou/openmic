@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
-from models.models import db, Performance, PerformanceStatus, User, Event  # Import db and User model
+import uuid
+from models.models import UserRole, db, Performance, PerformanceStatus, User, Event  # Import db and User model
 
 performance_bp = Blueprint('performance', __name__, url_prefix='/api')
 
@@ -49,8 +50,36 @@ def get_performance(id):
 @performance_bp.route('/performances', methods=['POST'])
 def create_performance():
     data = request.get_json()
+    email=data.get('email')
+    user_id = 0
+    if email:
+        user = User.query.filter_by(email=email).first()
+        user_id = user.user_id
+    else:
+        # Create a guest user.
+        role = UserRole.GUEST.value
+        # Generate a random email
+        random_email = f"guest_{uuid.uuid4().hex[:8]}@guest.com"
+
+        new_user = User(
+            first_name=data.get('first_name'),
+            last_name=data.get('last_name'),
+            password='password',
+            email=random_email,
+            primary_social_media='',
+            primary_social_media_alias=data.get('primary_social_media_alias'),
+            user_type=data.get('user_type', 'Individual'),
+            role=role
+        )
+        
+        db.session.add(new_user)
+        db.session.commit()
+
+        user = User.query.filter_by(email=random_email).first()
+        user_id = user.user_id
+    
     new_performance = Performance(
-        user_id=data.get('user_id'),
+        user_id=user_id,
         event_id=data.get('event_id'),
         songs=data.get('songs'),
         status=data.get('status'),
