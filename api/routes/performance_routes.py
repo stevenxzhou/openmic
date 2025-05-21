@@ -60,7 +60,15 @@ def create_performance():
     db.session.add(new_performance)
     db.session.commit()
 
-    return jsonify(new_performance), 201
+    # Convert the SQLAlchemy object to a dictionary
+    return jsonify({
+        "id": new_performance.id,
+        "user_id": new_performance.user_id,
+        "event_id": new_performance.event_id,
+        "performance_index": new_performance.performance_index,
+        "songs": new_performance.songs,
+        "status": new_performance.status
+    }), 201
 
 @performance_bp.route('/performances/<int:id>', methods=['PUT'])
 def update_performance(id):
