@@ -12,7 +12,7 @@ const EventsView = () => {
     if (!user.authenticated) {
         return (
             <>
-                {typeof window !== "undefined" && window.location.replace("/login")}
+                {typeof window !== "undefined" && window.location.replace("/openmic/login")}
             </>
         );
     }

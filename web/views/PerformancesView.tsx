@@ -137,12 +137,12 @@ return (
     </div>
 
     <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
-      <a
+      <Link
         className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-center block"
-        href={`/openmic/events/${eventId}/signup/`}
+        href={`/events/${eventId}/signup/`}
       >
         Sign Up to Perform
-      </a>
+      </Link>
     </div>
 
     {/* Delete Confirmation Modal - Updated text to reflect "Skip" instead of "Delete" */}
