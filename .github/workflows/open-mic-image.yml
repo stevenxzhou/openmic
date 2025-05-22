@@ -26,6 +26,22 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies for testing
+        run: |
+          cd api
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run pytest
+        run: |
+          cd api
+          pytest
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
