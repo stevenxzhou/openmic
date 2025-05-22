@@ -5,6 +5,7 @@ from db import db
 class UserRole(str, Enum):
     ADMIN = "Admin"
     HOST = "Host"
+    USER = "User"
     GUEST = "Guest"
 
 class UserType(str, Enum):

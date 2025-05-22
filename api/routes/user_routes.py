@@ -18,7 +18,7 @@ def get_users():
         "date_joined": user.date_joined.isoformat(),
         "user_type": user.user_type,
         "role": user.role
-    } for user in users])
+    } for user in users]), 200
 
 @user_bp.route('/users/<int:user_id>', methods=['GET'])
 def get_user(user_id):
