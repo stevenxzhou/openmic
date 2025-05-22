@@ -10,9 +10,10 @@ from models import User
 @pytest.fixture
 def app():
     app = create_app()
+    db_uri = os.environ.get("TEST_DATABASE_URI", "sqlite:///:memory:")
     app.config.update({
         "TESTING": True,
-        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        "SQLALCHEMY_DATABASE_URI": db_uri,
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
     })
 

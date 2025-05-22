@@ -12,6 +12,20 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: openmic
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+  
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -38,6 +52,8 @@ jobs:
           pip install pytest
 
       - name: Run pytest
+        env:
+          TEST_DATABASE_URI: "mysql+pymysql://root:root@127.0.0.1:3306/openmic"
         run: |
           cd api
           pytest
