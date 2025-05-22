@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
-from models.models import db, Event  # Import db and Event model
+from db import db
+from models import Event  # Import db and Event model
 
 event_bp = Blueprint('event', __name__, url_prefix='/api')
 

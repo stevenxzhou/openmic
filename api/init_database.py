@@ -1,5 +1,5 @@
-from models.models import db, User, UserRole, UserType
-from datetime import datetime
+from db import db
+from models import User, UserRole, UserType
 from app import create_app
 
 def init_db():

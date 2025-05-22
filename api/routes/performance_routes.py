@@ -1,6 +1,9 @@
 from flask import Blueprint, jsonify, request
+from models import UserRole, User
+from models import Performance, PerformanceStatus
+from models import Event
+from db import db
 import uuid
-from models.models import UserRole, db, Performance, PerformanceStatus, User, Event  # Import db and User model
 
 performance_bp = Blueprint('performance', __name__, url_prefix='/api')
 

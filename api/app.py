@@ -1,12 +1,10 @@
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from routes.event_routes import event_bp
-from routes.performance_routes import performance_bp
-from routes.user_routes import user_bp
-from models.models import db
+from routes import event_bp, performance_bp, user_bp
 from config import Config
 from flask_jwt_extended import JWTManager
+from db import db
 
 def create_app():
     app = Flask(__name__)

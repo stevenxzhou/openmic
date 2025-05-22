@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
-from datetime import datetime
-from models.models import db, User, UserRole  # Import db and User model
+from models import User, UserRole
+from db import db
 from flask_jwt_extended import decode_token, create_access_token
 
 # Add the '/api' prefix
