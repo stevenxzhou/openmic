@@ -2,6 +2,7 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { signup } from '../api/user';
 import { useGlobalContext } from "@/context/useGlobalContext";
 import { useRouter } from 'next/navigation';
+import Link from "next/link";
 
 const UserSignupView = () => {
 
@@ -158,12 +159,12 @@ const UserSignupView = () => {
                     {/* Login Link */}
                     <div className="mt-6 text-center">
                         <span className="text-sm text-gray-600">Already have an account? </span>
-                        <a 
+                        <Link 
                             href="/login" 
                             className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                         >
                             Login
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>
