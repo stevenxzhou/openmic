@@ -16,8 +16,7 @@ RUN apt-get update && apt-get install -y \
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
 # Copy project files
 COPY . .
@@ -26,4 +25,4 @@ COPY . .
 EXPOSE 5001
 
 # Set the default command to run the Flask app
-CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=5001"]
+CMD ["python", "app.py"]
