@@ -26,4 +26,4 @@ COPY . .
 EXPOSE 5001
 
 # Set the default command to run the Flask app
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5001"]
+CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=5001"]

@@ -67,7 +67,7 @@ jobs:
           TEST_DATABASE_URI: "mysql+pymysql://root:root@127.0.0.1:3306/openmic"
         run: |
           cd api
-          pytest
+          python -m pytest
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
