@@ -16,7 +16,7 @@ def app():
         "SQLALCHEMY_DATABASE_URI": db_uri,
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
     })
-
+    db.init_app(app)
     with app.app_context():
         db.drop_all()      # Ensure tables are dropped before creating
         db.create_all()

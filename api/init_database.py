@@ -4,6 +4,7 @@ from app import create_app
 
 def init_db():
     app = create_app()
+    db.init_app(app)
     with app.app_context():
         # Drop all tables
         db.drop_all()
@@ -13,7 +14,9 @@ def init_db():
         
         # Add test data
         test_user = User(
-            username="test_user",
+            first_name="first_name",
+            last_name="last_name",
+            password="password",
             email="test@example.com",
             role=UserRole.ADMIN,
             user_type=UserType.INDIVIDUAL

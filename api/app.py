@@ -12,9 +12,6 @@ def create_app():
     JWTManager(app)
     app.config['JWT_SECRET_KEY'] = 'your-secret-key'  # Change this to a strong key
 
-    # Initialize database
-    db.init_app(app)
-
     # Enable CORS for any website
     CORS(app)
 
@@ -22,10 +19,6 @@ def create_app():
     app.register_blueprint(event_bp)
     app.register_blueprint(performance_bp)
     app.register_blueprint(user_bp)
-
-    # Create database tables
-    with app.app_context():
-        db.create_all()
 
     # Add a test route
     @app.route('/api/test')
@@ -40,6 +33,9 @@ def create_app():
     return app
 
 app = create_app()
+
+# Initialize database
+db.init_app(app)
 
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0', port=5001)
