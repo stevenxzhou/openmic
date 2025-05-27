@@ -19,7 +19,7 @@ def app():
         db.create_all()
         # Seed test users
         db.session.add_all([
-            User(user_id=1, first_name="Alice", last_name="S", password="testpassword", email="alice@example.com"),
+            User(user_id=1, first_name="Alice", last_name="SS", password="testpassword", email="alice@example.com"),
             User(user_id=2, first_name="Bob", last_name="B", password="testpassword", email="bob@example.com"),
         ])
         db.session.commit()
