@@ -1,11 +1,8 @@
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-
-import pytest
 from app import create_app
 from db import db
-from models import User  
+from models import User
+import os
+import pytest
 
 @pytest.fixture
 def app():
