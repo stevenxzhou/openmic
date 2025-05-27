@@ -1,8 +1,9 @@
 from app import create_app
 from db import db
-from models import User
+from models import User, Event, Performance, PerformanceStatus
 import os
 import pytest
+from datetime import date
 
 @pytest.fixture
 def app():
@@ -20,7 +21,9 @@ def app():
         # Seed test users
         db.session.add_all([
             User(user_id=1, first_name="Alice", last_name="SS", password="testpassword", email="alice@example.com"),
-            User(user_id=2, first_name="Bob", last_name="B", password="testpassword", email="bob@example.com"),
+            User(user_id=2, first_name="Bob", last_name="B", password="bobspassword", email="bob@example.com"),
+            Event(event_id=1, event_start_datetime=date(2025, 1, 1), event_end_datetime=date(2025, 1, 2), title="title", description="description",location="location"),
+            Performance(user_id=1, event_id=1, performance_index=1, songs=["song1", "song2"], status=PerformanceStatus.PENDING)
         ])
         db.session.commit()
 
@@ -42,3 +45,56 @@ def test_get_users(client):
     assert len(users) == 2
     assert users[0]["first_name"] == "Alice"
     assert users[1]["first_name"] == "Bob"
+
+def test_get_events(client):
+    response = client.get("/api/events")
+    assert response.status_code == 200
+    events = response.get_json()
+    assert isinstance(events, list)
+    assert len(events) == 1
+    assert events[0]["title"] == "title"
+
+def test_get_performances(client):
+    response = client.get("/api/performances")
+    assert response.status_code == 200
+    performances = response.get_json()
+    assert isinstance(performances, list)
+    assert len(performances) == 1
+    assert performances[0]["first_name"] == "Alice"
+
+def test_guest_post_performances(client, app):
+    response = client.post("/api/performances", json={
+        "event_id": "1",
+        "first_name": "guest_first_name",
+        "last_name": "guest_last_name",
+        "primary_social_media": "Instagram",
+        "primary_social_media_alias":"guest_social_alias",
+        "songs": "['song1', 'song2']",
+        "performance_index": "2",
+    })
+    assert response.status_code == 201
+
+    # Verify data inserted in db 
+    performance = response.get_json()
+    user_id = performance["user_id"]
+    with app.app_context():
+        user = User.query.filter_by(user_id=user_id).first()
+        assert user.first_name == "guest_first_name"
+        assert user.password == "password"
+
+def test_user_post_performances(client, app):
+    response = client.post("/api/performances", json={
+        "email": "bob@example.com",
+        "event_id": "1",
+        "songs": "['song1', 'song2']",
+        "performance_index": "2",
+    })
+    assert response.status_code == 201
+
+    # Verify data inserted in db 
+    performance = response.get_json()
+    user_id = performance["user_id"]
+    with app.app_context():
+        user = User.query.filter_by(user_id=user_id).first()
+        assert user.first_name == "Bob"
+        assert user.password == "bobspassword"
