@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'api/**'
-      - '.github/workflows/open-mic-image.yml'
+      - '.github/workflows/**'
 
 jobs:
   build-and-push:
