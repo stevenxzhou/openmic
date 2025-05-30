@@ -3,7 +3,7 @@ from db import db
 from models import User, Event, Performance, PerformanceStatus
 import os
 import pytest
-from datetime import date
+from datetime import date, datetime
 
 @pytest.fixture
 def app():
@@ -54,6 +54,23 @@ def test_get_events(client):
     assert len(events) == 1
     assert events[0]["title"] == "title"
 
+def test_post_events(client, app):
+    response = client.post("/api/events", json={
+        "title": "event title",
+        "start_date": "Wed, 01 Jan 2025 00:00:00 GMT",
+        "end_date":  "Sat, 01 Feb 2025 00:00:00 GMT",
+        "location": "secrete location",
+        "description": "2",
+    })
+
+    assert response.status_code == 201
+
+    with app.app_context():
+        event = Event.query.filter_by(event_id=2).first()
+        assert event.title == "event title"
+        assert event.location == "secrete location"
+        assert event.event_start_datetime == datetime(2025, 1, 1, 0, 0)
+    
 def test_get_performances(client):
     response = client.get("/api/performances")
     assert response.status_code == 200
