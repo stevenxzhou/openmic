@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from db import db
 from models import Event  # Import db and Event model
+from datetime import datetime
 
 event_bp = Blueprint('event', __name__, url_prefix='/api')
 
@@ -31,8 +32,8 @@ def create_event():
     data = request.get_json()
     new_event = Event(
         title=data.get('title'),
-        start_date=data.get('start_date'),
-        end_date=data.get('end_date'),
+        event_start_datetime=datetime.strptime(data.get('start_date'), '%a, %d %b %Y %H:%M:%S GMT'),
+        event_end_datetime=datetime.strptime(data.get('end_date'), '%a, %d %b %Y %H:%M:%S GMT'),
         location=data.get('location'),
         description=data.get('description')
     )
@@ -40,7 +41,8 @@ def create_event():
     db.session.add(new_event)
     db.session.commit()
 
-    return jsonify(new_event), 201
+    # Convert the SQLAlchemy object to a dictionary
+    return '', 201
 
 @event_bp.route('/events/<int:id>', methods=['PUT'])
 def update_event(id):
