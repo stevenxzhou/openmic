@@ -3,6 +3,7 @@ import { Performance, PerformanceStatus, PerformanceUser } from "@/api/performan
 import usePerformances from '@/hooks/usePerformances';
 import PerformanceCard from "@/components/PerformanceCard";
 import CurrentPerformanceCard from "@/components/CurrentPerformanceCard";
+import Header from "@/components/Header";
 import Link from "next/link";
 import ErrorView from "./ErrorView";
 
@@ -71,12 +72,9 @@ if (error) {
 
   // https://play.tailwindcss.com/Kivr97EoHt
 return (
+  <>
+  <Header backBtnLink="/events" />
   <div className="p-4 pb-20 relative min-h-screen">
-      <div className="flex items-center mb-6">
-        <Link href="/events" className="mr-2 text-yellow-600 hover:text-yellow-800">
-          ← Back
-        </Link>
-      </div>
     <div className="mb-8">
       <h2 className="text-lg font-semibold text-gray-600 mb-2">Now Performing</h2>
       {pendingPerformances[currentPerformanceIndex] ? (
@@ -166,6 +164,7 @@ return (
       </div>
     )}
   </div>
+  </>
 )}
 
 export default PerformancesView

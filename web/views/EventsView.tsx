@@ -3,6 +3,7 @@ import { EventCard } from "@/components/EventCard";
 import { useEvents } from "@/hooks/useEvents"; // Adjust the path based on your project structure
 import React from "react";
 import ErrorView from "./ErrorView";
+import Header from "@/components/Header";
   
 const EventsView = () => {
     const { events, error } = useEvents();
@@ -16,15 +17,17 @@ const EventsView = () => {
     } 
 
     return (
-        // <!-- Event List -->
-        <div className="space-y-4">
-            {/* <!-- Event Card --> */}
-            {events?.map((event: Event) => (
-                <React.Fragment key={event.id}>
-                    <EventCard {...event} />
-                </React.Fragment>
-            ))}
-        </div>
+        <>
+            <Header />
+            <div className="space-y-4">
+                {/* <!-- Event Card --> */}
+                {events?.map((event: Event) => (
+                    <React.Fragment key={event.id}>
+                        <EventCard {...event} />
+                    </React.Fragment>
+                ))}
+            </div>
+        </>
     )
 }
 

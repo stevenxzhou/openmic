@@ -1,8 +1,8 @@
 import React, {useState} from "react"
 import usePerformances from "@/hooks/usePerformances"
-import Link from "next/link"
 import { useGlobalContext } from "@/context/useGlobalContext";
 import { useRouter } from 'next/navigation';
+import Header from '@/components/Header';
 
 const SignUpView = ({...props}) => {
 
@@ -41,14 +41,9 @@ const SignUpView = ({...props}) => {
   }
 
   return (
+    <>
+    <Header backBtnLink={`/events/${eventId}/performances/`} />
     <div className="p-4">
-      <div className="flex items-center mb-6">
-        <Link href={`/events/${eventId}/performances/`} className="mr-2 text-yellow-600 hover:text-yellow-800">
-          ← Back
-        </Link>
-        {/* <h1 className="text-2xl font-bold">Sign Up to Perform</h1> */}
-      </div>
-
       <div className="space-y-4">
         { 
           !user.authenticated && (
@@ -121,6 +116,7 @@ const SignUpView = ({...props}) => {
       </button>
     </div>
     </div>
+    </>
 )}
 
 export default SignUpView
