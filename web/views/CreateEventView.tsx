@@ -14,11 +14,11 @@ const CreateEventView = () => {
   const [description, setDescription] = useState("")
   const [startTime, setStartTime] = useState("")
   const [endTime, setEndTime] = useState("")
-  const [venue, setVenue] = useState("")
+  const [location, setLocation] = useState("")
   
   // Add event handler
   const addEventHandler = () => {
-    if (!title || !description || !startTime || !venue) {
+    if (!title || !description || !startTime || !location) {
       alert("Please fill all fields")
       return
     }
@@ -27,9 +27,9 @@ const CreateEventView = () => {
       id:0,
       title: title,
       description: description,
-      start_time: startTime,
-      end_time: endTime,
-      venue: venue
+      start_date: startTime,
+      end_date: endTime,
+      location: location
     }
 
     createEvent(newEvent);
@@ -87,8 +87,8 @@ const CreateEventView = () => {
         <label className="block mb-1 font-medium">Location</label>
           <input
             type="text"
-            value={venue}
-            onChange={(e) => setVenue(e.target.value)}
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
             className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
             placeholder="Story Coffee"
           />
