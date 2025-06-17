@@ -21,7 +21,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and Deploy API
+      - name: Build and Deploy Web
         uses: docker/build-push-action@v5
         with:
           context: ./web

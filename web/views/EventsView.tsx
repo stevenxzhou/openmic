@@ -4,6 +4,7 @@ import { useEvents } from "@/hooks/useEvents"; // Adjust the path based on your 
 import React from "react";
 import ErrorView from "./ErrorView";
 import Header from "@/components/Header";
+import Link from "next/link";
   
 const EventsView = () => {
     const { events, error } = useEvents();
@@ -26,6 +27,14 @@ const EventsView = () => {
                         <EventCard {...event} />
                     </React.Fragment>
                 ))}
+            </div>
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
+                <Link
+                    className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-center block"
+                    href={`/events/new/`}
+                >
+                    Create New Event
+                </Link>
             </div>
         </>
     )
