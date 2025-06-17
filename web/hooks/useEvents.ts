@@ -1,7 +1,7 @@
 // get event data for a specific event
 import { useState, useEffect } from "react"
 import type { Event } from "../api/event"
-import { getEventData, getEventsData } from "../api/event"
+import { getEventData, getEventsData, postEventData } from "../api/event"
 
 export const useEvent = (event_id: number) => {
 
@@ -29,6 +29,10 @@ export const useEvents = () => {
 
     // Fetch event data once after component mounts
     useEffect(() => {
+        getEvents();
+    }, []); // Empty dependency array ensures this runs only once
+
+    const getEvents = async ()=> {
         getEventsData()
             .then((data) => {
                 setEvents(data);
@@ -36,7 +40,17 @@ export const useEvents = () => {
             .catch((error) => {
                 setError(`There was a problem with the fetch operation:${error}`);
             });
-    }, []); // Empty dependency array ensures this runs only once
+    }
 
-    return { events, setEvents, error }
+    const createEvent = async (newEvent: Event) => {
+        try {
+            await postEventData(newEvent);
+            // Fetch the updated list of performances
+            getEvents();
+        } catch (error) {
+            setError(`There was a problem with the fetch operation:${error}`);
+        }
+    };
+
+    return { events, setEvents, createEvent, error }
 }

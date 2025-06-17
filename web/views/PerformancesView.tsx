@@ -74,7 +74,7 @@ if (error) {
 return (
   <>
   <Header backBtnLink="/events" />
-  <div className="p-4 pb-20 relative min-h-screen">
+  <div className="p-4 pb-20 relative">
     <div className="mb-8">
       <h2 className="text-lg font-semibold text-gray-600 mb-2">Now Performing</h2>
       {pendingPerformances[currentPerformanceIndex] ? (

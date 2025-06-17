@@ -1,10 +1,10 @@
 export type Event = {
     id: number;
     title: string;
-    start_date: string;
-    end_date: string;
     description: string;
-    location: string;
+    start_time: string;
+    end_time: string;
+    venue: string;
 }
 
 const openmicApiBase = process.env.NEXT_PUBLIC_OPEN_MIC_API_BASE_URL || 'https://stevenxzhou.com';
@@ -20,6 +20,22 @@ export async function getEventData(event_id: number) {
 
 export async function getEventsData() {
     const response = await fetch(`${openmicApiBase}/api/events`);
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    return data;
+}
+
+export async function postEventData(newEvent: Event) {
+    const response = await fetch(`${openmicApiBase}/api/events`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newEvent),
+    });
+
     if (!response.ok) {
         throw new Error('Network response was not ok');
     }
