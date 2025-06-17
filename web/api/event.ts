@@ -2,9 +2,9 @@ export type Event = {
     id: number;
     title: string;
     description: string;
-    start_time: string;
-    end_time: string;
-    venue: string;
+    start_date: string;
+    end_date: string;
+    location: string;
 }
 
 const openmicApiBase = process.env.NEXT_PUBLIC_OPEN_MIC_API_BASE_URL || 'https://stevenxzhou.com';
