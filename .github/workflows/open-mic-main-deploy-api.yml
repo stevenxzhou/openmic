@@ -1,4 +1,4 @@
-name: Build and deploy docker image
+name: Build and deploy docker image for API
 
 on:
   workflow_dispatch:
@@ -64,7 +64,7 @@ jobs:
           cd api
           python -m pytest
 
-      - name: Build and push Docker image
+      - name: Build and Deploy API
         uses: docker/build-push-action@v5
         with:
           context: ./api
