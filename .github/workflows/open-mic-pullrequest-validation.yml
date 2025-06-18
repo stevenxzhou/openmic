@@ -3,8 +3,6 @@ name: Run tests against feature branch
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    branches-ignore:
-      - main
     paths:
       - 'api/**'
       - 'web/**'
