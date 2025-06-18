@@ -23,7 +23,7 @@ const EventsView = () => {
             <div className="space-y-4">
                 {/* <!-- Event Card --> */}
                 {events?.map((event: Event) => (
-                    <React.Fragment key={event.id}>
+                    <React.Fragment key={event.event_id}>
                         <EventCard {...event} />
                     </React.Fragment>
                 ))}
