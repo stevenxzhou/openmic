@@ -49,7 +49,7 @@ export const EventCard = (props: Event) => {
 
                 {/* <!-- Action Button --> */}
                 <div>
-                    <Link href={`/events/${props.id}/performances`}
+                    <Link href={`/events/${props.event_id}/performances`}
                     className={ date < todayDate ? pastEventBtnStyle : activeEventBtnStyle}>
                     Enter Event
                     </Link>

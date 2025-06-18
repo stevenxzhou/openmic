@@ -24,7 +24,7 @@ const CreateEventView = () => {
     }
 
     let newEvent = {
-      id:0,
+      event_id:0,
       title: title,
       description: description,
       start_date: startTime,
