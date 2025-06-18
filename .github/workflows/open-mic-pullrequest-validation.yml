@@ -3,10 +3,9 @@ name: Run tests against feature branch
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    branches-ignore:
-      - main
     paths:
       - 'api/**'
+      - 'web/**'
       - '.github/workflows/**'
 
 jobs:
@@ -59,3 +58,8 @@ jobs:
         run: |
           cd api
           python -m pytest
+
+      - name: Run NPM Install for Web
+        run: |
+          cd web
+          npm install
