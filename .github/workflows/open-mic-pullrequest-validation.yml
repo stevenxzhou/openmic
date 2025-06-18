@@ -7,6 +7,7 @@ on:
       - main
     paths:
       - 'api/**'
+      - 'web/**'
       - '.github/workflows/**'
 
 jobs:
@@ -59,3 +60,8 @@ jobs:
         run: |
           cd api
           python -m pytest
+
+      - name: Run NPM Install for Web
+        run: |
+          cd web
+          npm install
