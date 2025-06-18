@@ -52,14 +52,15 @@ jobs:
             sleep 2
           done
 
-      - name: Run pytest
+      - name: Run pytest for API
         env:
           TEST_DATABASE_URI: "mysql+pymysql://root:root@127.0.0.1:3306/openmic"
         run: |
           cd api
           python -m pytest
 
-      - name: Run NPM Install for Web
+      - name: Run test for Web
         run: |
           cd web
           npm install
+          npm test
