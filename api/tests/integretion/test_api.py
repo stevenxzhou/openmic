@@ -22,7 +22,7 @@ def app():
         db.session.add_all([
             User(user_id=1, first_name="Alice", last_name="SS", password="testpassword", email="alice@example.com"),
             User(user_id=2, first_name="Bob", last_name="B", password="bobspassword", email="bob@example.com"),
-            Event(event_id=1, event_start_datetime=date(2025, 1, 1), event_end_datetime=date(2025, 1, 2), title="title", description="description",location="location"),
+            Event(event_id=1, start_date=date(2025, 1, 1), end_date=date(2025, 1, 2), title="title", description="description",location="location"),
             Performance(user_id=1, event_id=1, performance_index=1, songs=["song1", "song2"], status=PerformanceStatus.PENDING)
         ])
         db.session.commit()
@@ -56,20 +56,24 @@ def test_get_events(client):
 
 def test_post_events(client, app):
     response = client.post("/api/events", json={
+        "event_id": "0",
         "title": "event title",
+        "description": "description",
         "start_date": "Wed, 01 Jan 2025 00:00:00 GMT",
         "end_date":  "Sat, 01 Feb 2025 00:00:00 GMT",
         "location": "secrete location",
-        "description": "2",
     })
 
     assert response.status_code == 201
 
     with app.app_context():
         event = Event.query.filter_by(event_id=2).first()
+        assert event.event_id == 2
         assert event.title == "event title"
+        assert event.description == "description"
+        assert event.start_date == datetime(2025, 1, 1, 0, 0)
+        assert event.end_date == datetime(2025, 2, 1, 0, 0)
         assert event.location == "secrete location"
-        assert event.event_start_datetime == datetime(2025, 1, 1, 0, 0)
     
 def test_get_performances(client):
     response = client.get("/api/performances")

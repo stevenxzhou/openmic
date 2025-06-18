@@ -22,15 +22,15 @@ def test_create_user():
 
 def test_create_event():
     event = Event(
-        event_start_datetime=date(2025, 1, 1),
-        event_end_datetime=date(2025, 1, 2),
+        start_date=date(2025, 1, 1),
+        end_date=date(2025, 1, 2),
         title="title",
         description="description",
         location="location",
     )
 
-    assert event.event_start_datetime == date(2025, 1, 1)
-    assert event.event_end_datetime == date(2025, 1, 2)
+    assert event.start_date == date(2025, 1, 1)
+    assert event.end_date == date(2025, 1, 2)
     assert event.title == "title"
     assert event.description == "description"
     assert event.location == "location"

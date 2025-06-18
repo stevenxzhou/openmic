@@ -11,8 +11,8 @@ def get_events():
     return jsonify([{
         'id': event.event_id,
         'title': event.title,
-        'start_date': event.event_start_datetime.isoformat(),
-        'end_date': event.event_end_datetime.isoformat(),
+        'start_date': event.start_date.isoformat(),
+        'end_date': event.end_date.isoformat(),
         'location': event.location,
         'description': event.description 
     } for event in events])
@@ -23,8 +23,8 @@ def get_event(id):
     return jsonify({
         'id': event.event_id,
         'title': event.title,
-        'start_date': event.event_start_datetime.isoformat(),
-        'end_date': event.event_end_datetime.isoformat(),
+        'start_date': event.start_date.isoformat(),
+        'end_date': event.end_date.isoformat(),
     })
 
 @event_bp.route('/events', methods=['POST'])
@@ -32,8 +32,8 @@ def create_event():
     data = request.get_json()
     new_event = Event(
         title=data.get('title'),
-        event_start_datetime=datetime.strptime(data.get('start_date'), '%a, %d %b %Y %H:%M:%S GMT'),
-        event_end_datetime=datetime.strptime(data.get('end_date'), '%a, %d %b %Y %H:%M:%S GMT'),
+        start_date=datetime.strptime(data.get('start_date'), '%a, %d %b %Y %H:%M:%S GMT'),
+        end_date=datetime.strptime(data.get('end_date'), '%a, %d %b %Y %H:%M:%S GMT'),
         location=data.get('location'),
         description=data.get('description')
     )
@@ -53,9 +53,9 @@ def update_event(id):
     if 'title' in data:
         event.title = data['title']
     if 'start_date' in data:
-        event.event_start_datetime = data['start_date']
+        event.start_date = data['start_date']
     if 'end_date' in data:
-        event.event_end_datetime = data['end_date']
+        event.end_date = data['end_date']
 
     db.session.commit()
     return jsonify(event)
