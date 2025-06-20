@@ -20,7 +20,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PACKAGEJSON_DIR: 'api'
-          PACKAGE_FILENAME: 'app.json'
+          PACKAGE_FILENAME: 'package.json'
         with:
           tag-prefix: 'api-v'
           commit-message: 'ci(api): bump version to {{version}} [skip ci]'
