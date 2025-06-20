@@ -54,7 +54,9 @@ const Header: React.FC<HeaderProps> = ({ backBtnLink }) => {
                 </div>
                 <div className="pr-4 flex items-center">
                     {!user.authenticated ? (
-                        <span>Sign in</span>
+                        <Link href='/login'>
+                            Sign in
+                        </Link>
                     ) :
                         (
                             <button ref={buttonRef} className="rounded-full focus:outline-none focus:ring-2 focus:ring-gray-400 hover:opacity-80 transition-opacity" onClick={() => toggleProfileMenu()}>
