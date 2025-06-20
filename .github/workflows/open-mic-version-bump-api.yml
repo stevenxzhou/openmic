@@ -1,0 +1,24 @@
+name: Bump API Version
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'api/**'
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bump version and push tag for API
+        uses: phips28/gh-action-bump-version@v9.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGEJSON_DIR: 'api'
+          PACKAGE_FILENAME: 'app.json'
+        with:
+          tag-prefix: 'api-v'
+          commit-message: 'ci(api): bump version to {{version}} [skip ci]'
