@@ -2,7 +2,10 @@ name: Build and deploy docker image for Web
 
 on:
   workflow_dispatch:
-    
+    inputs:
+      tag:
+        description: 'Tag to deploy'
+        required: true
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -27,5 +30,7 @@ jobs:
           context: ./web
           file: ./web/Dockerfile
           push: true
-          tags: stevenxzhou.com:5500/openmic-web:latest
+          tags: |
+            stevenxzhou.com:5500/openmic-web:latest
+            stevenxzhou.com:5500/openmic-web:${{ github.ref_name }}
           platforms: linux/amd64
