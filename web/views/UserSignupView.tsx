@@ -58,7 +58,7 @@ const UserSignupView = () => {
                                     name="firstName" 
                                     id="firstName"
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md 
-                                            focus:outline-none focus:ring-2 focus:ring-blue-500 
+                                            focus:outline-none focus:ring-2 focus:ring-yellow-500 
                                             focus:border-transparent"
                                     placeholder="John"
                                     onChange={handleChange}
@@ -76,7 +76,7 @@ const UserSignupView = () => {
                                     name="lastName" 
                                     id="lastName"
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md 
-                                            focus:outline-none focus:ring-2 focus:ring-blue-500 
+                                            focus:outline-none focus:ring-2 focus:ring-yellow-500 
                                             focus:border-transparent"
                                     placeholder="Doe"
                                     onChange={handleChange}
@@ -97,7 +97,7 @@ const UserSignupView = () => {
                                 name="email" 
                                 id="email"
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md 
-                                        focus:outline-none focus:ring-2 focus:ring-blue-500 
+                                        focus:outline-none focus:ring-2 focus:ring-yellow-500 
                                         focus:border-transparent"
                                 placeholder="your@email.com"
                                 onChange={handleChange}
@@ -117,7 +117,7 @@ const UserSignupView = () => {
                                 name="password" 
                                 id="password"
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md 
-                                        focus:outline-none focus:ring-2 focus:ring-blue-500 
+                                        focus:outline-none focus:ring-2 focus:ring-yellow-500 
                                         focus:border-transparent"
                                 placeholder="••••••••"
                                 onChange={handleChange}
@@ -137,7 +137,7 @@ const UserSignupView = () => {
                                 name="confirmPassword" 
                                 id="confirmPassword"
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md 
-                                        focus:outline-none focus:ring-2 focus:ring-blue-500 
+                                        focus:outline-none focus:ring-2 focus:ring-yellow-500 
                                         focus:border-transparent"
                                 placeholder="••••••••"
                                 onChange={handleChange}
@@ -147,9 +147,9 @@ const UserSignupView = () => {
                         {/* Submit Button */}
                         <button 
                             type="submit"
-                            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md
-                                    hover:bg-blue-700 focus:outline-none focus:ring-2 
-                                    focus:ring-blue-500 focus:ring-offset-2 
+                            className="w-full bg-yellow-600 text-white py-2 px-4 rounded-md
+                                    hover:bg-yellow-700 focus:outline-none focus:ring-2 
+                                    focus:ring-yellow-500 focus:ring-offset-2 
                                     transition duration-150 ease-in-out"
                         >
                             Sign Up
@@ -161,7 +161,7 @@ const UserSignupView = () => {
                         <span className="text-sm text-gray-600">Already have an account? </span>
                         <Link 
                             href="/login" 
-                            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                            className="text-sm text-yellow-600 hover:text-yellow-800 font-medium"
                         >
                             Login
                         </Link>
