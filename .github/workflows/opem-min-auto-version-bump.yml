@@ -1,0 +1,23 @@
+name: Auto Bump Version
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'api/**'
+      - 'web/**'
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bump version and push tag
+        uses: phips28/gh-action-bump-version@v9
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag-prefix: 'v'
+          commit-message: 'ci: bump version to {{version}} [skip ci]'
