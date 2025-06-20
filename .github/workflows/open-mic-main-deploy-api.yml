@@ -2,10 +2,6 @@ name: Build and deploy docker image for API
 
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Tag to deploy'
-        required: true
 jobs:
   build-and-push:
     if: startsWith(github.ref, 'refs/tags/')
