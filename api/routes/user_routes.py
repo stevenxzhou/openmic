@@ -111,8 +111,8 @@ def delete_user(user_id):
     return '', 204 
 
 
-@user_bp.route('/register', methods=['POST'])
-def register():
+@user_bp.route('/signup', methods=['POST'])
+def signup():
     data = request.form
     
     # Validate role
