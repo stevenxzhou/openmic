@@ -46,6 +46,35 @@ def test_get_users(client):
     assert users[0]["first_name"] == "Alice"
     assert users[1]["first_name"] == "Bob"
 
+def test_signup_user(client, app):
+    response = client.post("/api/signup", data={
+        "user_id": 0,
+        "first_name": "Test First Name",
+        "last_name": "Test Last Name",
+        "password": "testpassword",
+        "email": "testemail@test.com"
+    })
+    
+    assert response.status_code == 201
+    assert response.get_json()["authenticated"] == True
+
+    with app.app_context():
+        user = User.query.filter_by(user_id=3).first()
+        assert user.user_id == 3
+        assert user.first_name == "Test First Name"
+        assert user.last_name == "Test Last Name"
+        assert user.password == "testpassword"
+        assert user.email == "testemail@test.com"
+
+def test_signin_user(client):
+    response = client.post("/api/login", data={
+        "email": "alice@example.com",
+        "password": "testpassword"
+    })
+    
+    assert response.status_code == 200
+    assert response.get_json()["authenticated"] == True
+
 def test_get_events(client):
     response = client.get("/api/events")
     assert response.status_code == 200
