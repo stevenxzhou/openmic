@@ -1,9 +1,10 @@
+import os
+import pytest
+import re
+from datetime import date, datetime
 from app import create_app
 from db import db
 from models import User, Event, Performance, PerformanceStatus
-import os
-import pytest
-from datetime import date, datetime
 
 @pytest.fixture
 def app():
@@ -66,7 +67,7 @@ def test_signup_user(client, app):
         assert user.password == "testpassword"
         assert user.email == "testemail@test.com"
 
-def test_signin_user(client):
+def test_login_user(client):
     response = client.post("/api/login", data={
         "email": "alice@example.com",
         "password": "testpassword"
@@ -74,6 +75,32 @@ def test_signin_user(client):
     
     assert response.status_code == 200
     assert response.get_json()["authenticated"] == True
+
+def test_refresh_user(client):
+    response = client.post("/api/login", data={
+        "email": "alice@example.com",
+        "password": "testpassword"
+    })
+    
+    assert response.status_code == 200
+    # Capture access_token from response Set-Cookie header
+    set_cookie = response.headers.get("Set-Cookie")
+    assert set_cookie is not None, "Set-Cookie header missing"
+    match = re.search(r'access_token=([^;]+)', set_cookie)
+    assert match, "access_token not found in Set-Cookie"
+    access_token = match.group(1)
+    assert access_token is not None and len(access_token) > 10, "Access token format is invalid"
+
+    # Call refresh endpoint to extend the token
+    refresh_response = client.post("/api/refresh", headers={"Cookie": f"access_token={access_token}"})
+    assert refresh_response.status_code == 200
+    new_set_cookie = refresh_response.headers.get("Set-Cookie")
+    assert new_set_cookie is not None, "Set-Cookie header missing in refresh"
+    new_match = re.search(r'access_token=([^;]+)', new_set_cookie)
+    assert new_match, "access_token not found in Set-Cookie after refresh"
+    new_access_token = new_match.group(1)
+    assert new_access_token is not None
+    assert new_access_token != access_token
 
 def test_get_events(client):
     response = client.get("/api/events")

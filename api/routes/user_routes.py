@@ -160,25 +160,41 @@ def login():
     data = request.form
     email = data.get('email')
     password = data.get('password')
-
     user = User.query.filter_by(email=email, password=password).first()
-
     if not user:
-        return jsonify({
-            "message": "User not exists!",
-        }), 401
-    
-    access_token = create_access_token(email)
+        return jsonify({"message": "User not exists!"}), 401
 
+    access_token = create_access_token(email)
     token_data = decode_token(access_token)
     exp = token_data.get('exp')
-
     response = jsonify({
         "email": user.email,
         "role": user.role,
         "authenticated": True,
         "exp": exp
     })
-
     response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Strict')
     return response, 200
+
+@user_bp.route('/refresh', methods=['POST'])
+def refresh():
+    access_token = request.cookies.get('access_token') or request.headers.get('Authorization', '').replace('Bearer ', '')
+    if not access_token:
+        return jsonify({"message": "Missing token"}), 401
+    try:
+        token_data = decode_token(access_token)
+        email = token_data.get('sub')
+        user = User.query.filter_by(email=email).first()
+        if user:
+            new_token = create_access_token(email)
+            exp = decode_token(new_token).get('exp')
+            response = jsonify({
+                "email": user.email,
+                "role": user.role,
+                "authenticated": True,
+                "exp": exp
+            })
+            response.set_cookie('access_token', new_token, httponly=True, secure=True, samesite='Strict')
+            return response, 200
+    except Exception:
+        return jsonify({"message": "Invalid token"}), 401
