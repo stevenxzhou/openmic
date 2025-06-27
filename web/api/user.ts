@@ -39,6 +39,19 @@ async function login(email: string, password: string) {
     return data;
 }
 
+async function refresh() {
+    const response = await fetch(`${openmicApiBase}/api/refresh`, {
+        method: 'POST',
+        credentials: 'include'
+    });
+    
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    return data;
+}
+
 async function signup(email: string, password: string, first_name: string, last_name: string) {
     const formData = new URLSearchParams();
     formData.append('email', email);
@@ -62,4 +75,4 @@ async function signup(email: string, password: string, first_name: string, last_
 }
 
 export default getUserData;
-export { login, signup };
+export { login, signup, refresh };

@@ -1,4 +1,4 @@
-import { login, signup } from './user'; // Adjust import paths as needed
+import { login, signup, refresh } from './user'; // Adjust import paths as needed
 
 describe('User API', () => {
   beforeEach(() => {
@@ -53,5 +53,23 @@ describe('User API', () => {
       })
     );
     expect(result).toEqual({ email: "fake@fake.com", role: "Guest", authenticated: true, exp: "timestamp"});
+  });
+
+  it('should refresh the user token and return response', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({ email: "fake@fake.com", role: "Guest", authenticated: true, exp: "newtimestamp"}),
+    });
+
+    const result = await refresh();
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/api/refresh'),
+      expect.objectContaining({
+        method: 'POST',
+        credentials: 'include',
+      })
+    );
+    expect(result).toEqual({ email: "fake@fake.com", role: "Guest", authenticated: true, exp: "newtimestamp"});
   });
 });

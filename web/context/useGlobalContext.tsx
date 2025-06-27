@@ -1,7 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, useState } from 'react';
-
+import React, { createContext, useContext, useReducer } from 'react';
+import { refresh } from '../api/user';
 
 interface LoginUserType {
     authenticated: boolean;
@@ -53,16 +53,24 @@ const GlobalContext = createContext<GlobalContextType>(initialGlobalContext);
 
 export const useGlobalContext = () => {
     const context = useContext(GlobalContext);
+
     if (!context) {
         throw new Error("useGlobalContext must be used within a GlobalContextProvider");
     }
     return context;
 };
 
-export const GlobalContextProvider = ({ children }: { children: React.ReactNode }) => {
+export const GlobalContextProvider = async ({ children }: { children: React.ReactNode }) => {
 
     const [state, dispatch] = useReducer(globalContextReducer, initialGlobalContext);
     
+    try {
+        const loginData = await refresh();
+        dispatch({ type: ActionType.SET_USER, payload: { first_name: loginData.first_name, authenticated: true, email: loginData.email, exp: loginData.exp, role: loginData.role } });
+    } catch(e) {
+        console.log("Pleas login to enjoy more features!");
+    }
+
     return (
         <GlobalContext.Provider
             value={{ ...state, dispatch }}
