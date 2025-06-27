@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { refresh } from '../api/user';
 
 interface LoginUserType {
@@ -60,16 +60,21 @@ export const useGlobalContext = () => {
     return context;
 };
 
-export const GlobalContextProvider = async ({ children }: { children: React.ReactNode }) => {
+export const GlobalContextProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [state, dispatch] = useReducer(globalContextReducer, initialGlobalContext);
     
-    try {
-        const loginData = await refresh();
-        dispatch({ type: ActionType.SET_USER, payload: { first_name: loginData.first_name, authenticated: true, email: loginData.email, exp: loginData.exp, role: loginData.role } });
-    } catch(e) {
-        console.log("Pleas login to enjoy more features!");
-    }
+    useEffect(() => {
+        const tryRefresh = async () => {
+            try {
+                const loginData = await refresh();
+                dispatch({ type: ActionType.SET_USER, payload: { first_name: loginData.first_name, authenticated: true, email: loginData.email, exp: loginData.exp, role: loginData.role } });
+            } catch(e) {
+                console.log("Please login to enjoy more features!");
+            }
+        };
+        tryRefresh();
+    }, []);
 
     return (
         <GlobalContext.Provider
