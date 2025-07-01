@@ -18,7 +18,6 @@ const Header: React.FC<HeaderProps> = ({ backBtnLink }) => {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
                 setShowProfileMenu(false);
             }
-            console.log(123);
         };
 
         // top -> down capture phase before bubling. 

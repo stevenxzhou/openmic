@@ -6,6 +6,9 @@ on:
       - main
     paths:
       - 'api/**'
+concurrency:
+  group: bump-version
+  cancel-in-progress: false
 
 jobs:
   bump-version:

@@ -80,7 +80,7 @@ def test_logout_user(client):
 
     logout_response = client.post("/api/logout")
     
-    # Test Logout without access_token attached.
+    # Test Logout without access_token attached
     assert logout_response.status_code == 200
     assert logout_response.get_json()["authenticated"] == False
 
