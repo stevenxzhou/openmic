@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, jsonify, request
 from models import User, UserRole
 from db import db
@@ -5,6 +6,9 @@ from flask_jwt_extended import decode_token, create_access_token
 
 # Add the '/api' prefix
 user_bp = Blueprint('user', __name__, url_prefix='/api')
+from datetime import timedelta
+
+ACCESS_TOKEN_MAX_AGE = timedelta(seconds=3600*24*30)
 
 @user_bp.route('/users', methods=['GET'])
 def get_users():
@@ -140,19 +144,15 @@ def signup():
     db.session.add(new_user)
     db.session.commit()
     
-    access_token = create_access_token(new_user.email)
-
-    token_data = decode_token(access_token)
-    exp = token_data.get('exp')
+    access_token = create_access_token(new_user.email, expires_delta=ACCESS_TOKEN_MAX_AGE)
 
     response = jsonify({
         "email": new_user.email,
         "role": new_user.role,
         "authenticated": True,
-        "exp": exp,
     })
 
-    response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Strict')
+    response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Strict', max_age=ACCESS_TOKEN_MAX_AGE)
     return response, 201
 
 @user_bp.route('/login', methods=['POST'])
@@ -164,16 +164,13 @@ def login():
     if not user:
         return jsonify({"message": "User not exists!"}), 401
 
-    access_token = create_access_token(email)
-    token_data = decode_token(access_token)
-    exp = token_data.get('exp')
+    access_token = create_access_token(email, expires_delta=ACCESS_TOKEN_MAX_AGE)
     response = jsonify({
         "email": user.email,
         "role": user.role,
         "authenticated": True,
-        "exp": exp
     })
-    response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Strict')
+    response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Strict', max_age=ACCESS_TOKEN_MAX_AGE)
     return response, 200
 
 @user_bp.route('/refresh', methods=['POST'])
@@ -186,15 +183,25 @@ def refresh():
         email = token_data.get('sub')
         user = User.query.filter_by(email=email).first()
         if user:
-            new_token = create_access_token(email)
-            exp = decode_token(new_token).get('exp')
+            new_token = create_access_token(email, expires_delta=ACCESS_TOKEN_MAX_AGE)
             response = jsonify({
                 "email": user.email,
                 "role": user.role,
                 "authenticated": True,
-                "exp": exp
             })
-            response.set_cookie('access_token', new_token, httponly=True, secure=True, samesite='Strict')
+            response.set_cookie('access_token', new_token, httponly=True, secure=True, samesite='Strict', max_age=ACCESS_TOKEN_MAX_AGE)
             return response, 200
     except Exception:
         return jsonify({"message": "Invalid token"}), 401
+    
+@user_bp.route('/logout', methods=['POST'])
+def logout():
+    access_token = request.cookies.get('access_token') or request.headers.get('Authorization', '').replace('Bearer ', '')
+    response = jsonify({
+        "authenticated": False
+    })
+    if not access_token:
+        return response, 200
+
+    response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Strict', max_age=0)
+    return response, 200

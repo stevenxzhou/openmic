@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 const UserLoginView = () => {
-    const { user }  = useGlobalContext();
+    const { user, dispatch }  = useGlobalContext();
     const router = useRouter();
 
     if (user.authenticated) {
@@ -17,15 +17,13 @@ const UserLoginView = () => {
         password: ''
     });
 
-    const { dispatch } = useGlobalContext();
-
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault(); // Prevent default form submission
         // Handle login logic here
         try {
             const loginData = await login(formData.email, formData.password);
-            dispatch({ type: ActionType.SET_USER, payload: { first_name: loginData.first_name, authenticated: true, email: loginData.email, exp: loginData.exp, role: loginData.role } });
+            dispatch({ type: ActionType.SET_USER, payload: { first_name: loginData.first_name, authenticated: true, email: loginData.email, role: loginData.role } });
             router.push('/events');
         } catch (error) {
             // Display error message on the login page
