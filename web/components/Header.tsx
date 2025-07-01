@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
-import { useGlobalContext } from "@/context/useGlobalContext";
+import { ActionType, useGlobalContext, InitialUser } from "@/context/useGlobalContext";
+import { logout } from "@/api/user";
 
 interface HeaderProps {
     backBtnLink?: string;  // Optional prop with '?'
@@ -9,22 +10,20 @@ const Header: React.FC<HeaderProps> = ({ backBtnLink }) => {
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
-    const { user }  = useGlobalContext();
+    const { user, dispatch }  = useGlobalContext();
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             // Checking click bubble 
-            if (menuRef.current && buttonRef.current &&
-                !menuRef.current.contains(event.target as Node) &&
-                !buttonRef.current.contains(event.target as Node)) {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
                 setShowProfileMenu(false);
             }
+            console.log(123);
         };
 
         // top -> down capture phase before bubling. 
         document.addEventListener('mousedown', handleClickOutside, true);
 
-        // cleanup the listener when componnet unmounts
         return () => {
             document.removeEventListener('mousedown', handleClickOutside, true);
         };
@@ -33,6 +32,13 @@ const Header: React.FC<HeaderProps> = ({ backBtnLink }) => {
     const toggleProfileMenu = () => {
         setShowProfileMenu(!showProfileMenu);
     }
+    
+    const userLogoutHandler = async () => {
+        toggleProfileMenu();
+        let logoutData = await logout();
+        dispatch({ type: ActionType.SET_USER, payload: { ...InitialUser, authenticated: logoutData.authenticated } });
+    }
+
     return (
         <>
             <header className="flex justify-between bg-yellow-500 items-center w-full fixed z-50">
@@ -67,11 +73,11 @@ const Header: React.FC<HeaderProps> = ({ backBtnLink }) => {
                 {showProfileMenu && (
                     <div ref={menuRef} className="right-0 top-14 absolute">
                         <ul className="w-[200px]">
-                            <li className="bg-yellow-300 border-b-2 hover:opacity-80 transition-opacity">
+                            <li className="bg-yellow-300 border-b-2 hover:opacity-80 transition-opacity hidden">
                                 <button className="w-full h-8">Settings</button>
                             </li>
                             <li className="bg-yellow-300 hover:opacity-80 transition-opacity">
-                                <button className="w-full h-8">Log out</button>
+                                <button className="w-full h-8" onClick={() => userLogoutHandler()}>Logout</button>
                             </li>
                         </ul>
                     </div>

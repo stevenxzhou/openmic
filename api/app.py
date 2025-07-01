@@ -13,7 +13,7 @@ def create_app():
     app.config['JWT_SECRET_KEY'] = 'your-secret-key'  # Change this to a strong key
 
     # Enable CORS for any website
-    CORS(app)
+    CORS(app, supports_credentials=True)
 
     # Register blueprints
     app.register_blueprint(event_bp)

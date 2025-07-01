@@ -76,6 +76,34 @@ def test_login_user(client):
     assert response.status_code == 200
     assert response.get_json()["authenticated"] == True
 
+def test_logout_user(client):
+
+    logout_response = client.post("/api/logout")
+    
+    # Test Logout without access_token attached.
+    assert logout_response.status_code == 200
+    assert logout_response.get_json()["authenticated"] == False
+
+    # Test Logout with access_token attached
+    response = client.post("/api/login", data={
+        "email": "alice@example.com",
+        "password": "testpassword"
+    })
+    
+    assert response.status_code == 200
+    assert response.get_json()["authenticated"] == True
+    set_cookie = response.headers.get("Set-Cookie")
+    assert set_cookie is not None, "Set-Cookie header missing"
+    match = re.search(r'access_token=([^;]+)', set_cookie)
+    assert match, "access_token not found in Set-Cookie"
+    access_token = match.group(1)
+    assert access_token is not None and len(access_token) > 10, "Access token format is invalid"
+
+    logout_response = client.post("/api/logout", headers={"Cookie": f"access_token={access_token}"})
+    
+    assert logout_response.status_code == 200
+    assert logout_response.get_json()["authenticated"] == False
+
 def test_refresh_user(client):
     response = client.post("/api/login", data={
         "email": "alice@example.com",

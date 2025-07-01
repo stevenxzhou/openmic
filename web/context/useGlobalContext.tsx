@@ -7,7 +7,6 @@ interface LoginUserType {
     authenticated: boolean;
     first_name: string;
     email: string;
-    exp: number;
     role: string;
 }
 
@@ -16,14 +15,15 @@ interface GlobalContextType {
     dispatch: React.Dispatch<Action>;
 }
 
-const initialGlobalContext = {
-    user: {
+export const InitialUser = {
         authenticated: false,
         first_name: "",
         email: "",
-        exp: 0,
         role: "Guest"
-    },
+}
+
+const initialGlobalContext = {
+    user: InitialUser,
     dispatch: ()=>{}
 };
 
@@ -68,7 +68,7 @@ export const GlobalContextProvider = ({ children }: { children: React.ReactNode 
         const tryRefresh = async () => {
             try {
                 const loginData = await refresh();
-                dispatch({ type: ActionType.SET_USER, payload: { first_name: loginData.first_name, authenticated: true, email: loginData.email, exp: loginData.exp, role: loginData.role } });
+                dispatch({ type: ActionType.SET_USER, payload: { first_name: loginData.first_name, authenticated: true, email: loginData.email, role: loginData.role } });
             } catch(e) {
                 console.log("Please login to enjoy more features!");
             }

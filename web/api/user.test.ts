@@ -1,4 +1,4 @@
-import { login, signup, refresh } from './user'; // Adjust import paths as needed
+import { login, signup, refresh, logout } from './user'; // Adjust import paths as needed
 
 describe('User API', () => {
   beforeEach(() => {
@@ -19,7 +19,7 @@ describe('User API', () => {
 
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: async () => ({ email: "fake@fake.com", role: "Guest", authenticated: true, exp: "timestamp"}),
+      json: async () => ({ email: "fake@fake.com", role: "Guest", authenticated: true}),
     });
 
     const result = await signup(mockUser.email, mockUser.password, mockUser.first_name, mockUser.last_name);
@@ -30,7 +30,7 @@ describe('User API', () => {
         body: "email=test%40example.com&password=password123&first_name=Test&last_name=User",
       })
     );
-    expect(result).toEqual({ email: "fake@fake.com", role: "Guest", authenticated: true, exp: "timestamp"});
+    expect(result).toEqual({ email: "fake@fake.com", role: "Guest", authenticated: true});
   });
 
   it('should log in a user and return response', async () => {
@@ -41,7 +41,7 @@ describe('User API', () => {
 
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: async () => ({ email: "fake@fake.com", role: "Guest", authenticated: true, exp: "timestamp"}),
+      json: async () => ({ email: "fake@fake.com", role: "Guest", authenticated: true}),
     });
 
     const result = await login(credentials.email, credentials.password);
@@ -52,13 +52,13 @@ describe('User API', () => {
         body: "email=test%40example.com&password=password123",
       })
     );
-    expect(result).toEqual({ email: "fake@fake.com", role: "Guest", authenticated: true, exp: "timestamp"});
+    expect(result).toEqual({ email: "fake@fake.com", role: "Guest", authenticated: true});
   });
 
   it('should refresh the user token and return response', async () => {
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: async () => ({ email: "fake@fake.com", role: "Guest", authenticated: true, exp: "newtimestamp"}),
+      json: async () => ({ email: "fake@fake.com", role: "Guest", authenticated: true}),
     });
 
     const result = await refresh();
@@ -70,6 +70,24 @@ describe('User API', () => {
         credentials: 'include',
       })
     );
-    expect(result).toEqual({ email: "fake@fake.com", role: "Guest", authenticated: true, exp: "newtimestamp"});
+    expect(result).toEqual({ email: "fake@fake.com", role: "Guest", authenticated: true});
+  });
+
+  it('should refresh the user token and return response', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({ authenticated: false}),
+    });
+
+    const result = await logout();
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/api/logout'),
+      expect.objectContaining({
+        method: 'POST',
+        credentials: 'include',
+      })
+    );
+    expect(result).toEqual({ authenticated: false});
   });
 });
