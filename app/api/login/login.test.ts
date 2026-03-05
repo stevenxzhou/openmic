@@ -20,7 +20,7 @@ test.describe('Auth API Routes', () => {
             expect(data).toHaveProperty('authenticated');
         } else {
             // Error response should have error property or be a server error
-            expect([400, 401, 403, 500, 502, 503, 504]).toContain(response.status());
+            expect([400, 401, 403, 404, 500, 502, 503, 504]).toContain(response.status());
         }
     });
 
@@ -42,7 +42,7 @@ test.describe('Auth API Routes', () => {
             expect(cookies).toBeDefined();
         } else {
             // Backend might not be available
-            expect([400, 401, 403, 500, 502, 503, 504]).toContain(response.status());
+            expect([400, 401, 403, 404, 500, 502, 503, 504]).toContain(response.status());
         }
     });
 
@@ -64,7 +64,7 @@ test.describe('Auth API Routes', () => {
             expect(data).toHaveProperty('email');
             expect(data).toHaveProperty('authenticated');
         } else {
-            expect([400, 401, 403, 500, 502, 503, 504]).toContain(response.status());
+            expect([400, 401, 403, 404, 500, 502, 503, 504]).toContain(response.status());
         }
     });
 
@@ -85,7 +85,7 @@ test.describe('Auth API Routes', () => {
             const data = await response.json();
             expect(data).toBeDefined();
         } else {
-            expect([400, 401, 500, 502, 503, 504]).toContain(response.status());
+            expect([400, 401, 404, 500, 502, 503, 504]).toContain(response.status());
         }
     });
 

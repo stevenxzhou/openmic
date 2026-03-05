@@ -1,23 +1,30 @@
-# Use the official Node.js image as the base
-FROM node:20-alpine
-
-# Set working directory
+FROM node:20-alpine AS base
 WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Copy package.json and package-lock.json (or yarn.lock)
+FROM base AS deps
 COPY package*.json ./
+RUN npm ci
 
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the application code
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Build the Next.js app
 RUN npm run build
 
-# Expose the port Next.js will run on
+FROM base AS runner
+ENV NODE_ENV=production
+ENV PORT=3000
+
+RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
+
+COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/next.config.mjs ./next.config.mjs
+
+USER nextjs
 EXPOSE 3000
 
-# Start the Next.js app
 CMD ["npm", "start"]

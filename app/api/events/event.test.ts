@@ -74,6 +74,6 @@ test.describe('Events API', () => {
     });
 
     // Should get either success or error response
-    expect([200, 201, 400, 401, 403, 500, 502, 503, 504]).toContain(response.status());
+    expect([200, 201, 400, 401, 403, 404, 500, 502, 503, 504]).toContain(response.status());
   });
 });

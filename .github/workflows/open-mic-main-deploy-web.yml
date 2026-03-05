@@ -1,11 +1,11 @@
-name: Build and deploy docker image for Web
+name: Build and deploy docker image
 
 on:
   workflow_dispatch:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-  
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,13 +20,13 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and Deploy Web
+      - name: Build and Deploy
         uses: docker/build-push-action@v5
         with:
-          context: ./web
-          file: ./web/Dockerfile
+          context: .
+          file: ./Dockerfile
           push: true
           tags: |
-            stevenxzhou.com:5500/openmic-web:latest
-            stevenxzhou.com:5500/openmic-web:${{ github.ref_name }}
+            stevenxzhou.com:5500/openmic:latest
+            stevenxzhou.com:5500/openmic:${{ github.ref_name }}
           platforms: linux/amd64

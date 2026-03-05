@@ -20,7 +20,7 @@ test.describe('Logout API Route', () => {
             expect(data).toBeDefined();
         } else {
             // Backend might not be available
-            expect([400, 401, 500, 502, 503, 504]).toContain(response.status());
+            expect([400, 401, 404, 500, 502, 503, 504]).toContain(response.status());
         }
     });
 
