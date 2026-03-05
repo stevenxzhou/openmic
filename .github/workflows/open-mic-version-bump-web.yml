@@ -5,8 +5,14 @@ on:
     branches:
       - main
     paths:
-      - 'web/**'
-      
+      - "app/**"
+      - "components/**"
+      - "views/**"
+      - "hooks/**"
+      - "lib/**"
+      - "context/**"
+      - "package.json"
+
 concurrency:
   group: bump-version
   cancel-in-progress: false
@@ -25,12 +31,10 @@ jobs:
         run: |
           git pull --rebase origin main
 
-      - name: Bump version and push tag for Web
+      - name: Bump version and push tag
         uses: phips28/gh-action-bump-version@v9.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PACKAGEJSON_DIR: 'web'
-          PACKAGE_FILENAME: 'package.json'
         with:
-          tag-prefix: 'web-v'
-          commit-message: 'ci(web): bump version to {{version}} [skip ci]'
+          tag-prefix: "v"
+          commit-message: "ci: bump version to {{version}} [skip ci]"
