@@ -22,11 +22,7 @@ const EventsView = () => {
             <Header />
             <div className="space-y-4">
                 {/* <!-- Event Card --> */}
-                {events?.map((event: Event) => (
-                    <React.Fragment key={event.event_id}>
-                        <EventCard {...event} />
-                    </React.Fragment>
-                ))}
+                {events?.map((event: Event) => <EventCard key={event.event_id} {...event} />)}
             </div>
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
                 <Link
