@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const openmicApiBase = process.env.NEXT_PUBLIC_OPEN_MIC_API_BASE_URL || 'https://stevenxzhou.com';
+import { getUserByEmail } from "@/lib/data";
 
 export async function POST(request: NextRequest) {
     try {
@@ -8,37 +7,34 @@ export async function POST(request: NextRequest) {
         const email = loginForm.get('email') as string;
         const password = loginForm.get('password') as string;
 
-        const formData = new URLSearchParams();
-        formData.append('email', email);
-        formData.append('password', password);
-
-        const response = await fetch(`${openmicApiBase}/api/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: formData.toString(),
-            credentials: 'include'
-        });
-        
-        if (!response.ok) {
+        if (!email || !password) {
             return NextResponse.json(
-                { error: 'Login failed' },
-                { status: response.status }
+                { error: 'Email and password are required' },
+                { status: 400 }
             );
         }
+
+        const user = await getUserByEmail(email);
         
-        const data = await response.json();
-        
-        // Forward cookies from backend to client
-        const setCookieHeader = response.headers.get('set-cookie');
-        const res = NextResponse.json(data, { status: 200 });
-        
-        if (setCookieHeader) {
-            res.headers.set('set-cookie', setCookieHeader);
+        if (!user) {
+            return NextResponse.json(
+                { error: 'User not found' },
+                { status: 401 }
+            );
         }
-        
-        return res;
+
+        // TODO: Add proper password hashing verification (bcrypt)
+        // For now, simple comparison (NOT SECURE - implement bcrypt in production)
+        if (user.password !== password) {
+            return NextResponse.json(
+                { error: 'Invalid password' },
+                { status: 401 }
+            );
+        }
+
+        // TODO: Create proper session/JWT token
+        const userData = { id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name, authenticated: true };
+        return NextResponse.json(userData, { status: 200 });
     } catch (error) {
         console.error('Login error:', error);
         return NextResponse.json(

@@ -1,6 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-
-const openmicApiBase = process.env.NEXT_PUBLIC_OPEN_MIC_API_BASE_URL || 'https://stevenxzhou.com';
+import { getPerformancesByEventId, createPerformance } from "@/lib/data";
 
 export async function GET(request: NextRequest) {
     try {
@@ -14,26 +13,8 @@ export async function GET(request: NextRequest) {
             );
         }
         
-        const response = await fetch(
-            `${openmicApiBase}/api/performances?event_id=${eventId}`, 
-            {
-                method: 'GET',
-                headers: {
-                    'Cookie': request.headers.get('cookie') || ''
-                },
-            }
-        );
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            return NextResponse.json(
-                { error: errorText || 'Failed to fetch performances' },
-                { status: response.status }
-            );
-        }
-        
-        const data = await response.json();
-        return NextResponse.json(data, { status: 200 });
+        const performances = await getPerformancesByEventId(parseInt(eventId));
+        return NextResponse.json(performances, { status: 200 });
     } catch (error) {
         console.error('Fetch performances error:', error);
         return NextResponse.json(
@@ -46,29 +27,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         const performanceData = await request.json();
-        
-        const response = await fetch(
-            `${openmicApiBase}/api/performances`, 
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Cookie': request.headers.get('cookie') || ''
-                },
-                body: JSON.stringify(performanceData),
-            }
-        );
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            return NextResponse.json(
-                { error: errorText || 'Failed to create performance' },
-                { status: response.status }
-            );
-        }
-        
-        const data = await response.json();
-        return NextResponse.json(data, { status: 201 });
+        const performance = await createPerformance(performanceData);
+        return NextResponse.json(performance, { status: 201 });
     } catch (error) {
         console.error('Create performance error:', error);
         return NextResponse.json(

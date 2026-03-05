@@ -1,37 +1,52 @@
-// get user from api
+// get user from database
 import { useState, useEffect } from "react"
 
 export type User = {
-    user_id: number;
+    id: number;
     first_name: string;
     last_name: string;
     email: string;
-    primary_social_media_alias: string;
-    user_type: string;
-    role: string;
 }
 
 const useUser = (user_id: number) => {
 
     const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     // Fetch user data once after component mounts
     useEffect(() => {
-        const openmicApiBase = process.env.NEXT_PUBLIC_OPEN_MIC_API_BASE_URL || 'https://stevenxzhou.com';
-        fetch(`${openmicApiBase}/api/users/${user_id}`)
-            .then((response) => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
-            .then((data) => {
+        if (!user_id) return;
+        
+        const fetchUser = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                // TODO: Create dedicated GET /api/users/:id endpoint
+                // For now, you can fetch from your database directly
+                // or create this endpoint in app/api/users/[id]/route.ts
+                const response = await fetch(`/api/users/${user_id}`, {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch user');
+                }
+                
+                const data = await response.json();
                 setUser(data);
-            })
-            .catch((error) => {
-                console.error("There was a problem with the fetch operation:", error);
-            });
+            } catch (err) {
+                console.error("Error fetching user:", err);
+                setError(err instanceof Error ? err.message : "Unknown error");
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        fetchUser();
     }, [user_id]);
 
-    return { user, setUser }
+    return { user, setUser, loading, error }
 }
 
 export default useUser

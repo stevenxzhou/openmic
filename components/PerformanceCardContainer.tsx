@@ -12,11 +12,12 @@ export default function PerformanceCardContainer({
 }) {
   return (
     <div
-      className={`border-2 border-yellow-500 p-4 rounded transition-all ${className}`}
+      className={`border-2 border-yellow-500 p-3 rounded transition-all ${className}`}
     >
-      <h3 className="font-bold">{performance.first_name}</h3>
-      <p className="text-gray-600">{performance.primary_social_media_alias}</p>
-      <p className="mt-2">{performance.songs.toString()}</p>
+      <h3 className="font-bold text-sm">
+        {performance.first_name} {performance.last_name}
+      </h3>
+      <p className="mt-1 text-sm">{performance.songs.toString()}</p>
 
       {children}
     </div>
