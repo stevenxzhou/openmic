@@ -10,8 +10,8 @@ export enum PerformanceStatus {
 
 export type Performance = {
     event_id: number;
-    performance_id: number;
-    user_id: number;
+    performance_id?: number;
+    user_id?: number;
     performance_index: number;
     songs: string[];
     status: string;

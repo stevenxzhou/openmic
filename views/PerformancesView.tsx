@@ -33,7 +33,7 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
 
   return (
     <>
-      <Header backBtnLink="/events" />
+      <Header showBackButton />
       <div className="p-4 pb-20 relative">
         <div className="mb-8">
           <h2 className="text-lg font-semibold text-gray-600 mb-2">
@@ -74,7 +74,7 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
           <Link
             className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-center block"
-            href={`/events/${eventId}/signup/`}
+            href={`/performances/create/?event_id=${eventId}`}
           >
             Sign Up to Perform
           </Link>

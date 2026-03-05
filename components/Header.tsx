@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ActionType,
   useGlobalContext,
@@ -7,12 +8,13 @@ import {
 } from "@/context/useGlobalContext";
 
 interface HeaderProps {
-  backBtnLink?: string; // Optional prop with '?'
+  showBackButton?: boolean; // Optional prop to show/hide back button
 }
-const Header: React.FC<HeaderProps> = ({ backBtnLink }) => {
+const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const router = useRouter();
   const { user, dispatch } = useGlobalContext();
 
   useEffect(() => {
@@ -57,27 +59,29 @@ const Header: React.FC<HeaderProps> = ({ backBtnLink }) => {
     <>
       <header className="flex justify-between bg-yellow-500 items-center w-full fixed z-50">
         <div className="flex px-4 items-center">
-          <button className="hover:opacity-50 transition-opacity">
-            {backBtnLink && (
-              <Link href={backBtnLink}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6" // Tailwind classes for size
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  {" "}
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />{" "}
-                </svg>
-              </Link>
-            )}
-          </button>
+          {showBackButton && (
+            <button
+              className="hover:opacity-50 transition-opacity"
+              onClick={() => router.back()}
+              aria-label="Go back"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6" // Tailwind classes for size
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                {" "}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />{" "}
+              </svg>
+            </button>
+          )}
         </div>
         <div>
           <img
