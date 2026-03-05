@@ -55,7 +55,7 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
           performances={performances}
           currentPerformanceIndex={currentPerformanceIndex}
           title="Up Next"
-          performanceStatus={PerformanceStatus.COMPLETED}
+          performanceStatus={PerformanceStatus.PENDING}
           eventId={eventId}
           toggleSkipConfirmModal={toggleSkipConfirmModal}
           cardBtnText="Up"

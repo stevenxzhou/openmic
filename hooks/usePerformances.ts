@@ -25,10 +25,12 @@ const usePerformances = (eventId: number) => {
     const [pendingPerformances, setPendingPerformances] = useState<PerformanceUser[]>([]);
     const [error, setError] = useState<string | null>(null);
 
-    // Fetch performances data once after component mounts
+    // Fetch performances data when component mounts or eventId changes
     useEffect(() => {
-        fetchPerformances(eventId);
-    }, []);
+        if (eventId) {
+            fetchPerformances(eventId);
+        }
+    }, [eventId]);
 
     const fetchPerformances = async (event_id: number) => {
         try {
@@ -38,8 +40,13 @@ const usePerformances = (eventId: number) => {
                 throw new Error(errorData.error || 'Network response was not ok');
             }
             const data: PerformanceUser[] = await response.json();
-            setPerformances(data);
-            setPendingPerformances(data.filter((performance) => {performance.status === PerformanceStatus.PENDING}))
+            // Normalize status from backend to match enum (Completed -> COMPLETED, Pending -> PENDING)
+            const normalizedData = data.map((performance) => ({
+                ...performance,
+                status: performance.status?.toUpperCase() ?? performance.status
+            }));
+            setPerformances(normalizedData);
+            setPendingPerformances(normalizedData.filter((performance) => performance.status === PerformanceStatus.PENDING))
         } catch (error) {
             setError(`There was a problem with the fetch operation:${error}`);
         }
