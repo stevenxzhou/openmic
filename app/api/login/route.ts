@@ -32,9 +32,26 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // TODO: Create proper session/JWT token
-        const userData = { id: user.user_id, email: user.email, first_name: user.first_name, last_name: user.last_name, authenticated: true };
-        return NextResponse.json(userData, { status: 200 });
+        // Create session response
+        const userData = {
+            email: user.email,
+            first_name: user.first_name,
+            role: user.role || "Guest",
+            authenticated: true
+        };
+        
+        const response = NextResponse.json(userData, { status: 200 });
+        
+        // Set session cookie with user email (httpOnly for security)
+        response.cookies.set('user_session', user.email, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24 * 7, // 7 days
+            path: '/'
+        });
+        
+        return response;
     } catch (error) {
         console.error('Login error:', error);
         return NextResponse.json(

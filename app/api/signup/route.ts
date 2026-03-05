@@ -28,8 +28,25 @@ export async function POST(request: NextRequest) {
         // TODO: Hash password with bcrypt
         const newUser = await createUser({ email, password, first_name, last_name });
         
-        const userData = { id: newUser.user_id, email: newUser.email, first_name: newUser.first_name, last_name: newUser.last_name, authenticated: true };
-        return NextResponse.json(userData, { status: 201 });
+        const userData = {
+            email: newUser.email,
+            first_name: newUser.first_name,
+            role: "Guest",
+            authenticated: true
+        };
+        
+        const response = NextResponse.json(userData, { status: 201 });
+        
+        // Set session cookie with user email (httpOnly for security)
+        response.cookies.set('user_session', email, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24 * 7, // 7 days
+            path: '/'
+        });
+        
+        return response;
     } catch (error) {
         console.error('Signup error:', error);
         return NextResponse.json(

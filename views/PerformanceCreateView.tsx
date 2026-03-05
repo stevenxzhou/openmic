@@ -3,6 +3,7 @@ import usePerformances from "@/hooks/usePerformances";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Modal from "@/components/Modal";
+import { SocialIcon } from "react-social-icons";
 
 type SignUpViewProps = {
   eventId: number | string;
@@ -23,13 +24,43 @@ const SignUpView = ({
   // Form state
   const [performer, setPerformer] = useState("");
   const [songs, setSongs] = useState("");
+  const [inputs, setInputs] = useState("");
+  const [socialMedia, setSocialMedia] = useState("");
+  const [socialMediaError, setSocialMediaError] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
   const { performances, addPerformance } = usePerformances(eventId);
+
+  // Validate Instagram handle format
+  const isValidInstagramHandle = (value: string): boolean => {
+    if (!value) return true; // Empty is okay (optional field)
+    // Instagram handles: 1-30 characters, letters, numbers, periods, underscores
+    // Can't start with a number
+    const instagramRegex = /^[a-zA-Z_][a-zA-Z0-9_.]{0,29}$/;
+    return instagramRegex.test(value);
+  };
+
+  // Handle social media input change
+  const handleSocialMediaChange = (value: string) => {
+    setSocialMedia(value);
+    if (value && !isValidInstagramHandle(value)) {
+      setSocialMediaError("Invalid Instagram handle format");
+    } else {
+      setSocialMediaError("");
+    }
+  };
 
   // Add performance handler
   const addPerformanceHandler = async () => {
     if (!performer || !songs) {
       alert("Please fill all fields");
+      return;
+    }
+
+    // Validate Instagram handle if provided
+    if (socialMedia && !isValidInstagramHandle(socialMedia)) {
+      alert(
+        "Invalid Instagram handle format. Use letters, numbers, periods, and underscores.",
+      );
       return;
     }
 
@@ -48,9 +79,9 @@ const SignUpView = ({
       performance_index: (performances.length + 1) * 10,
       songs: songList,
       status: "PENDING",
-      first_name: performer,
-      last_name: "",
-      social_media_alias: "",
+      performers: performer,
+      inputs: inputs,
+      social_medias: socialMedia,
     };
 
     const isAdded = await addPerformance(eventId, newPerformance);
@@ -69,83 +100,121 @@ const SignUpView = ({
     setShowConfirmation(false);
     setPerformer("");
     setSongs("");
+    setInputs("");
+    setSocialMedia("");
+    setSocialMediaError("");
     onClose?.();
   };
 
   return (
     <>
       {!isModal && <Header showBackButton />}
-      <div
-        className={`${
-          isModal ? "min-h-0" : "min-h-[calc(100vh-64px)]"
-        } flex items-center justify-center p-0 sm:p-4`}
-      >
-        {isModal ? (
-          <Modal onClose={showConfirmation ? undefined : closeModal}>
-            {showConfirmation ? (
-              <div className="text-center space-y-4">
-                <div className="flex justify-center">
-                  <svg
-                    className="w-12 h-12 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
-                <h2 className="text-xl font-semibold text-gray-800">
-                  Performance Added!
-                </h2>
-                <p className="text-gray-600">
-                  {performer} has been added to the lineup.
-                </p>
-                <button
-                  onClick={closeModal}
-                  className="w-full py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded"
+      {isModal ? (
+        <Modal onClose={showConfirmation ? undefined : closeModal}>
+          {showConfirmation ? (
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <svg
+                  className="w-12 h-12 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  Done
-                </button>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
               </div>
-            ) : (
-              <>
-                <div>
-                  <label className="block mb-1 font-medium">Performers</label>
+              <h2 className="text-xl font-semibold text-gray-800">
+                Performance Added!
+              </h2>
+              <p className="text-gray-600">
+                {performer} has been added to the lineup.
+              </p>
+              <button
+                onClick={closeModal}
+                className="w-full py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded"
+              >
+                Done
+              </button>
+            </div>
+          ) : (
+            <>
+              <div>
+                <label className="block mb-1 font-medium">Performers</label>
+                <input
+                  type="text"
+                  value={performer}
+                  onChange={(e) => setPerformer(e.target.value)}
+                  className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+                  placeholder="Performer name"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 font-medium">Songs</label>
+                <input
+                  type="text"
+                  value={songs}
+                  onChange={(e) => setSongs(e.target.value)}
+                  className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+                  placeholder="Song 1, Song 2"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 font-medium">Inputs</label>
+                <input
+                  type="text"
+                  value={inputs}
+                  onChange={(e) => setInputs(e.target.value)}
+                  className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+                  placeholder="Guitar, Backing Track"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 font-medium">
+                  Instagram Handle (Optional)
+                </label>
+                <div className="relative">
+                  {socialMedia && isValidInstagramHandle(socialMedia) && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center text-pink-600">
+                      <SocialIcon
+                        url={`https://instagram.com/${socialMedia}`}
+                        style={{ height: 20, width: 20 }}
+                      />
+                    </div>
+                  )}
                   <input
                     type="text"
-                    value={performer}
-                    onChange={(e) => setPerformer(e.target.value)}
-                    className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                    placeholder="Performer name"
+                    value={socialMedia}
+                    onChange={(e) => handleSocialMediaChange(e.target.value)}
+                    className={`w-full p-3 pr-10 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none ${socialMediaError ? "border-red-500" : ""}`}
+                    placeholder="e.g. john_doe"
                   />
                 </div>
+                {socialMediaError && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {socialMediaError}
+                  </p>
+                )}
+              </div>
 
-                <div>
-                  <label className="block mb-1 font-medium">Songs</label>
-                  <input
-                    type="text"
-                    value={songs}
-                    onChange={(e) => setSongs(e.target.value)}
-                    className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                    placeholder="Song 1, Song 2"
-                  />
-                </div>
-
-                <button
-                  onClick={addPerformanceHandler}
-                  className="w-full py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded"
-                >
-                  Add
-                </button>
-              </>
-            )}
-          </Modal>
-        ) : (
+              <button
+                onClick={addPerformanceHandler}
+                className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded"
+              >
+                Add
+              </button>
+            </>
+          )}
+        </Modal>
+      ) : (
+        <div className="min-h-[calc(100vh-64px)] flex items-center justify-center p-0 sm:p-4">
           <div className="w-full max-w-md bg-white border rounded-lg p-4 sm:p-6 space-y-4">
             <div>
               <label className="block mb-1 font-medium">Performers</label>
@@ -169,15 +238,52 @@ const SignUpView = ({
               />
             </div>
 
+            <div>
+              <label className="block mb-1 font-medium">Inputs</label>
+              <input
+                type="text"
+                value={inputs}
+                onChange={(e) => setInputs(e.target.value)}
+                className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+                placeholder="Guitar, Backing Track"
+              />
+            </div>
+
+            <div>
+              <label className="block mb-1 font-medium">
+                Instagram Handle (Optional)
+              </label>
+              <div className="relative">
+                {socialMedia && isValidInstagramHandle(socialMedia) && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center text-pink-600">
+                    <SocialIcon
+                      url={`https://instagram.com/${socialMedia}`}
+                      style={{ height: 20, width: 20 }}
+                    />
+                  </div>
+                )}
+                <input
+                  type="text"
+                  value={socialMedia}
+                  onChange={(e) => handleSocialMediaChange(e.target.value)}
+                  className={`w-full p-3 pr-10 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none ${socialMediaError ? "border-red-500" : ""}`}
+                  placeholder="e.g. john_doe"
+                />
+              </div>
+              {socialMediaError && (
+                <p className="text-red-500 text-sm mt-1">{socialMediaError}</p>
+              )}
+            </div>
+
             <button
               onClick={addPerformanceHandler}
-              className="w-full py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded"
+              className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded"
             >
               Add
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </>
   );
 };

@@ -1,15 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGlobalContext, ActionType } from "@/context/useGlobalContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { apiUrl } from "@/lib/utils";
 
 const UserLoginView = () => {
   const { user, dispatch } = useGlobalContext();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (user.authenticated) {
-    router.push("/events");
-  }
+  useEffect(() => {
+    if (user.authenticated) {
+      router.push("/events");
+    } else {
+      setIsLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user.authenticated]);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -25,7 +32,7 @@ const UserLoginView = () => {
       formPayload.append("email", formData.email);
       formPayload.append("password", formData.password);
 
-      const response = await fetch("/api/login", {
+      const response = await fetch(apiUrl("/api/login"), {
         method: "POST",
         body: formPayload,
       });
@@ -44,7 +51,7 @@ const UserLoginView = () => {
           role: loginData.role,
         },
       });
-      router.push("/events");
+      router.back();
     } catch (error) {
       // Display error message on the login page
       console.error("Login failed:", error);
@@ -59,6 +66,10 @@ const UserLoginView = () => {
       [e.target.name]: e.target.value,
     });
   };
+
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">

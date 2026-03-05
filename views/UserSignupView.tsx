@@ -1,15 +1,22 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState, useEffect } from "react";
 import { useGlobalContext } from "@/context/useGlobalContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { apiUrl } from "@/lib/utils";
 
 const UserSignupView = () => {
   const { user } = useGlobalContext();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (user.authenticated) {
-    router.push("/events");
-  }
+  useEffect(() => {
+    if (user.authenticated) {
+      router.push("/events");
+    } else {
+      setIsLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user.authenticated]);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -37,7 +44,7 @@ const UserSignupView = () => {
       formPayload.append("first_name", formData.firstName);
       formPayload.append("last_name", formData.lastName);
 
-      const response = await fetch("/api/signup", {
+      const response = await fetch(apiUrl("/api/signup"), {
         method: "POST",
         body: formPayload,
       });
@@ -47,11 +54,15 @@ const UserSignupView = () => {
       }
 
       alert("Signup successful! Please login.");
-      window.location.href = "/auth/login";
+      window.location.href = "/openmic/auth/login";
     } catch (error) {
       console.error("Signup failed:", error);
       alert("Signup failed. Please try again.");
     }
+  }
+
+  if (isLoading) {
+    return null;
   }
 
   return (

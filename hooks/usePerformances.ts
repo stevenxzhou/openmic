@@ -11,14 +11,16 @@ export enum PerformanceStatus {
 export type Performance = {
     event_id: number;
     performance_id?: number;
-    user_id?: number;
     performance_index: number;
     songs: string[];
     status: string;
+    performers?: string;
+    inputs?: string;
+    social_medias?: string;
+    likes?: number;
 };
 
-export type PerformanceUser = Event & Performance & User;
-export type PerformanceGuest = Event & Performance;
+export type PerformanceUser = Performance;
 
 const usePerformances = (eventId: number) => {
     const [performances, setPerformances] = useState<PerformanceUser[]>([]);

@@ -16,7 +16,9 @@ export default function useHelpers({currentPerformanceIndex, eventId, toggleSkip
         let totalMinutes = 0
         // Count songs for all performers from current to this one
         for (let i = currentPerformanceIndex; i < index; i++) {
-            totalMinutes += performances[i].songs.length * 5
+            const performance = performances[i]
+            const songCount = performance?.songs?.length ?? 0
+            totalMinutes += songCount * 5
         }
 
         if (totalMinutes < 60) {

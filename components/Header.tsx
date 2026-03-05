@@ -6,6 +6,7 @@ import {
   useGlobalContext,
   InitialUser,
 } from "@/context/useGlobalContext";
+import { apiUrl } from "@/lib/utils";
 
 interface HeaderProps {
   showBackButton?: boolean; // Optional prop to show/hide back button
@@ -39,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
 
   const userLogoutHandler = async () => {
     toggleProfileMenu();
-    const response = await fetch("/api/logout", {
+    const response = await fetch(apiUrl("/api/logout"), {
       method: "POST",
       credentials: "include",
     });
@@ -57,8 +58,8 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
 
   return (
     <>
-      <header className="flex justify-between bg-yellow-500 items-center w-full fixed z-50">
-        <div className="flex px-4 items-center">
+      <header className="flex justify-between items-center px-4 bg-yellow-500 w-full fixed z-50">
+        <div className="flex items-center">
           {showBackButton && (
             <button
               className="hover:opacity-50 transition-opacity"
@@ -67,18 +68,17 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6" // Tailwind classes for size
+                className="h-6 w-6"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                {" "}
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
                   d="M15 19l-7-7 7-7"
-                />{" "}
+                />
               </svg>
             </button>
           )}
@@ -87,43 +87,68 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
           <img
             className="mt-1"
             src="https://placehold.co/220x50/transparent/31343C?font=poppins&text=Open%20Mic%20Night"
-          ></img>
+            alt="Open Mic Night"
+          />
         </div>
-        <div className="pr-4 flex items-center">
-          {!user.authenticated ? (
-            <Link href="/auth/login">Log in</Link>
+        <div className="relative" ref={menuRef}>
+          {user.authenticated ? (
+            <>
+              <button
+                ref={buttonRef}
+                onClick={toggleProfileMenu}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-yellow-600 transition-colors"
+              >
+                <span className="text-sm font-medium text-gray-900">
+                  {user.first_name || user.email}
+                </span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-gray-900"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+              {showProfileMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-50">
+                  <div className="px-4 py-3 border-b border-gray-200">
+                    <p className="text-sm font-semibold text-gray-900">
+                      {user.first_name}
+                    </p>
+                    <p className="text-sm text-gray-600">{user.email}</p>
+                    {user.role && (
+                      <p className="text-xs text-gray-500 mt-1 capitalize">
+                        {user.role}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    onClick={userLogoutHandler}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
-            <button
-              ref={buttonRef}
-              className="rounded-full focus:outline-none focus:ring-2 focus:ring-gray-400 hover:opacity-80 transition-opacity"
-              onClick={() => toggleProfileMenu()}
-            >
-              <img
-                className="rounded-full w-12 h-12 p-1"
-                src="https://media2.dev.to/dynamic/image/width=50,height=50,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Fuser%2Fprofile_image%2F483102%2F6d940290-12d0-4c4a-8be9-1a9fc955d203.jpeg"
-              />
-            </button>
+            <div className="flex gap-2">
+              <Link
+                href="/auth/login"
+                className="px-3 py-2 text-sm font-medium text-gray-900 hover:bg-yellow-600 rounded-lg transition-colors"
+              >
+                Login
+              </Link>
+            </div>
           )}
         </div>
-        {showProfileMenu && (
-          <div ref={menuRef} className="right-0 top-14 absolute">
-            <ul className="w-[200px]">
-              <li className="bg-yellow-300 border-b-2 hover:opacity-80 transition-opacity hidden">
-                <button className="w-full h-8">Settings</button>
-              </li>
-              <li className="bg-yellow-300 hover:opacity-80 transition-opacity">
-                <button
-                  className="w-full h-8"
-                  onClick={() => userLogoutHandler()}
-                >
-                  Logout
-                </button>
-              </li>
-            </ul>
-          </div>
-        )}
       </header>
-      <div className="h-[45px]" /> {/* Same height as header */}
+      <div className="h-[45px]" />
     </>
   );
 };

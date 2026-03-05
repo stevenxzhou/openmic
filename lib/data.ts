@@ -63,63 +63,102 @@ export async function createEvent(eventData: any) {
 // Performances
 export async function getPerformancesByEventId(eventId: number) {
     return query(`
-        SELECT p.*, u.email, u.first_name, u.last_name 
-        FROM performances p
-        LEFT JOIN users u ON p.user_id = u.user_id
-        WHERE p.event_id = ?
-        ORDER BY p.performance_index ASC
+        SELECT * FROM performances
+        WHERE event_id = ?
+        ORDER BY performance_index ASC
     `, [eventId]);
 }
 
 export async function getPerformanceById(performanceId: number) {
     const result = await query(`
-        SELECT p.*, u.email, u.first_name, u.last_name 
-        FROM performances p
-        LEFT JOIN users u ON p.user_id = u.user_id
-        WHERE p.performance_id = ?
+        SELECT * FROM performances
+        WHERE performance_id = ?
     `, [performanceId]);
     return result?.[0] || null;
 }
 
 export async function createPerformance(performanceData: any) {
-    const { event_id, user_id, songs, status, performance_index, first_name, last_name, email } = performanceData;
+    const { event_id, songs, status, performance_index, performers, inputs, social_medias } = performanceData;
     
-    // If user_id is not provided but we have user details, create a guest user
-    let finalUserId = user_id;
-    if (!finalUserId && (first_name || email)) {
-        // Create or find guest user
-        const guestEmail = email || `guest_${Date.now()}@openmic.local`;
-        let guestUser = await getUserByEmail(guestEmail);
-        
-        if (!guestUser) {
-            guestUser = await createUser({
-                email: guestEmail,
-                password: 'guest',
-                first_name: first_name || 'Guest',
-                last_name: last_name || ''
-            });
-        }
-        finalUserId = guestUser.user_id || guestUser.id;
-    }
+    // social_medias is now stored as a plain string (Instagram handle)
+    const socialMediasValue = social_medias || '';
     
     const result = await query(
-        'INSERT INTO performances (event_id, user_id, songs, status, performance_index) VALUES (?, ?, ?, ?, ?)',
-        [event_id, finalUserId, JSON.stringify(songs), status || 'PENDING', performance_index || 0]
+        'INSERT INTO performances (event_id, performance_index, songs, status, performers, inputs, social_medias, likes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [event_id, performance_index || 0, JSON.stringify(songs), status || 'PENDING', performers || '', inputs || '', socialMediasValue, 0]
     );
-    return { performance_id: Number(result.insertId), ...performanceData };
+    return { performance_id: Number(result.insertId), ...performanceData, likes: 0 };
 }
 
 export async function updatePerformance(performanceId: number, updateData: any) {
-    const { status, performance_index } = updateData;
+    const { status, performance_index, performers, inputs, social_medias, songs } = updateData;
+    
+    const updates: string[] = [];
+    const values: any[] = [];
+    
+    if (status !== undefined) {
+        updates.push('status = ?');
+        values.push(status);
+    }
+    if (performance_index !== undefined) {
+        updates.push('performance_index = ?');
+        values.push(performance_index);
+    }
+    if (performers !== undefined) {
+        updates.push('performers = ?');
+        values.push(performers);
+    }
+    if (inputs !== undefined) {
+        updates.push('inputs = ?');
+        values.push(inputs);
+    }
+    if (social_medias !== undefined) {
+        updates.push('social_medias = ?');
+        // Handle both string and object formats
+        const socialMediasValue = typeof social_medias === 'string' 
+            ? social_medias 
+            : JSON.stringify(social_medias);
+        values.push(socialMediasValue);
+    }
+    if (songs !== undefined) {
+        updates.push('songs = ?');
+        // Handle both string and array formats
+        const songsValue = typeof songs === 'string'
+            ? songs
+            : JSON.stringify(songs);
+        values.push(songsValue);
+    }
+    
+    if (updates.length === 0) {
+        return getPerformanceById(performanceId);
+    }
+    
+    values.push(performanceId);
     await query(
-        'UPDATE performances SET status = ?, performance_index = ? WHERE performance_id = ?',
-        [status, performance_index, performanceId]
+        `UPDATE performances SET ${updates.join(', ')} WHERE performance_id = ?`,
+        values
     );
     return getPerformanceById(performanceId);
 }
 
 export async function deletePerformance(performanceId: number) {
     await query('DELETE FROM performances WHERE performance_id = ?', [performanceId]);
+}
+
+export async function updatePerformanceStatus(performanceId: number, status: string) {
+    await query(
+        'UPDATE performances SET status = ? WHERE performance_id = ?',
+        [status, performanceId]
+    );
+    return getPerformanceById(performanceId);
+}
+
+export async function incrementPerformanceLikes(performanceId: number) {
+    await query(
+        'UPDATE performances SET likes = likes + 1 WHERE performance_id = ?',
+        [performanceId]
+    );
+    return getPerformanceById(performanceId);
 }
 
 // Users
@@ -134,10 +173,10 @@ export async function getUserById(userId: number) {
 }
 
 export async function createUser(userData: any) {
-    const { email, password, first_name, last_name } = userData;
+    const { email, password, first_name, last_name, role = "Guest" } = userData;
     const result = await query(
-        'INSERT INTO users (email, password, first_name, last_name) VALUES (?, ?, ?, ?)',
-        [email, password, first_name || '', last_name || '']
+        'INSERT INTO users (email, password, first_name, last_name, role) VALUES (?, ?, ?, ?, ?)',
+        [email, password, first_name || '', last_name || '', role]
     );
-    return { user_id: Number(result.insertId), email, first_name, last_name };
+    return { user_id: Number(result.insertId), email, first_name, last_name, role };
 }

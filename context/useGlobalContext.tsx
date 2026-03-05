@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useReducer, useEffect } from "react";
+import { apiUrl } from "@/lib/utils";
 
 interface LoginUserType {
   authenticated: boolean;
@@ -54,6 +55,8 @@ const globalContextReducer = (
 
 const GlobalContext = createContext<GlobalContextType>(initialGlobalContext);
 
+export { GlobalContext };
+
 export const useGlobalContext = () => {
   const context = useContext(GlobalContext);
 
@@ -78,7 +81,7 @@ export const GlobalContextProvider = ({
   useEffect(() => {
     const tryRefresh = async () => {
       try {
-        const response = await fetch("/api/refresh", {
+        const response = await fetch(apiUrl("/api/refresh"), {
           method: "POST",
           credentials: "include",
         });

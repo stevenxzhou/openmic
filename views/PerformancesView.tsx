@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { PerformanceStatus, PerformanceUser } from "@/hooks/usePerformances";
 import usePerformances from "@/hooks/usePerformances";
 import Header from "@/components/Header";
@@ -7,14 +8,19 @@ import PerformanceList from "@/components/PerformanceList";
 import PerformanceCreateView from "./PerformanceCreateView";
 import Modal from "@/components/Modal";
 
-const PerformancesView = ({ eventId }: { eventId: number }) => {
+const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
+  const router = useRouter();
+  const [eventId, setEventId] = useState<number | null>(propEventId ?? null);
+  const [eventIdInput, setEventIdInput] = useState("");
+  const [showEventIdModal, setShowEventIdModal] = useState(!propEventId);
+
   const {
     performances,
     error,
     updatePerformance,
     removePerformance,
     fetchPerformances,
-  } = usePerformances(eventId);
+  } = usePerformances(eventId ?? 0);
 
   const [currentPerformanceIndex] = useState<number>(0);
   const [showSkipConfirm, toggleSkipConfirmModal] = useState(false);
@@ -53,11 +59,20 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
 
   const handlePerformanceAdded = async () => {
     setPendingHighlightAfterAdd(true);
-    await fetchPerformances(eventId);
+    await fetchPerformances(eventId!);
+  };
+
+  const handleEventIdSubmit = () => {
+    const parsedEventId = parseInt(eventIdInput, 10);
+    if (!isNaN(parsedEventId) && parsedEventId > 0) {
+      router.push(`/performances?event_id=${parsedEventId}`);
+    } else {
+      alert("Please enter a valid event ID");
+    }
   };
 
   const skipPerformanceConfirmHandler = (performance: PerformanceUser) => {
-    updatePerformance(eventId, {
+    updatePerformance(eventId!, {
       ...performance,
       status: PerformanceStatus.COMPLETED,
     });
@@ -69,7 +84,7 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
   };
 
   const confirmComplete = (performance: PerformanceUser) => {
-    updatePerformance(eventId, {
+    updatePerformance(eventId!, {
       ...performance,
       status: PerformanceStatus.COMPLETED,
     });
@@ -81,7 +96,7 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
   };
 
   const confirmDelete = (performance: PerformanceUser) => {
-    removePerformance(eventId, performance);
+    removePerformance(eventId!, performance);
     setDeleteConfirmation(null);
   };
 
@@ -90,6 +105,41 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
       <>
         <ErrorView errorMessage={error} />
       </>
+    );
+  }
+
+  // Show event ID input modal if no eventId is set
+  if (showEventIdModal || eventId === null) {
+    return (
+      <Modal>
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-gray-800">
+            Enter Event ID
+          </h2>
+          <p className="text-gray-600">
+            Please enter the event ID to view performances.
+          </p>
+          <input
+            type="number"
+            value={eventIdInput}
+            onChange={(e) => setEventIdInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleEventIdSubmit();
+              }
+            }}
+            className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+            placeholder="Event ID"
+            autoFocus
+          />
+          <button
+            onClick={handleEventIdSubmit}
+            className="w-full py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded"
+          >
+            Submit
+          </button>
+        </div>
+      </Modal>
     );
   }
 
@@ -102,7 +152,7 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
           currentPerformanceIndex={currentPerformanceIndex}
           title="Line up"
           performanceStatus={PerformanceStatus.PENDING}
-          eventId={eventId}
+          eventId={eventId!}
           toggleSkipConfirmModal={toggleSkipConfirmModal}
           defaultCollapsed={false}
           onComplete={handleComplete}
@@ -116,7 +166,7 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
           currentPerformanceIndex={currentPerformanceIndex}
           title="Completed"
           performanceStatus={PerformanceStatus.COMPLETED}
-          eventId={eventId}
+          eventId={eventId!}
           toggleSkipConfirmModal={toggleSkipConfirmModal}
           defaultCollapsed={true}
           onDelete={handleDelete}
@@ -132,16 +182,12 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
         </div>
 
         {showSignupModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="w-full max-w-md">
-              <PerformanceCreateView
-                eventId={eventId}
-                isModal={true}
-                onAdded={handlePerformanceAdded}
-                onClose={() => setShowSignupModal(false)}
-              />
-            </div>
-          </div>
+          <PerformanceCreateView
+            eventId={eventId!}
+            isModal={true}
+            onAdded={handlePerformanceAdded}
+            onClose={() => setShowSignupModal(false)}
+          />
         )}
 
         {/* Delete Confirmation Modal - Updated text to reflect "Skip" instead of "Delete" */}
@@ -181,64 +227,59 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
 
         {/* Complete Confirmation Modal */}
         {completeConfirmation && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <Modal>
-              <div className="text-center space-y-4">
-                <h2 className="text-xl font-semibold text-gray-800">
-                  Mark as Completed?
-                </h2>
-                <p className="text-gray-600">
-                  Are you sure you want to mark{" "}
-                  {completeConfirmation.first_name} as completed?
-                </p>
-                <div className="flex gap-3 justify-center">
-                  <button
-                    onClick={() => setCompleteConfirmation(null)}
-                    className="px-6 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => confirmComplete(completeConfirmation)}
-                    className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
-                  >
-                    Yes, Mark Done
-                  </button>
-                </div>
+          <Modal>
+            <div className="text-center space-y-4">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Mark as Completed?
+              </h2>
+              <p className="text-gray-600">
+                Are you sure you want to mark {completeConfirmation.performers}{" "}
+                as completed?
+              </p>
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => setCompleteConfirmation(null)}
+                  className="px-6 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => confirmComplete(completeConfirmation)}
+                  className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+                >
+                  Yes, Mark Done
+                </button>
               </div>
-            </Modal>
-          </div>
+            </div>
+          </Modal>
         )}
 
         {/* Delete Confirmation Modal */}
         {deleteConfirmation && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <Modal>
-              <div className="text-center space-y-4">
-                <h2 className="text-xl font-semibold text-gray-800">
-                  Delete Performance?
-                </h2>
-                <p className="text-gray-600">
-                  Are you sure you want to delete{" "}
-                  {deleteConfirmation.first_name}?
-                </p>
-                <div className="flex gap-3 justify-center">
-                  <button
-                    onClick={() => setDeleteConfirmation(null)}
-                    className="px-6 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => confirmDelete(deleteConfirmation)}
-                    className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
-                  >
-                    Delete
-                  </button>
-                </div>
+          <Modal>
+            <div className="text-center space-y-4">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Delete Performance?
+              </h2>
+              <p className="text-gray-600">
+                Are you sure you want to delete {deleteConfirmation.performers}?
+              </p>
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => setDeleteConfirmation(null)}
+                  className="px-6 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => confirmDelete(deleteConfirmation)}
+                  className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
+                >
+                  Delete
+                </button>
               </div>
-            </Modal>
-          </div>
+            </div>
+          </Modal>
         )}
       </div>
     </>

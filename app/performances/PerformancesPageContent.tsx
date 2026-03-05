@@ -11,9 +11,7 @@ export default function PerformancesPageContent() {
   const eventId = eventIdParam ? parseInt(eventIdParam, 10) : null;
 
   if (!eventId || isNaN(eventId)) {
-    return (
-      <ErrorView errorMessage="Missing or invalid event_id query parameter. Usage: ?event_id=102" />
-    );
+    return <PerformancesView />;
   }
 
   return <PerformancesView eventId={eventId} />;
