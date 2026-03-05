@@ -36,6 +36,44 @@ export async function GET(
     }
 }
 
+export async function POST(
+    request: NextRequest,
+    { params }: { params: { id: string } }
+) {
+    try {
+        const performanceData = await request.json();
+
+        const response = await fetch(
+            `${openmicApiBase}/api/performances`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cookie': request.headers.get('cookie') || ''
+                },
+                body: JSON.stringify(performanceData),
+            }
+        );
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            return NextResponse.json(
+                { error: errorText || 'Failed to create performance' },
+                { status: response.status }
+            );
+        }
+
+        const data = await response.json();
+        return NextResponse.json(data, { status: 201 });
+    } catch (error) {
+        console.error('Create performance error:', error);
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 }
+        );
+    }
+}
+
 export async function PUT(
     request: NextRequest,
     { params }: { params: { id: string } }

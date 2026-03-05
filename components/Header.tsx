@@ -91,7 +91,7 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
         </div>
         <div className="pr-4 flex items-center">
           {!user.authenticated ? (
-            <Link href="/auth/login">Sign in</Link>
+            <Link href="/auth/login">Log in</Link>
           ) : (
             <button
               ref={buttonRef}

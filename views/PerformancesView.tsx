@@ -1,19 +1,55 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PerformanceStatus, PerformanceUser } from "@/hooks/usePerformances";
 import usePerformances from "@/hooks/usePerformances";
-import PerformanceCard from "@/components/PerformanceCard";
-import CurrentPerformanceCard from "@/components/CurrentPerformanceCard";
 import Header from "@/components/Header";
-import Link from "next/link";
 import ErrorView from "./ErrorView";
 import PerformanceList from "@/components/PerformanceList";
+import PerformanceCreateView from "./PerformanceCreateView";
 
 const PerformancesView = ({ eventId }: { eventId: number }) => {
-  const { performances, error, pendingPerformances, updatePerformance } =
-    usePerformances(eventId);
+  const {
+    performances,
+    error,
+    updatePerformance,
+    removePerformance,
+    fetchPerformances,
+  } = usePerformances(eventId);
 
   const [currentPerformanceIndex] = useState<number>(0);
   const [showSkipConfirm, toggleSkipConfirmModal] = useState(false);
+  const [showSignupModal, setShowSignupModal] = useState(false);
+  const [highlightLastPending, setHighlightLastPending] = useState(false);
+  const [scrollToBottomSignal, setScrollToBottomSignal] = useState(0);
+  const [pendingHighlightAfterAdd, setPendingHighlightAfterAdd] =
+    useState(false);
+
+  useEffect(() => {
+    if (!pendingHighlightAfterAdd) return;
+
+    const pendingList = performances
+      .filter((p) => p.status === PerformanceStatus.PENDING)
+      .sort((a, b) => (a.performance_index ?? 0) - (b.performance_index ?? 0));
+
+    if (pendingList.length === 0) {
+      setPendingHighlightAfterAdd(false);
+      return;
+    }
+
+    setHighlightLastPending(true);
+    setScrollToBottomSignal((prev) => prev + 1);
+    setPendingHighlightAfterAdd(false);
+
+    const timeoutId = setTimeout(() => {
+      setHighlightLastPending(false);
+    }, 5000);
+
+    return () => clearTimeout(timeoutId);
+  }, [performances, pendingHighlightAfterAdd]);
+
+  const handlePerformanceAdded = async () => {
+    setPendingHighlightAfterAdd(true);
+    await fetchPerformances(eventId);
+  };
 
   const skipPerformanceConfirmHandler = (performance: PerformanceUser) => {
     updatePerformance(eventId, {
@@ -21,6 +57,19 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
       status: PerformanceStatus.COMPLETED,
     });
     toggleSkipConfirmModal(false);
+  };
+
+  const handleComplete = (performance: PerformanceUser) => {
+    updatePerformance(eventId, {
+      ...performance,
+      status: PerformanceStatus.COMPLETED,
+    });
+  };
+
+  const handleDelete = (performance: PerformanceUser) => {
+    if (confirm("Are you sure you want to delete this performance?")) {
+      removePerformance(eventId, performance);
+    }
   };
 
   if (error) {
@@ -33,33 +82,21 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
 
   return (
     <>
-      <Header showBackButton />
+      <Header showBackButton={false} />
       <div className="p-4 pb-20 relative">
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-600 mb-2">
-            Now Performing
-          </h2>
-          {pendingPerformances[currentPerformanceIndex] ? (
-            <CurrentPerformanceCard
-              performance={pendingPerformances[currentPerformanceIndex]}
-              toggleSkipConfirmModal={toggleSkipConfirmModal}
-            />
-          ) : (
-            <div className="border p-4 rounded text-center text-gray-500">
-              No performers yet
-            </div>
-          )}
-        </div>
-
         <PerformanceList
           performances={performances}
           currentPerformanceIndex={currentPerformanceIndex}
-          title="Up Next"
+          title="Line up"
           performanceStatus={PerformanceStatus.PENDING}
           eventId={eventId}
           toggleSkipConfirmModal={toggleSkipConfirmModal}
-          cardBtnText="Up"
-        ></PerformanceList>
+          defaultCollapsed={false}
+          onComplete={handleComplete}
+          onDelete={handleDelete}
+          highlightLastCard={highlightLastPending}
+          scrollToBottomSignal={scrollToBottomSignal}
+        />
 
         <PerformanceList
           performances={performances}
@@ -68,17 +105,31 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
           performanceStatus={PerformanceStatus.COMPLETED}
           eventId={eventId}
           toggleSkipConfirmModal={toggleSkipConfirmModal}
-          cardBtnText="Activate"
-        ></PerformanceList>
+          defaultCollapsed={true}
+          onDelete={handleDelete}
+        />
 
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
-          <Link
+          <button
             className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-center block"
-            href={`/performances/create/?event_id=${eventId}`}
+            onClick={() => setShowSignupModal(true)}
           >
-            Sign Up to Perform
-          </Link>
+            Sign Up
+          </button>
         </div>
+
+        {showSignupModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="w-full max-w-md">
+              <PerformanceCreateView
+                eventId={eventId}
+                isModal={true}
+                onAdded={handlePerformanceAdded}
+                onClose={() => setShowSignupModal(false)}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Delete Confirmation Modal - Updated text to reflect "Skip" instead of "Delete" */}
         {showSkipConfirm && (
@@ -96,11 +147,16 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
                   Cancel
                 </button>
                 <button
-                  onClick={() =>
-                    skipPerformanceConfirmHandler(
-                      pendingPerformances[currentPerformanceIndex],
-                    )
-                  }
+                  onClick={() => {
+                    const pendingList = performances.filter(
+                      (p) => p.status === PerformanceStatus.PENDING,
+                    );
+                    if (pendingList[currentPerformanceIndex]) {
+                      skipPerformanceConfirmHandler(
+                        pendingList[currentPerformanceIndex],
+                      );
+                    }
+                  }}
                   className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded"
                 >
                   Skip

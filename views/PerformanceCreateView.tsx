@@ -1,121 +1,113 @@
 import React, { useState } from "react";
 import usePerformances from "@/hooks/usePerformances";
-import { useGlobalContext } from "@/context/useGlobalContext";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 
-const SignUpView = ({ ...props }) => {
+type SignUpViewProps = {
+  eventId: number | string;
+  isModal?: boolean;
+  onClose?: () => void;
+  onAdded?: () => void;
+};
+
+const SignUpView = ({
+  eventId: rawEventId,
+  isModal = false,
+  onClose,
+  onAdded,
+}: SignUpViewProps) => {
   const router = useRouter();
-  const eventId = parseInt(props.eventId, 10);
+  const eventId = parseInt(String(rawEventId), 10);
 
   // Form state
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [socialMedia, setSocialMedia] = useState("");
-  const [song1, setSong1] = useState("");
-  const [song2, setSong2] = useState("");
+  const [performer, setPerformer] = useState("");
+  const [songs, setSongs] = useState("");
   const { performances, addPerformance } = usePerformances(eventId);
-  const { user } = useGlobalContext();
 
   // Add performance handler
-  const addPerformanceHandler = () => {
-    if (
-      (user.authenticated && !song1) ||
-      (!user.authenticated &&
-        (!firstName || !lastName || !socialMedia || !song1))
-    ) {
+  const addPerformanceHandler = async () => {
+    if (!performer || !songs) {
       alert("Please fill all fields");
+      return;
+    }
+
+    const songList = songs
+      .split(",")
+      .map((song) => song.trim())
+      .filter(Boolean);
+
+    if (songList.length === 0) {
+      alert("Please enter at least one song");
       return;
     }
 
     let newPerformance = {
       event_id: eventId,
       performance_index: (performances.length + 1) * 10,
-      songs: [song1, song2],
+      songs: songList,
       status: "PENDING",
-      email: user.email,
-      first_name: firstName,
-      last_name: lastName,
-      social_media_alias: socialMedia,
+      first_name: performer,
+      last_name: "",
+      social_media_alias: "",
     };
 
-    addPerformance(eventId, newPerformance);
-    router.push(`/events/${eventId}/performances/`);
+    const isAdded = await addPerformance(eventId, newPerformance);
+    if (!isAdded) return;
+
+    onAdded?.();
+
+    if (isModal && onClose) {
+      onClose();
+      return;
+    }
+    router.back();
   };
 
   return (
     <>
-      <Header showBackButton />
-      <div className="p-4">
-        <div className="space-y-4">
-          {!user.authenticated && (
-            <>
-              <div>
-                <label className="block mb-1 font-medium">First Name</label>
-                <input
-                  type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                  placeholder="Enter First name"
-                />
-              </div>
+      {!isModal && <Header showBackButton />}
+      <div
+        className={`${
+          isModal ? "min-h-0" : "min-h-[calc(100vh-64px)]"
+        } flex items-center justify-center p-0 sm:p-4`}
+      >
+        <div className="w-full max-w-md bg-white border rounded-lg p-4 sm:p-6 space-y-4">
+          <div>
+            <label className="block mb-1 font-medium">Performers</label>
+            <input
+              type="text"
+              value={performer}
+              onChange={(e) => setPerformer(e.target.value)}
+              className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+              placeholder="Performer name"
+            />
+          </div>
 
-              <div>
-                <label className="block mb-1 font-medium">Last Name</label>
-                <input
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                  placeholder="Enter First name"
-                />
-              </div>
+          <div>
+            <label className="block mb-1 font-medium">Songs</label>
+            <input
+              type="text"
+              value={songs}
+              onChange={(e) => setSongs(e.target.value)}
+              className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+              placeholder="Song 1, Song 2"
+            />
+          </div>
 
-              <div>
-                <label className="block mb-1 font-medium">
-                  Social Media Handle
-                </label>
-                <input
-                  type="text"
-                  value={socialMedia}
-                  onChange={(e) => setSocialMedia(e.target.value)}
-                  className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                  placeholder="@yourusername"
-                />
-              </div>
-            </>
+          {isModal && (
+            <button
+              onClick={onClose}
+              className="w-full py-3 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded"
+            >
+              Cancel
+            </button>
           )}
 
-          <div>
-            <label className="block mb-1 font-medium">Song 1</label>
-            <input
-              type="text"
-              value={song1}
-              onChange={(e) => setSong1(e.target.value)}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-              placeholder="First song"
-            />
-          </div>
-
-          <div>
-            <label className="block mb-1 font-medium">Song 2 (Optional)</label>
-            <input
-              type="text"
-              value={song2}
-              onChange={(e) => setSong2(e.target.value)}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-              placeholder="Second song (optional)"
-            />
-          </div>
-        </div>
-
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
           <button
             onClick={addPerformanceHandler}
-            className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded"
+            className="w-full py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded"
           >
-            Complete
+            Add
           </button>
         </div>
       </div>
