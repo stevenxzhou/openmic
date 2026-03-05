@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
         // TODO: Hash password with bcrypt
         const newUser = await createUser({ email, password, first_name, last_name });
         
-        const userData = { id: newUser.id, email: newUser.email, first_name: newUser.first_name, last_name: newUser.last_name, authenticated: true };
+        const userData = { id: newUser.user_id, email: newUser.email, first_name: newUser.first_name, last_name: newUser.last_name, authenticated: true };
         return NextResponse.json(userData, { status: 201 });
     } catch (error) {
         console.error('Signup error:', error);

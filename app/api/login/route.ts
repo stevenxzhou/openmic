@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
         }
 
         // TODO: Create proper session/JWT token
-        const userData = { id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name, authenticated: true };
+        const userData = { id: user.user_id, email: user.email, first_name: user.first_name, last_name: user.last_name, authenticated: true };
         return NextResponse.json(userData, { status: 200 });
     } catch (error) {
         console.error('Login error:', error);
