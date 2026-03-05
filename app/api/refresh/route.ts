@@ -4,26 +4,17 @@ const openmicApiBase = process.env.NEXT_PUBLIC_OPEN_MIC_API_BASE_URL || 'https:/
 
 export async function POST(request: NextRequest) {
     try {
-        const loginForm = await request.formData();
-        const email = loginForm.get('email') as string;
-        const password = loginForm.get('password') as string;
-
-        const formData = new URLSearchParams();
-        formData.append('email', email);
-        formData.append('password', password);
-
-        const response = await fetch(`${openmicApiBase}/api/login`, {
+        const response = await fetch(`${openmicApiBase}/api/refresh`, {
             method: 'POST',
+            credentials: 'include',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: formData.toString(),
-            credentials: 'include'
+                'Cookie': request.headers.get('cookie') || ''
+            }
         });
         
         if (!response.ok) {
             return NextResponse.json(
-                { error: 'Login failed' },
+                { error: 'Refresh failed' },
                 { status: response.status }
             );
         }
@@ -40,7 +31,7 @@ export async function POST(request: NextRequest) {
         
         return res;
     } catch (error) {
-        console.error('Login error:', error);
+        console.error('Refresh error:', error);
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }

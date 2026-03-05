@@ -1,6 +1,24 @@
 import { useState, useEffect } from "react"
-import type { Performance, PerformanceUser } from "../api/performance"
-import { getPerformanceData, addPerformanceData, updatePerformanceData, removePerformanceData, PerformanceStatus } from "../api/performance"
+import type { Event } from "./useEvents"
+import type { User } from "./useUser"
+import { apiUrl } from "@/lib/utils";
+
+export enum PerformanceStatus {
+    COMPLETED = "COMPLETED",
+    PENDING = "PENDING"
+}
+
+export type Performance = {
+    event_id: number;
+    performance_id: number;
+    user_id: number;
+    performance_index: number;
+    songs: string[];
+    status: string;
+};
+
+export type PerformanceUser = Event & Performance & User;
+export type PerformanceGuest = Event & Performance;
 
 const usePerformances = (eventId: number) => {
     const [performances, setPerformances] = useState<PerformanceUser[]>([]);
@@ -14,7 +32,12 @@ const usePerformances = (eventId: number) => {
 
     const fetchPerformances = async (event_id: number) => {
         try {
-            const data: PerformanceUser[] = await getPerformanceData(event_id) as PerformanceUser[];
+            const response = await fetch(apiUrl(`/api/performances?event_id=${event_id}`));
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: 'Network response was not ok' }));
+                throw new Error(errorData.error || 'Network response was not ok');
+            }
+            const data: PerformanceUser[] = await response.json();
             setPerformances(data);
             setPendingPerformances(data.filter((performance) => {performance.status === PerformanceStatus.PENDING}))
         } catch (error) {
@@ -24,7 +47,14 @@ const usePerformances = (eventId: number) => {
 
     const addPerformance = async (eventId: number, newPerformance: Performance) => {
         try {
-            await addPerformanceData(eventId, newPerformance);
+            const response = await fetch(apiUrl(`/api/performances`), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newPerformance),
+            });
+            if (!response.ok) throw new Error('Network response was not ok');
             // Fetch the updated list of performances
             fetchPerformances(eventId);
         } catch (error) {
@@ -34,7 +64,14 @@ const usePerformances = (eventId: number) => {
 
     const updatePerformance = async (eventId: number, performance: Performance) => {
         try {
-            await updatePerformanceData(eventId, performance);
+            const response = await fetch(apiUrl(`/api/performances/${performance.performance_id}`), {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(performance),
+            });
+            if (!response.ok) throw new Error('Network response was not ok');
             // Fetch the updated list of performances
             fetchPerformances(eventId);
         } catch (error) {
@@ -44,7 +81,14 @@ const usePerformances = (eventId: number) => {
 
     const removePerformance = async (eventId: number, performance: Performance) => {
         try {
-            await removePerformanceData(eventId, performance);
+            const response = await fetch(apiUrl(`/api/performances/${performance.performance_id}`), {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(performance),
+            });
+            if (!response.ok) throw new Error('Network response was not ok');
             // Fetch the updated list of performances
             fetchPerformances(eventId);
         } catch (error) {

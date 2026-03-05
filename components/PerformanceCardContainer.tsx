@@ -1,4 +1,4 @@
-import { PerformanceUser } from "@/api/performance";
+import { PerformanceUser } from "@/hooks/usePerformances";
 import { ReactNode } from "react";
 
 export default function PerformanceCardContainer({

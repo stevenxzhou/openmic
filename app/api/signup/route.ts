@@ -4,15 +4,19 @@ const openmicApiBase = process.env.NEXT_PUBLIC_OPEN_MIC_API_BASE_URL || 'https:/
 
 export async function POST(request: NextRequest) {
     try {
-        const loginForm = await request.formData();
-        const email = loginForm.get('email') as string;
-        const password = loginForm.get('password') as string;
+        const signupForm = await request.formData();
+        const email = signupForm.get('email') as string;
+        const password = signupForm.get('password') as string;
+        const first_name = signupForm.get('first_name') as string;
+        const last_name = signupForm.get('last_name') as string;
 
         const formData = new URLSearchParams();
         formData.append('email', email);
         formData.append('password', password);
+        formData.append('first_name', first_name);
+        formData.append('last_name', last_name);
 
-        const response = await fetch(`${openmicApiBase}/api/login`, {
+        const response = await fetch(`${openmicApiBase}/api/signup`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -23,7 +27,7 @@ export async function POST(request: NextRequest) {
         
         if (!response.ok) {
             return NextResponse.json(
-                { error: 'Login failed' },
+                { error: 'Signup failed' },
                 { status: response.status }
             );
         }
@@ -40,7 +44,7 @@ export async function POST(request: NextRequest) {
         
         return res;
     } catch (error) {
-        console.error('Login error:', error);
+        console.error('Signup error:', error);
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }

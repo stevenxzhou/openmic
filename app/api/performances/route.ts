@@ -4,8 +4,18 @@ const openmicApiBase = process.env.NEXT_PUBLIC_OPEN_MIC_API_BASE_URL || 'https:/
 
 export async function GET(request: NextRequest) {
     try {
+        const searchParams = request.nextUrl.searchParams;
+        const eventId = searchParams.get('event_id');
+        
+        if (!eventId) {
+            return NextResponse.json(
+                { error: 'event_id query parameter is required' },
+                { status: 400 }
+            );
+        }
+        
         const response = await fetch(
-            `${openmicApiBase}/api/events`, 
+            `${openmicApiBase}/api/performances?event_id=${eventId}`, 
             {
                 method: 'GET',
                 headers: {
@@ -17,7 +27,7 @@ export async function GET(request: NextRequest) {
         if (!response.ok) {
             const errorText = await response.text();
             return NextResponse.json(
-                { error: errorText || 'Failed to fetch events' },
+                { error: errorText || 'Failed to fetch performances' },
                 { status: response.status }
             );
         }
@@ -25,7 +35,7 @@ export async function GET(request: NextRequest) {
         const data = await response.json();
         return NextResponse.json(data, { status: 200 });
     } catch (error) {
-        console.error('Fetch events error:', error);
+        console.error('Fetch performances error:', error);
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }
@@ -35,24 +45,24 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     try {
-        const eventData = await request.json();
+        const performanceData = await request.json();
         
         const response = await fetch(
-            `${openmicApiBase}/api/events`, 
+            `${openmicApiBase}/api/performances`, 
             {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Cookie': request.headers.get('cookie') || ''
                 },
-                body: JSON.stringify(eventData),
+                body: JSON.stringify(performanceData),
             }
         );
         
         if (!response.ok) {
             const errorText = await response.text();
             return NextResponse.json(
-                { error: errorText || 'Failed to create event' },
+                { error: errorText || 'Failed to create performance' },
                 { status: response.status }
             );
         }
@@ -60,7 +70,7 @@ export async function POST(request: NextRequest) {
         const data = await response.json();
         return NextResponse.json(data, { status: 201 });
     } catch (error) {
-        console.error('Create event error:', error);
+        console.error('Create performance error:', error);
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }

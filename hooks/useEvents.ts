@@ -1,7 +1,21 @@
 // get event data for a specific event
 import { useState, useEffect } from "react"
-import type { Event } from "../api/event"
-import { getEventData, getEventsData, postEventData } from "../api/event"
+import { apiUrl } from "@/lib/utils";
+
+export type Event = {
+    id?: number;
+    event_id: number;
+    title: string;
+    description: string;
+    start_date: string;
+    end_date: string;
+    location: string;
+}
+
+const normalizeEvent = (event: Event): Event => ({
+    ...event,
+    event_id: event.event_id ?? event.id ?? 0,
+});
 
 export const useEvent = (event_id: number) => {
 
@@ -10,14 +24,18 @@ export const useEvent = (event_id: number) => {
 
     // Fetch event data once after component mounts
     useEffect(() => {
-        getEventData(event_id)
+        fetch(apiUrl(`/api/events/${event_id}`))
+            .then((response) => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
             .then((data) => {
-                setEvent(data);
+                setEvent(normalizeEvent(data));
             })
             .catch((error) => {
                 setError(`There was a problem with the fetch operation:${error}`);
             });
-    }, [event_id]); // Empty dependency array ensures this runs only once
+    }, [event_id]);
 
     return { event, setEvent, error }
 }
@@ -30,12 +48,16 @@ export const useEvents = () => {
     // Fetch event data once after component mounts
     useEffect(() => {
         getEvents();
-    }, []); // Empty dependency array ensures this runs only once
+    }, []);
 
     const getEvents = async ()=> {
-        getEventsData()
+        fetch(apiUrl('/api/events'))
+            .then((response) => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
             .then((data) => {
-                setEvents(data);
+                setEvents(data.map((event: Event) => normalizeEvent(event)));
             })
             .catch((error) => {
                 setError(`There was a problem with the fetch operation:${error}`);
@@ -44,8 +66,15 @@ export const useEvents = () => {
 
     const createEvent = async (newEvent: Event) => {
         try {
-            await postEventData(newEvent);
-            // Fetch the updated list of performances
+            const response = await fetch(apiUrl('/api/events'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newEvent),
+            });
+            if (!response.ok) throw new Error('Network response was not ok');
+            // Fetch the updated list of events
             getEvents();
         } catch (error) {
             setError(`There was a problem with the fetch operation:${error}`);

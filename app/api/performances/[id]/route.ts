@@ -8,7 +8,7 @@ export async function GET(
 ) {
     try {
         const response = await fetch(
-            `${openmicApiBase}/api/events/${params.id}`,
+            `${openmicApiBase}/api/performances/${params.id}`,
             {
                 method: 'GET',
                 headers: {
@@ -20,7 +20,7 @@ export async function GET(
         if (!response.ok) {
             const errorText = await response.text();
             return NextResponse.json(
-                { error: errorText || 'Failed to fetch event' },
+                { error: errorText || 'Failed to fetch performance' },
                 { status: response.status }
             );
         }
@@ -28,7 +28,7 @@ export async function GET(
         const data = await response.json();
         return NextResponse.json(data, { status: 200 });
     } catch (error) {
-        console.error('Fetch event error:', error);
+        console.error('Fetch performance error:', error);
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }
@@ -41,24 +41,24 @@ export async function PUT(
     { params }: { params: { id: string } }
 ) {
     try {
-        const eventData = await request.json();
+        const performanceData = await request.json();
 
         const response = await fetch(
-            `${openmicApiBase}/api/events/${params.id}`,
+            `${openmicApiBase}/api/performances/${params.id}`,
             {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Cookie': request.headers.get('cookie') || ''
                 },
-                body: JSON.stringify(eventData),
+                body: JSON.stringify(performanceData),
             }
         );
 
         if (!response.ok) {
             const errorText = await response.text();
             return NextResponse.json(
-                { error: errorText || 'Failed to update event' },
+                { error: errorText || 'Failed to update performance' },
                 { status: response.status }
             );
         }
@@ -66,7 +66,7 @@ export async function PUT(
         const data = await response.json();
         return NextResponse.json(data, { status: 200 });
     } catch (error) {
-        console.error('Update event error:', error);
+        console.error('Update performance error:', error);
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }
@@ -79,25 +79,29 @@ export async function DELETE(
     { params }: { params: { id: string } }
 ) {
     try {
+        const performanceData = await request.json();
+
         const response = await fetch(
-            `${openmicApiBase}/api/events/${params.id}`,
+            `${openmicApiBase}/api/performances/${params.id}`,
             {
                 method: 'DELETE',
                 headers: {
+                    'Content-Type': 'application/json',
                     'Cookie': request.headers.get('cookie') || ''
                 },
+                body: JSON.stringify(performanceData),
             }
         );
 
         if (!response.ok) {
             const errorText = await response.text();
             return NextResponse.json(
-                { error: errorText || 'Failed to delete event' },
+                { error: errorText || 'Failed to delete performance' },
                 { status: response.status }
             );
         }
 
-        // Handle 204 No Content response
+        // DELETE returns 204 No Content from upstream
         if (response.status === 204) {
             return new NextResponse(null, { status: 204 });
         }
@@ -105,7 +109,7 @@ export async function DELETE(
         const data = await response.json();
         return NextResponse.json(data, { status: 200 });
     } catch (error) {
-        console.error('Delete event error:', error);
+        console.error('Delete performance error:', error);
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }

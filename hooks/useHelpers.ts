@@ -1,6 +1,5 @@
 
-import { Performance, PerformanceUser, PerformanceStatus} from "@/api/performance";
-import usePerformances from "./usePerformances";
+import usePerformances, { Performance, PerformanceUser, PerformanceStatus } from "./usePerformances";
 
 export type helperParams = {currentPerformanceIndex: number, eventId: number, toggleSkipConfirmModal: any};
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { PerformanceStatus, PerformanceUser } from "@/api/performance";
+import { PerformanceStatus, PerformanceUser } from "@/hooks/usePerformances";
 import usePerformances from "@/hooks/usePerformances";
 import PerformanceCard from "@/components/PerformanceCard";
 import CurrentPerformanceCard from "@/components/CurrentPerformanceCard";
@@ -98,7 +98,7 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
                 <button
                   onClick={() =>
                     skipPerformanceConfirmHandler(
-                      pendingPerformances[currentPerformanceIndex]
+                      pendingPerformances[currentPerformanceIndex],
                     )
                   }
                   className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded"

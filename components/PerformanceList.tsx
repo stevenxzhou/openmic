@@ -1,5 +1,5 @@
 import PerformanceCard from "@/components/PerformanceCard";
-import { PerformanceStatus, PerformanceUser } from "@/api/performance";
+import { PerformanceStatus, PerformanceUser } from "@/hooks/usePerformances";
 import useHelpers from "@/hooks/useHelpers";
 
 export default function PerformanceList({
@@ -20,7 +20,7 @@ export default function PerformanceList({
   cardBtnText: string;
 }) {
   let filteredPerformances = performances.filter(
-    (performance) => performance.status === performanceStatus
+    (performance) => performance.status === performanceStatus,
   );
 
   const { activatePerformanceHandler, calculateWaitTime } = useHelpers({

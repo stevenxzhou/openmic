@@ -1,4 +1,4 @@
-import { type PerformanceUser } from "@/api/performance";
+import { type PerformanceUser } from "@/hooks/usePerformances";
 import PerformanceCardContainer from "./PerformanceCardContainer";
 
 type PerformanceCardProps = {
