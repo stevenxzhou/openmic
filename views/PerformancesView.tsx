@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import ErrorView from "./ErrorView";
 import PerformanceList from "@/components/PerformanceList";
 import PerformanceCreateView from "./PerformanceCreateView";
+import Modal from "@/components/Modal";
 
 const PerformancesView = ({ eventId }: { eventId: number }) => {
   const {
@@ -22,6 +23,10 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
   const [scrollToBottomSignal, setScrollToBottomSignal] = useState(0);
   const [pendingHighlightAfterAdd, setPendingHighlightAfterAdd] =
     useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] =
+    useState<PerformanceUser | null>(null);
+  const [completeConfirmation, setCompleteConfirmation] =
+    useState<PerformanceUser | null>(null);
 
   useEffect(() => {
     if (!pendingHighlightAfterAdd) return;
@@ -60,16 +65,24 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
   };
 
   const handleComplete = (performance: PerformanceUser) => {
+    setCompleteConfirmation(performance);
+  };
+
+  const confirmComplete = (performance: PerformanceUser) => {
     updatePerformance(eventId, {
       ...performance,
       status: PerformanceStatus.COMPLETED,
     });
+    setCompleteConfirmation(null);
   };
 
   const handleDelete = (performance: PerformanceUser) => {
-    if (confirm("Are you sure you want to delete this performance?")) {
-      removePerformance(eventId, performance);
-    }
+    setDeleteConfirmation(performance);
+  };
+
+  const confirmDelete = (performance: PerformanceUser) => {
+    removePerformance(eventId, performance);
+    setDeleteConfirmation(null);
   };
 
   if (error) {
@@ -163,6 +176,68 @@ const PerformancesView = ({ eventId }: { eventId: number }) => {
                 </button>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Complete Confirmation Modal */}
+        {completeConfirmation && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <Modal>
+              <div className="text-center space-y-4">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  Mark as Completed?
+                </h2>
+                <p className="text-gray-600">
+                  Are you sure you want to mark{" "}
+                  {completeConfirmation.first_name} as completed?
+                </p>
+                <div className="flex gap-3 justify-center">
+                  <button
+                    onClick={() => setCompleteConfirmation(null)}
+                    className="px-6 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => confirmComplete(completeConfirmation)}
+                    className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+                  >
+                    Yes, Mark Done
+                  </button>
+                </div>
+              </div>
+            </Modal>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {deleteConfirmation && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <Modal>
+              <div className="text-center space-y-4">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  Delete Performance?
+                </h2>
+                <p className="text-gray-600">
+                  Are you sure you want to delete{" "}
+                  {deleteConfirmation.first_name}?
+                </p>
+                <div className="flex gap-3 justify-center">
+                  <button
+                    onClick={() => setDeleteConfirmation(null)}
+                    className="px-6 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => confirmDelete(deleteConfirmation)}
+                    className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </Modal>
           </div>
         )}
       </div>
