@@ -176,7 +176,7 @@ const EventsView = () => {
   return (
     <>
       <Header />
-      <div className={`space-y-4 ${isAdminOrHost ? "pb-32" : ""}`}>
+      <div className={`p-4 space-y-4 ${isAdminOrHost ? "pb-32" : ""}`}>
         {(eventsView === "future" || !isAdminOrHost) && (
           <>
             {futureEvents.map((event: Event) => (
