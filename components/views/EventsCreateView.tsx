@@ -358,7 +358,11 @@ const CreateEventView = ({
                     setStartTime(e.target.value);
                     clearError();
                   }}
-                  className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+                  className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none text-base"
+                  style={{
+                    WebkitAppearance: "none",
+                    appearance: "none",
+                  }}
                 />
               </div>
 
@@ -482,7 +486,11 @@ const CreateEventView = ({
                   setStartTime(e.target.value);
                   clearError();
                 }}
-                className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+                className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none text-base"
+                style={{
+                  WebkitAppearance: "none",
+                  appearance: "none",
+                }}
               />
             </div>
 
