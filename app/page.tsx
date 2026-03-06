@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import PerformancesView from "@/views/PerformancesView";
+import EventsView from "@/views/EventsView";
 
 const HomePage = () => {
-  return <PerformancesView />;
+  return <EventsView />;
 };
 
 export default HomePage;

@@ -3,26 +3,99 @@
 import { type Event } from "@/hooks/useEvents";
 import { EventCard } from "@/components/EventCard";
 import { useEvents } from "@/hooks/useEvents";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import ErrorView from "./ErrorView";
 import Header from "@/components/Header";
 import Modal from "@/components/Modal";
 import { GlobalContext } from "@/context/useGlobalContext";
 import EventCreateView from "./EventCreateView";
+import { useRouter } from "next/navigation";
 
 const EventsView = () => {
-  const { events, createEvent, deleteEvent, error } = useEvents();
+  const router = useRouter();
+  const { events, createEvent, updateEvent, deleteEvent, error } = useEvents();
   const { user } = useContext(GlobalContext);
   const [deleteConfirmation, setDeleteConfirmation] = useState<Event | null>(
     null,
   );
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const isAdmin = user.role?.toLowerCase() === "admin";
+  const isHost = user.role?.toLowerCase() === "host";
   const isAdminOrHost = isAdmin || user.role?.toLowerCase() === "host";
+  const canSeePastEvents = isAdminOrHost;
+
+  const parseEventDate = (dateValue: string) => {
+    const value = String(dateValue || "").trim();
+    if (!value) return null;
+
+    // Parse UTC ISO datetime string
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  };
+
+  const formatEventDate = (dateValue: string) => {
+    const parsed = parseEventDate(dateValue);
+    if (!parsed) return "Invalid date";
+    return parsed.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const now = new Date();
+  const futureEvents = (events || [])
+    .filter((event) => {
+      const eventDate = parseEventDate(event.start_date || event.end_date);
+      return eventDate ? eventDate >= now : false;
+    })
+    .sort((a, b) => {
+      const dateA = parseEventDate(a.start_date || a.end_date);
+      const dateB = parseEventDate(b.start_date || b.end_date);
+      return (dateA?.getTime() || 0) - (dateB?.getTime() || 0);
+    });
+
+  const pastEvents = (events || []).filter((event) => {
+    const eventDate = parseEventDate(event.start_date || event.end_date);
+    return eventDate ? eventDate < now : false;
+  });
+
+  useEffect(() => {
+    if (!events || isAdmin || isHost) return;
+    if (futureEvents.length !== 1) return;
+
+    router.push(`/performances?event_id=${futureEvents[0].event_id}`);
+  }, [events, futureEvents, isAdmin, isHost, router]);
+
+  const handleEdit = (event: Event) => {
+    setEditingEvent(event);
+    setShowCreateModal(true);
+  };
 
   const handleDelete = (event: Event) => {
     setDeleteConfirmation(event);
+  };
+
+  const handlePastRowClick = (eventId: number) => {
+    router.push(`/performances?event_id=${eventId}`);
+  };
+
+  const handlePastEditClick = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    event: Event,
+  ) => {
+    e.stopPropagation();
+    handleEdit(event);
+  };
+
+  const handlePastDeleteClick = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    event: Event,
+  ) => {
+    e.stopPropagation();
+    handleDelete(event);
   };
 
   const confirmDelete = async (event: Event) => {
@@ -32,6 +105,7 @@ const EventsView = () => {
 
   const handleEventAdded = () => {
     // Events will be refetched automatically by useEvents
+    setEditingEvent(null);
     setShowCreateModal(false);
   };
 
@@ -47,14 +121,106 @@ const EventsView = () => {
     <>
       <Header />
       <div className="space-y-4">
-        {/* <!-- Event Card --> */}
-        {events?.map((event: Event) => (
+        {/* Upcoming events */}
+        {futureEvents.map((event: Event) => (
           <EventCard
             key={event.event_id}
             {...event}
+            onEdit={isAdmin ? handleEdit : undefined}
             onDelete={isAdmin ? handleDelete : undefined}
           />
         ))}
+
+        {canSeePastEvents && pastEvents.length > 0 && (
+          <div className="pt-2">
+            <h2 className="text-sm text-center font-semibold text-gray-500 uppercase tracking-wide">
+              Past Events
+            </h2>
+          </div>
+        )}
+        {canSeePastEvents && pastEvents.length > 0 && (
+          <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-xl">
+            <table className="min-w-full text-sm">
+              <thead className="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
+                <tr>
+                  <th className="px-4 py-3 text-left">Date</th>
+                  <th className="px-4 py-3 text-left">Title</th>
+                  <th className="px-4 py-3 text-left">Location</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {pastEvents.map((event: Event) => (
+                  <tr
+                    key={event.event_id}
+                    className="hover:bg-gray-50 cursor-pointer"
+                    onClick={() => handlePastRowClick(event.event_id)}
+                  >
+                    <td className="px-4 py-3 text-gray-700 whitespace-nowrap">
+                      {formatEventDate(event.start_date)}
+                    </td>
+                    <td className="px-4 py-3 text-gray-900 font-medium">
+                      {event.title}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {event.location}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end gap-2">
+                        {isAdmin && (
+                          <>
+                            <button
+                              onClick={(e) => handlePastEditClick(e, event)}
+                              className="p-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors"
+                              aria-label="Edit event"
+                              title="Edit"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={(e) => handlePastDeleteClick(e, event)}
+                              className="p-1 bg-red-100 hover:bg-red-200 text-red-700 rounded transition-colors"
+                              aria-label="Delete event"
+                              title="Delete"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
+                              </svg>
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
       {isAdminOrHost && (
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
@@ -72,8 +238,13 @@ const EventsView = () => {
         <EventCreateView
           isModal={true}
           createEvent={createEvent}
+          updateEvent={updateEvent}
+          editingEvent={editingEvent}
           onAdded={handleEventAdded}
-          onClose={() => setShowCreateModal(false)}
+          onClose={() => {
+            setEditingEvent(null);
+            setShowCreateModal(false);
+          }}
         />
       )}
 

@@ -11,6 +11,7 @@ const pool: mariadb.Pool = mariadb.createPool({
     port: Number(process.env.DB_PORT),
     connectionLimit: Number(process.env.DB_CONNECTION_LIMIT) || 10,
     bigIntAsNumber: true,
+    dateStrings: true,  // Return dates as strings instead of Date objects
 });
 
 export async function query(sql: string, params?: any[]) {
@@ -23,14 +24,10 @@ export async function query(sql: string, params?: any[]) {
     }
 }
 
-// Helper function to convert BigInt to Number and Date to string
+// Helper function to convert BigInt to Number
 function convertBigIntToNumber(obj: any): any {
     if (typeof obj === 'bigint') {
         return Number(obj);
-    }
-    if (obj instanceof Date) {
-        // Convert Date to ISO string for JSON serialization
-        return obj.toISOString().slice(0, 19).replace('T', ' ');
     }
     if (Array.isArray(obj)) {
         return obj.map(convertBigIntToNumber);
@@ -45,23 +42,78 @@ function convertBigIntToNumber(obj: any): any {
     return obj;
 }
 
+// Helper function to convert ISO datetime to MySQL format
+function toMySQLDateTime(isoString: string): string {
+    // Convert '2026-03-10T02:00:00.000Z' to '2026-03-10 02:00:00'
+    return isoString.slice(0, 19).replace('T', ' ');
+}
+
+// Helper function to convert MySQL datetime to UTC ISO format
+function convertEventDates(event: any): any {
+    if (!event) return event;
+    
+    if (event.start_date && typeof event.start_date === 'string') {
+        // If already ISO format with Z, keep as-is
+        if (event.start_date.endsWith('Z')) {
+            // Already in correct format
+        } else if (event.start_date.includes('T')) {
+            // ISO format without Z - treat as UTC and add Z
+            if (!event.start_date.includes('Z')) {
+                event.start_date = event.start_date + 'Z';
+            }
+        } else {
+            // MySQL format 'YYYY-MM-DD HH:MM:SS' - treat as UTC and convert to ISO
+            const normalized = event.start_date.replace(' ', 'T') + 'Z';
+            event.start_date = normalized;
+        }
+    }
+    
+    if (event.end_date && typeof event.end_date === 'string') {
+        // If already ISO format with Z, keep as-is
+        if (event.end_date.endsWith('Z')) {
+            // Already in correct format
+        } else if (event.end_date.includes('T')) {
+            // ISO format without Z - treat as UTC and add Z
+            if (!event.end_date.includes('Z')) {
+                event.end_date = event.end_date + 'Z';
+            }
+        } else {
+            // MySQL format 'YYYY-MM-DD HH:MM:SS' - treat as UTC and convert to ISO
+            const normalized = event.end_date.replace(' ', 'T') + 'Z';
+            event.end_date = normalized;
+        }
+    }
+    
+    return event;
+}
+
 // Events
 export async function getEvents() {
-    return query('SELECT * FROM events ORDER BY start_date DESC');
+    const events = await query('SELECT * FROM events ORDER BY start_date DESC');
+    return events.map(convertEventDates);
 }
 
 export async function getEventById(eventId: number) {
     const result = await query('SELECT * FROM events WHERE event_id = ?', [eventId]);
-    return result?.[0] || null;
+    return result?.[0] ? convertEventDates(result[0]) : null;
 }
 
 export async function createEvent(eventData: any) {
     const { title, description, start_date, end_date, location } = eventData;
     const result = await query(
         'INSERT INTO events (title, description, start_date, end_date, location) VALUES (?, ?, ?, ?, ?)',
-        [title, description, start_date, end_date, location]
+        [title, description, toMySQLDateTime(start_date), toMySQLDateTime(end_date), location]
     );
     return { event_id: Number(result.insertId), ...eventData };
+}
+
+export async function updateEvent(eventId: number, eventData: any) {
+    const { title, description, start_date, end_date, location } = eventData;
+    await query(
+        'UPDATE events SET title = ?, description = ?, start_date = ?, end_date = ?, location = ? WHERE event_id = ?',
+        [title, description, toMySQLDateTime(start_date), toMySQLDateTime(end_date), location, eventId]
+    );
+    return getEventById(eventId);
 }
 
 export async function deleteEvent(eventId: number) {

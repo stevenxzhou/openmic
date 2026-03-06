@@ -18,7 +18,7 @@ const Modal = ({ children, onClose }: ModalProps) => {
       onClick={handleBackdropClick}
     >
       <div className="flex flex-col items-center gap-4">
-        <div className="w-full max-w-md bg-white border rounded-lg p-4 sm:p-6 space-y-4">
+        <div className="w-full max-w-md bg-white border rounded-lg shadow-xl p-4 sm:p-6 space-y-4">
           {children}
         </div>
 

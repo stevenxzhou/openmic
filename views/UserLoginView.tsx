@@ -51,7 +51,16 @@ const UserLoginView = () => {
           role: loginData.role,
         },
       });
-      router.back();
+
+      // Check if there's a stored event ID
+      const eventId = sessionStorage.getItem("eventId");
+
+      if (eventId) {
+        sessionStorage.removeItem("eventId");
+        router.push(`/performances?event_id=${eventId}`);
+      } else {
+        router.push("/events");
+      }
     } catch (error) {
       // Display error message on the login page
       console.error("Login failed:", error);
@@ -75,7 +84,7 @@ const UserLoginView = () => {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Card Container */}
-        <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
+        <div className="bg-white rounded-lg shadow-xl p-6 sm:p-8">
           {/* Form Header */}
           <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             Login
@@ -140,20 +149,38 @@ const UserLoginView = () => {
             <span className="text-sm text-gray-600">
               Don't have an account?{" "}
             </span>
-            <Link
-              href="/auth/signup"
-              className="text-sm text-yellow-600 hover:text-yellow-800 font-medium"
+            <button
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  const params = new URLSearchParams(window.location.search);
+                  const eventId = params.get("event_id");
+                  if (eventId) {
+                    sessionStorage.setItem("eventId", eventId);
+                  }
+                }
+                router.push("/auth/signup");
+              }}
+              className="text-sm text-yellow-600 hover:text-yellow-800 font-medium bg-transparent border-none cursor-pointer"
             >
               Sign up
-            </Link>
+            </button>
           </div>
           <div className="mt-2 text-center">
-            <Link
-              href="/"
-              className="text-sm text-gray-500 hover:text-yellow-600 underline"
+            <button
+              onClick={() => {
+                const eventId = sessionStorage.getItem("eventId");
+
+                if (eventId) {
+                  sessionStorage.removeItem("eventId");
+                  router.push(`/performances?event_id=${eventId}`);
+                } else {
+                  router.push("/performances");
+                }
+              }}
+              className="text-sm text-gray-500 hover:text-yellow-600 underline bg-transparent border-none cursor-pointer"
             >
               Continue as guest
-            </Link>
+            </button>
           </div>
         </div>
       </div>

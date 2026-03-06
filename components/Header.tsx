@@ -83,7 +83,7 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
             </button>
           )}
         </div>
-        <div>
+        <div className="absolute left-1/2 transform -translate-x-1/2">
           <img
             className="mt-1"
             src="https://placehold.co/220x50/transparent/31343C?font=poppins&text=Open%20Mic%20Night"
@@ -115,7 +115,7 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
                 </svg>
               </button>
               {showProfileMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-50">
                   <div className="px-4 py-3 border-b border-gray-200">
                     <p className="text-sm font-semibold text-gray-900">
                       {user.first_name}
@@ -145,12 +145,21 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
             </>
           ) : (
             <div className="flex gap-2">
-              <Link
-                href="/auth/login"
-                className="px-3 py-2 text-sm font-medium text-gray-900 hover:bg-yellow-600 rounded-lg transition-colors"
+              <button
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    const params = new URLSearchParams(window.location.search);
+                    const eventId = params.get("event_id");
+                    if (eventId) {
+                      sessionStorage.setItem("eventId", eventId);
+                    }
+                  }
+                  router.push("/auth/login");
+                }}
+                className="px-3 py-2 text-sm font-medium text-gray-900 hover:bg-yellow-600 rounded-lg transition-colors bg-transparent border-none cursor-pointer"
               >
                 Login
-              </Link>
+              </button>
             </div>
           )}
         </div>

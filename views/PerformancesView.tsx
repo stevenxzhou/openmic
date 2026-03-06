@@ -7,12 +7,15 @@ import ErrorView from "./ErrorView";
 import PerformanceList from "@/components/PerformanceList";
 import PerformanceCreateView from "./PerformanceCreateView";
 import Modal from "@/components/Modal";
+import { apiUrl } from "@/lib/utils";
 
 const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
   const router = useRouter();
   const [eventId, setEventId] = useState<number | null>(propEventId ?? null);
   const [eventIdInput, setEventIdInput] = useState("");
   const [showEventIdModal, setShowEventIdModal] = useState(!propEventId);
+  const [eventIdError, setEventIdError] = useState("");
+  const [eventValidationError, setEventValidationError] = useState("");
 
   const {
     performances,
@@ -58,17 +61,68 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
     return () => clearTimeout(timeoutId);
   }, [performances, pendingHighlightAfterAdd]);
 
+  // Validate event when page is accessed with event_id in URL
+  useEffect(() => {
+    if (!eventId || showEventIdModal) return;
+
+    const validateEvent = async () => {
+      try {
+        const response = await fetch(apiUrl(`/api/events/${eventId}`));
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            setEventValidationError(`Event ${eventId} does not exist.`);
+          } else {
+            setEventValidationError(
+              "Unable to validate event right now. Please try again.",
+            );
+          }
+          return;
+        }
+
+        setEventValidationError("");
+      } catch {
+        setEventValidationError(
+          "Unable to validate event right now. Please try again.",
+        );
+      }
+    };
+
+    validateEvent();
+  }, [eventId, showEventIdModal]);
+
   const handlePerformanceAdded = async () => {
     setPendingHighlightAfterAdd(true);
     await fetchPerformances(eventId!);
   };
 
-  const handleEventIdSubmit = () => {
+  const handleEventIdSubmit = async () => {
     const parsedEventId = parseInt(eventIdInput, 10);
-    if (!isNaN(parsedEventId) && parsedEventId > 0) {
+    if (isNaN(parsedEventId) || parsedEventId <= 0) {
+      setEventIdError("Please enter a valid event ID.");
+      return;
+    }
+
+    try {
+      const response = await fetch(apiUrl(`/api/events/${parsedEventId}`));
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          setEventIdError(`Event ${parsedEventId} does not exist.`);
+        } else {
+          setEventIdError(
+            "Unable to validate event right now. Please try again.",
+          );
+        }
+        return;
+      }
+
+      setEventIdError("");
+      setEventId(parsedEventId);
+      setShowEventIdModal(false);
       router.push(`/performances?event_id=${parsedEventId}`);
-    } else {
-      alert("Please enter a valid event ID");
+    } catch {
+      setEventIdError("Unable to validate event right now. Please try again.");
     }
   };
 
@@ -115,6 +169,14 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
     );
   }
 
+  if (eventValidationError) {
+    return (
+      <>
+        <ErrorView errorMessage={eventValidationError} />
+      </>
+    );
+  }
+
   // Show event ID input modal if no eventId is set
   if (showEventIdModal || eventId === null) {
     return (
@@ -129,7 +191,12 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
           <input
             type="number"
             value={eventIdInput}
-            onChange={(e) => setEventIdInput(e.target.value)}
+            onChange={(e) => {
+              setEventIdInput(e.target.value);
+              if (eventIdError) {
+                setEventIdError("");
+              }
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 handleEventIdSubmit();
@@ -139,6 +206,9 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
             placeholder="Event ID"
             autoFocus
           />
+          {eventIdError && (
+            <p className="text-sm text-red-600">{eventIdError}</p>
+          )}
           <button
             onClick={handleEventIdSubmit}
             className="w-full py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded"
@@ -201,7 +271,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
         {/* Delete Confirmation Modal - Updated text to reflect "Skip" instead of "Delete" */}
         {showSkipConfirm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+            <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full">
               <h3 className="text-lg font-bold mb-4">Confirm Skip</h3>
               <p className="mb-6">
                 Are you sure you want to skip this performer?

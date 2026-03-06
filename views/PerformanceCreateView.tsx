@@ -251,7 +251,7 @@ const SignUpView = ({
         </Modal>
       ) : (
         <div className="min-h-[calc(100vh-64px)] flex items-center justify-center p-0 sm:p-4">
-          <div className="w-full max-w-md bg-white border rounded-lg p-4 sm:p-6 space-y-4">
+          <div className="w-full max-w-md bg-white border rounded-lg shadow-xl p-4 sm:p-6 space-y-4">
             <div>
               <label className="block mb-1 font-medium">Performers</label>
               <input
