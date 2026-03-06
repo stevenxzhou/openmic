@@ -37,9 +37,6 @@ export default function QRCode({ url, size = 128 }: QRCodeProps) {
         height={size}
         className="border-2 sm:border-4 border-white shadow-lg rounded w-full h-auto"
       />
-      <p className="text-[8px] sm:text-xs text-gray-500 mt-1 text-center whitespace-nowrap">
-        Scan to join
-      </p>
     </div>
   );
 }

@@ -18,10 +18,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
   const { user } = useContext(GlobalContext);
   const isAdminOrHost =
     user.role?.toLowerCase() === "admin" || user.role?.toLowerCase() === "host";
-  const [eventId, setEventId] = useState<number | null>(propEventId ?? null);
-  const [eventIdInput, setEventIdInput] = useState("");
-  const [showEventIdModal, setShowEventIdModal] = useState(!propEventId);
-  const [eventIdError, setEventIdError] = useState("");
+  const [eventId] = useState<number | null>(propEventId ?? null);
   const [eventValidationError, setEventValidationError] = useState("");
   const [eventDetails, setEventDetails] = useState<Event | null>(null);
 
@@ -65,9 +62,15 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
     setPendingHighlightAfterAdd(false);
   }, [performances, pendingHighlightAfterAdd]);
 
+  useEffect(() => {
+    if (eventId === null) {
+      router.replace("/");
+    }
+  }, [eventId, router]);
+
   // Validate event when page is accessed with event_id in URL
   useEffect(() => {
-    if (!eventId || showEventIdModal) return;
+    if (!eventId) return;
 
     const validateEvent = async () => {
       try {
@@ -95,7 +98,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
     };
 
     validateEvent();
-  }, [eventId, showEventIdModal]);
+  }, [eventId]);
 
   // Poll for performance updates every 15 seconds
   useEffect(() => {
@@ -111,38 +114,6 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
   const handlePerformanceAdded = async () => {
     setPendingHighlightAfterAdd(true);
     await fetchPerformances(eventId!);
-  };
-
-  const handleEventIdSubmit = async () => {
-    const parsedEventId = parseInt(eventIdInput, 10);
-    if (isNaN(parsedEventId) || parsedEventId <= 0) {
-      setEventIdError("Please enter a valid event ID.");
-      return;
-    }
-
-    try {
-      const response = await fetch(apiUrl(`/api/events/${parsedEventId}`));
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          setEventIdError(`Event ${parsedEventId} does not exist.`);
-        } else {
-          setEventIdError(
-            "Unable to validate event right now. Please try again.",
-          );
-        }
-        return;
-      }
-
-      const eventData = await response.json();
-      setEventDetails(eventData);
-      setEventIdError("");
-      setEventId(parsedEventId);
-      setShowEventIdModal(false);
-      router.push(`/performances?event_id=${parsedEventId}`);
-    } catch {
-      setEventIdError("Unable to validate event right now. Please try again.");
-    }
   };
 
   const skipPerformanceConfirmHandler = (performance: PerformanceUser) => {
@@ -227,48 +198,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
     );
   }
 
-  // Show event ID input modal if no eventId is set
-  if (showEventIdModal || eventId === null) {
-    return (
-      <Modal>
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Enter Event ID
-          </h2>
-          <p className="text-gray-600">
-            Please enter the event ID to view performances.
-          </p>
-          <input
-            type="number"
-            value={eventIdInput}
-            onChange={(e) => {
-              setEventIdInput(e.target.value);
-              if (eventIdError) {
-                setEventIdError("");
-              }
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleEventIdSubmit();
-              }
-            }}
-            className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-            placeholder="Event ID"
-            autoFocus
-          />
-          {eventIdError && (
-            <p className="text-sm text-red-600">{eventIdError}</p>
-          )}
-          <button
-            onClick={handleEventIdSubmit}
-            className="w-full py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded"
-          >
-            Submit
-          </button>
-        </div>
-      </Modal>
-    );
-  }
+  if (eventId === null) return null;
 
   return (
     <>
