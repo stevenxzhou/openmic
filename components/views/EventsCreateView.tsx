@@ -81,6 +81,17 @@ const CreateEventView = ({
     return new Date(normalized).toISOString();
   };
 
+  const getCurrentDateTimeLocal = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   // Events Form
   const [title, setTitle] = useState(editingEvent?.title || "SAMA Open Mic");
   const [description, setDescription] = useState(
@@ -99,6 +110,7 @@ const CreateEventView = ({
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [displayError, setDisplayError] = useState<string | null>(null);
   const [duplicateEventId, setDuplicateEventId] = useState<number | null>(null);
+  const minStartTime = editingEvent ? undefined : getCurrentDateTimeLocal();
 
   // Clear error when user modifies the form
   const clearError = () => {
@@ -130,6 +142,15 @@ const CreateEventView = ({
     if (!title || !startTime || !location) {
       alert("Please fill all required fields");
       return;
+    }
+
+    if (!editingEvent) {
+      const selectedDate = new Date(startTime);
+      const now = new Date();
+      if (selectedDate < now) {
+        alert("Please choose a date and time that is not in the past.");
+        return;
+      }
     }
 
     const startDateTimeUTC = toUTCIso(startTime);
@@ -332,6 +353,7 @@ const CreateEventView = ({
                 <input
                   type="datetime-local"
                   value={startTime}
+                  min={minStartTime}
                   onChange={(e) => {
                     setStartTime(e.target.value);
                     clearError();
@@ -455,6 +477,7 @@ const CreateEventView = ({
               <input
                 type="datetime-local"
                 value={startTime}
+                min={minStartTime}
                 onChange={(e) => {
                   setStartTime(e.target.value);
                   clearError();
