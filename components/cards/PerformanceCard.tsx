@@ -174,7 +174,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
       {(!showWaitTime || index === 0) && (
         <button
           onClick={handleLike}
-          disabled={isLiking || !showWaitTime}
+          disabled={isLiking}
           className={`absolute top-2 right-0 p-2 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center ${hasUserLiked ? "cursor-default focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0" : "cursor-pointer"}`}
           title="Like"
         >

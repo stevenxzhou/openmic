@@ -6,6 +6,7 @@ import Header from "@/components/layouts/Header";
 import ErrorPage from "./ErrorPage";
 import PerformancesListViewLive from "@/components/views/PerformancesListViewPending";
 import PerformancesListViewCompact from "@/components/views/PerformancesListViewCompleted";
+import PerformancesListViewCompletedCollapsed from "@/components/views/PerformancesListViewCompletedCollapsed";
 import PerformancesCreateView from "../views/PerformancesCreateView";
 import Modal from "@/components/layouts/Modal";
 import { apiUrl } from "@/lib/utils";
@@ -249,6 +250,13 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
             isAdminOrHost={isAdminOrHost}
             onStartEvent={handleStartEvent}
             isStartingEvent={isStartingEvent}
+          />
+        )}
+
+        {!isCompletedEvent && activeView === "lineup" && (
+          <PerformancesListViewCompletedCollapsed
+            performances={performances}
+            title=""
           />
         )}
 
