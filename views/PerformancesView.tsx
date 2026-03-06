@@ -468,7 +468,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
               <div className="flex justify-center">
                 <div className="w-64 h-64">
                   <QRCode
-                    url={`${typeof window !== "undefined" ? window.location.origin : ""}/performances?event_id=${eventId}`}
+                    url={`${typeof window !== "undefined" ? window.location.origin : ""}/openmic/performances?event_id=${eventId}`}
                     size={256}
                   />
                 </div>
