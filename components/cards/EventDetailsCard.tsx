@@ -2,10 +2,12 @@ import { useState } from "react";
 import Modal from "@/components/layouts/Modal";
 import QRCode from "@/components/utilities/QRCode";
 import { Event } from "@/hooks/useEvents";
+import { type PerformanceUser } from "@/hooks/usePerformances";
 
 type EventDetailsCardProps = {
   eventDetails: Event;
   eventId: number;
+  performances?: PerformanceUser[];
 };
 
 const formatEventDateTime = (dateString: string) => {
@@ -21,16 +23,31 @@ const formatEventDateTime = (dateString: string) => {
   });
 };
 
+const getTopPerformer = (performances?: PerformanceUser[]) => {
+  if (!performances || performances.length === 0) return null;
+
+  let topPerformer = performances[0];
+  for (const perf of performances) {
+    if ((perf.likes || 0) > (topPerformer.likes || 0)) {
+      topPerformer = perf;
+    }
+  }
+
+  return (topPerformer.likes || 0) > 0 ? topPerformer : null;
+};
+
 export default function EventDetailsCard({
   eventDetails,
   eventId,
+  performances,
 }: EventDetailsCardProps) {
   const [showQRModal, setShowQRModal] = useState(false);
+  const topPerformer = getTopPerformer(performances);
 
   return (
     <>
       <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-        <div className="flex flex-row gap-2 sm:gap-4 items-start">
+        <div className="flex flex-row gap-2 sm:gap-4 items-start justify-between">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
               <h1 className="text-lg sm:text-xl font-bold text-gray-900">
@@ -118,6 +135,18 @@ export default function EventDetailsCard({
               )}
             </div>
           </div>
+          {topPerformer && (
+            <div className="flex-shrink-0 text-right">
+              <div className="text-2xl mb-1">🏅</div>
+              <div className="text-xs sm:text-sm font-semibold text-gray-900 break-words max-w-[120px]">
+                {topPerformer.performers}
+              </div>
+              <div className="text-xs text-gray-600 mt-1">
+                {topPerformer.likes}{" "}
+                {topPerformer.likes === 1 ? "like" : "likes"}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

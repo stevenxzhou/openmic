@@ -29,6 +29,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
 }) => {
   const [likes, setLikes] = useState(performance.likes || 0);
   const [isLiking, setIsLiking] = useState(false);
+  const [hasUserLiked, setHasUserLiked] = useState(false);
   const { user } = useContext(GlobalContext);
   const isAdminOrHost =
     user.role?.toLowerCase() === "admin" || user.role?.toLowerCase() === "host";
@@ -38,6 +39,36 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
     setLikes(performance.likes || 0);
   }, [performance.likes]);
 
+  // Load liked state from session storage on mount
+  useEffect(() => {
+    const likedPerformancesJson = sessionStorage.getItem("likedPerformances");
+    const likedPerformances = likedPerformancesJson
+      ? JSON.parse(likedPerformancesJson)
+      : {};
+    if (
+      performance.performance_id &&
+      likedPerformances[String(performance.performance_id)]
+    ) {
+      setHasUserLiked(true);
+    }
+  }, [performance.performance_id]);
+
+  // Save liked state to session storage whenever it changes
+  useEffect(() => {
+    if (hasUserLiked) {
+      const likedPerformancesJson = sessionStorage.getItem("likedPerformances");
+      const likedPerformances = likedPerformancesJson
+        ? JSON.parse(likedPerformancesJson)
+        : {};
+      if (performance.performance_id) {
+        likedPerformances[String(performance.performance_id)] = true;
+      }
+      sessionStorage.setItem(
+        "likedPerformances",
+        JSON.stringify(likedPerformances),
+      );
+    }
+  }, [hasUserLiked, performance.performance_id]);
   const songs = Array.isArray(performance.songs)
     ? performance.songs
     : typeof performance.songs === "string"
@@ -83,7 +114,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
     socialMediaValue && isInstagramHandle(socialMediaValue);
 
   const handleLike = async () => {
-    if (isLiking) return;
+    if (isLiking || hasUserLiked) return;
     setIsLiking(true);
     try {
       const response = await fetch(
@@ -98,6 +129,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
       if (response.ok) {
         const data = await response.json();
         setLikes(data.likes || likes + 1);
+        setHasUserLiked(true);
       }
     } catch (error) {
       console.error("Error liking performance:", error);
@@ -143,16 +175,19 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
         <button
           onClick={handleLike}
           disabled={isLiking || !showWaitTime}
-          className="absolute top-2 right-0 p-2 hover:bg-pink-100 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+          className={`absolute top-2 right-0 p-2 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center ${hasUserLiked ? "cursor-default" : "cursor-pointer"}`}
           title="Like"
         >
-          <span className="text-sm font-bold text-gray-800">{likes}</span>
-
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-8 w-8 text-pink-600"
+            className="h-8 w-8"
             viewBox="0 0 24 24"
-            fill="currentColor"
+            fill={hasUserLiked ? "currentColor" : "none"}
+            stroke={hasUserLiked ? "none" : "currentColor"}
+            strokeWidth={hasUserLiked ? 0 : 2}
+            style={{
+              color: hasUserLiked ? "#ec4899" : "#d1d5db",
+            }}
           >
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
           </svg>

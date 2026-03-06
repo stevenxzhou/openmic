@@ -227,7 +227,11 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
       )}
       <div className={`p-4 relative ${isCompletedEvent ? "" : "pb-20"}`}>
         {eventDetails && (
-          <EventDetailsCard eventDetails={eventDetails} eventId={eventId!} />
+          <EventDetailsCard
+            eventDetails={eventDetails}
+            eventId={eventId!}
+            performances={performances}
+          />
         )}
 
         {!isCompletedEvent && activeView === "lineup" && (
