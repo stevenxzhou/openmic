@@ -97,6 +97,25 @@ export default function EventDetailsCard({
                 </svg>
                 <span className="break-words">{eventDetails.location}</span>
               </div>
+              {eventDetails.host_names?.trim() && (
+                <div className="flex items-start">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-gray-500 flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 1a3 3 0 00-3 3v7a3 3 0 006 0V4a3 3 0 00-3-3zm7 10a1 1 0 10-2 0 5 5 0 01-10 0 1 1 0 10-2 0 7 7 0 006 6.92V21H8a1 1 0 000 2h8a1 1 0 100-2h-3v-3.08A7 7 0 0019 11z"
+                    />
+                  </svg>
+                  <span className="break-words">{eventDetails.host_names}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>

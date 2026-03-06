@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useEvents, type Event } from "@/hooks/useEvents";
 import { useRouter } from "next/navigation";
 import Header from "@/components/layouts/Header";
 import Modal from "@/components/layouts/Modal";
+import { GlobalContext } from "@/context/useGlobalContext";
 
 type CreateEventViewProps = {
   isModal?: boolean;
@@ -27,6 +28,8 @@ const CreateEventView = ({
   onAdded,
 }: CreateEventViewProps) => {
   const router = useRouter();
+  const { user } = useContext(GlobalContext);
+  const isAdmin = user.role?.toLowerCase() === "admin";
   const {
     createEvent: createEventHook,
     updateEvent: updateEventHook,
@@ -83,6 +86,8 @@ const CreateEventView = ({
   const [description, setDescription] = useState(
     editingEvent?.description || "",
   );
+  const [hostNames, setHostNames] = useState(editingEvent?.host_names || "");
+  const [status, setStatus] = useState(editingEvent?.status || "NEW");
   const [startTime, setStartTime] = useState(
     editingEvent
       ? toDateTimeLocalInput(editingEvent.start_date)
@@ -105,6 +110,8 @@ const CreateEventView = ({
     if (editingEvent) {
       setTitle(editingEvent.title || "");
       setDescription(editingEvent.description || "");
+      setHostNames(editingEvent.host_names || "");
+      setStatus(editingEvent.status || "NEW");
       setStartTime(toDateTimeLocalInput(editingEvent.start_date));
       setLocation(editingEvent.location || "");
       return;
@@ -112,6 +119,8 @@ const CreateEventView = ({
 
     setTitle("SAMA Open Mic");
     setDescription("");
+    setHostNames("");
+    setStatus("NEW");
     setStartTime(getNextSaturday7PM());
     setLocation("Story Coffee");
   }, [editingEvent]);
@@ -133,6 +142,8 @@ const CreateEventView = ({
       event_id: editingEvent?.event_id || 0,
       title: title,
       description: description,
+      host_names: hostNames,
+      status: status,
       start_date: startDateTimeUTC,
       end_date: startDateTimeUTC,
       location: location,
@@ -185,6 +196,8 @@ const CreateEventView = ({
     setShowConfirmation(false);
     setTitle("SAMA Open Mic");
     setDescription("");
+    setHostNames("");
+    setStatus("NEW");
     setStartTime(getNextSaturday7PM());
     setLocation("Story Coffee");
     setHookError(null);
@@ -265,6 +278,38 @@ const CreateEventView = ({
                   placeholder="Enter Event Name"
                 />
               </div>
+
+              <div>
+                <label className="block mb-1 font-medium">Event Hosts</label>
+                <input
+                  type="text"
+                  value={hostNames}
+                  onChange={(e) => {
+                    setHostNames(e.target.value);
+                    clearError();
+                  }}
+                  className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+                  placeholder="Enter host names"
+                />
+              </div>
+
+              {isAdmin && (
+                <div>
+                  <label className="block mb-1 font-medium">Event Status</label>
+                  <select
+                    value={status}
+                    onChange={(e) => {
+                      setStatus(e.target.value);
+                      clearError();
+                    }}
+                    className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+                  >
+                    <option value="NEW">NEW</option>
+                    <option value="IN_PROGRESS">IN_PROGRESS</option>
+                    <option value="COMPLETED">COMPLETED</option>
+                  </select>
+                </div>
+              )}
 
               <div>
                 <label className="block mb-1 font-medium">
@@ -356,6 +401,38 @@ const CreateEventView = ({
                 placeholder="Enter Event Name"
               />
             </div>
+
+            <div>
+              <label className="block mb-1 font-medium">Event Hosts</label>
+              <input
+                type="text"
+                value={hostNames}
+                onChange={(e) => {
+                  setHostNames(e.target.value);
+                  clearError();
+                }}
+                className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+                placeholder="Enter host names"
+              />
+            </div>
+
+            {isAdmin && (
+              <div>
+                <label className="block mb-1 font-medium">Event Status</label>
+                <select
+                  value={status}
+                  onChange={(e) => {
+                    setStatus(e.target.value);
+                    clearError();
+                  }}
+                  className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+                >
+                  <option value="NEW">NEW</option>
+                  <option value="IN_PROGRESS">IN_PROGRESS</option>
+                  <option value="COMPLETED">COMPLETED</option>
+                </select>
+              </div>
+            )}
 
             <div>
               <label className="block mb-1 font-medium">

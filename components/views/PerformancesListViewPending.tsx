@@ -13,7 +13,6 @@ type Props = {
   onComplete?: (performance: PerformanceUser) => void;
   onDelete?: (performance: PerformanceUser) => void;
   onMoveNext?: (performance: PerformanceUser) => void;
-  highlightLastCard?: boolean;
   scrollToBottomSignal?: number;
   eventStatus?: string;
   isAdminOrHost?: boolean;
@@ -30,7 +29,6 @@ export default function PerformancesView({
   onComplete,
   onDelete,
   onMoveNext,
-  highlightLastCard,
   scrollToBottomSignal,
   eventStatus,
   isAdminOrHost,
@@ -75,11 +73,8 @@ export default function PerformancesView({
           <div className="rounded-lg border border-yellow-300 bg-yellow-50 p-4 shadow-sm">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-semibold text-yellow-800">
-                  Event has not started yet
-                </p>
-                <p className="text-sm text-yellow-700">
-                  Start the event to begin the live performance queue.
+                <p className="text-sm text-center font-semibold text-yellow-800">
+                  Event has not started yet...
                 </p>
               </div>
               {isAdminOrHost && (
@@ -112,7 +107,6 @@ export default function PerformancesView({
                 calculateWaitTime={calculateWaitTime}
                 showWaitTime={true}
                 showActions={showActions}
-                isHighlighted={Boolean(highlightLastCard) && isLastPendingCard}
                 onComplete={onComplete}
                 onDelete={onDelete}
                 onMoveNext={onMoveNext}

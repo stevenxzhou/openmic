@@ -1,4 +1,4 @@
-import { useContext, useState, useRef, useEffect } from "react";
+import { useContext, useState } from "react";
 import { PerformanceStatus, PerformanceUser } from "@/hooks/usePerformances";
 import { GlobalContext } from "@/context/useGlobalContext";
 import PerformancesListViewContainer from "@/components/views/PerformancesListViewContainer";
@@ -22,104 +22,25 @@ const formatSongs = (songs: PerformanceUser["songs"]) => {
   return "";
 };
 
-const getInstagramHandle = (socialMedias: PerformanceUser["social_medias"]) => {
-  if (!socialMedias) return "";
-
-  if (typeof socialMedias === "string") {
-    return socialMedias.trim();
-  }
-
-  if (typeof socialMedias === "object") {
-    const firstValue = Object.values(socialMedias)[0];
-    return typeof firstValue === "string" ? firstValue.trim() : "";
-  }
-
-  return "";
-};
-
-const isInstagramHandle = (value: string): boolean => {
-  if (!value) return false;
-  return (
-    !value.startsWith("http://") &&
-    !value.startsWith("https://") &&
-    !value.includes(".com") &&
-    !value.includes(".net") &&
-    !value.includes(".org") &&
-    /^[a-zA-Z_][a-zA-Z0-9_.]{0,29}$/.test(value)
-  );
-};
-
 export default function PerformancesCompactView({
   performances,
   title,
   onDelete,
 }: Props) {
   const { user } = useContext(GlobalContext);
-  const isAdminOrHost =
-    user.role?.toLowerCase() === "admin" || user.role?.toLowerCase() === "host";
+  const isAdmin = user.role?.toLowerCase() === "admin";
 
   const [sortConfig, setSortConfig] = useState<{
-    key: "performer" | "songs" | "inputs" | "likes" | null;
+    key: "performer" | "songs" | "likes" | null;
     direction: "asc" | "desc";
   }>({ key: "likes", direction: "desc" });
 
-  const [columnWidths, setColumnWidths] = useState({
-    index: 40,
-    performer: 200,
-    songs: 220,
-    inputs: 150,
-    likes: 80,
-    action: 100,
-  });
-
-  const resizeRef = useRef<{
-    column: keyof typeof columnWidths;
-    startX: number;
-  } | null>(null);
-
-  const handleSort = (key: "performer" | "songs" | "inputs" | "likes") => {
+  const handleSort = (key: "performer" | "songs" | "likes") => {
     setSortConfig((prev) => ({
       key,
       direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
     }));
   };
-
-  const handleMouseDown = (
-    column: keyof typeof columnWidths,
-    e: React.MouseEvent,
-  ) => {
-    e.preventDefault();
-    resizeRef.current = { column, startX: e.clientX };
-  };
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!resizeRef.current) return;
-
-      const currentResize = resizeRef.current;
-      const delta = e.clientX - currentResize.startX;
-      setColumnWidths((prev) => ({
-        ...prev,
-        [currentResize.column]: Math.max(
-          50,
-          prev[currentResize.column] + delta,
-        ),
-      }));
-      currentResize.startX = e.clientX;
-    };
-
-    const handleMouseUp = () => {
-      resizeRef.current = null;
-    };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, []);
 
   let sortedPerformances = [...performances].filter(
     (performance) => performance.status === PerformanceStatus.COMPLETED,
@@ -138,10 +59,6 @@ export default function PerformancesCompactView({
         case "songs":
           aVal = formatSongs(a.songs);
           bVal = formatSongs(b.songs);
-          break;
-        case "inputs":
-          aVal = a.inputs || "";
-          bVal = b.inputs || "";
           break;
         case "likes":
           aVal = a.likes ?? 0;
@@ -170,15 +87,61 @@ export default function PerformancesCompactView({
     );
   };
 
-  const ResizeHandle = ({ column }: { column: keyof typeof columnWidths }) => (
-    <div
-      onMouseDown={(e) => {
-        e.stopPropagation();
-        handleMouseDown(column, e);
-      }}
-      className="absolute right-0 top-0 bottom-0 w-1 bg-gray-300 hover:bg-yellow-500 cursor-col-resize opacity-0 hover:opacity-100 transition-opacity"
-    />
-  );
+  const csvValue = (value: unknown) => {
+    if (value === null || value === undefined) return "";
+    if (typeof value === "object") {
+      try {
+        return JSON.stringify(value);
+      } catch {
+        return String(value);
+      }
+    }
+    return String(value);
+  };
+
+  const csvEscape = (value: unknown) => {
+    const stringValue = csvValue(value);
+    return `"${stringValue.replace(/"/g, '""')}"`;
+  };
+
+  const handleExportCsv = () => {
+    const excludedKeys = new Set([
+      "performance_id",
+      "event_id",
+      "performance_index",
+      "status",
+    ]);
+
+    const allKeys = Array.from(
+      new Set(
+        sortedPerformances.flatMap((performance) =>
+          Object.keys(performance as Record<string, unknown>),
+        ),
+      ),
+    ).filter((key) => !excludedKeys.has(key));
+
+    const headers = [...allKeys];
+
+    const rows = sortedPerformances.map((performance) => {
+      const performanceRecord = performance as Record<string, unknown>;
+      return [...allKeys.map((key) => performanceRecord[key])];
+    });
+
+    const csvContent = [
+      headers.map(csvEscape).join(","),
+      ...rows.map((row) => row.map(csvEscape).join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "completed-performances.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <PerformancesListViewContainer
@@ -191,171 +154,85 @@ export default function PerformancesCompactView({
       }
     >
       <div className="border rounded overflow-hidden overflow-x-auto">
-        <table className="text-sm border-collapse">
+        <table className="w-full text-sm border-collapse">
           <thead className="bg-gray-50 text-gray-700">
             <tr>
               <th
-                className="px-3 py-2 text-left relative border-r border-gray-200"
-                style={{
-                  width: `${columnWidths.index}px`,
-                  minWidth: `${columnWidths.index}px`,
-                }}
-              >
-                #
-                <ResizeHandle column="index" />
-              </th>
-              <th
-                className="px-3 py-2 text-left relative border-r border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                className="px-3 py-2 text-left border-r border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort("performer")}
-                style={{
-                  width: `${columnWidths.performer}px`,
-                  minWidth: `${columnWidths.performer}px`,
-                }}
               >
                 <div className="flex items-center whitespace-nowrap">
                   Performer
                   <SortIndicator column="performer" />
                 </div>
-                <ResizeHandle column="performer" />
               </th>
               <th
-                className="px-3 py-2 text-left relative border-r border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                className="px-3 py-2 text-left border-r border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort("songs")}
-                style={{
-                  width: `${columnWidths.songs}px`,
-                  minWidth: `${columnWidths.songs}px`,
-                }}
               >
                 <div className="flex items-center whitespace-nowrap">
                   Songs
                   <SortIndicator column="songs" />
                 </div>
-                <ResizeHandle column="songs" />
               </th>
               <th
-                className="px-3 py-2 text-left relative border-r border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
-                onClick={() => handleSort("inputs")}
-                style={{
-                  width: `${columnWidths.inputs}px`,
-                  minWidth: `${columnWidths.inputs}px`,
-                }}
-              >
-                <div className="flex items-center whitespace-nowrap">
-                  Inputs
-                  <SortIndicator column="inputs" />
-                </div>
-                <ResizeHandle column="inputs" />
-              </th>
-              <th
-                className="px-3 py-2 text-right relative border-r border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                className="px-3 py-2 text-right border-r border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort("likes")}
-                style={{
-                  width: `${columnWidths.likes}px`,
-                  minWidth: `${columnWidths.likes}px`,
-                }}
               >
                 <div className="flex items-center justify-end whitespace-nowrap">
                   Likes
                   <SortIndicator column="likes" />
                 </div>
-                <ResizeHandle column="likes" />
               </th>
-              {isAdminOrHost && onDelete && (
-                <th
-                  className="px-3 py-2 text-right"
-                  style={{
-                    width: `${columnWidths.action}px`,
-                    minWidth: `${columnWidths.action}px`,
-                  }}
-                >
-                  Action
-                </th>
+              {isAdmin && onDelete && (
+                <th className="px-3 py-2 text-right">Action</th>
               )}
             </tr>
           </thead>
           <tbody>
-            {sortedPerformances.map((performance, idx) => {
+            {sortedPerformances.map((performance) => {
               const songsText = formatSongs(performance.songs);
-              const instagramHandle = getInstagramHandle(
-                performance.social_medias,
-              );
-              const hasInstagram = isInstagramHandle(instagramHandle);
               return (
                 <tr
                   key={performance.performance_id}
                   className="border-t border-gray-100"
                 >
-                  <td
-                    className="px-3 py-2 text-gray-500"
-                    style={{
-                      width: `${columnWidths.index}px`,
-                      minWidth: `${columnWidths.index}px`,
-                    }}
-                  >
-                    {idx + 1}
-                  </td>
-                  <td
-                    className="px-3 py-2 font-medium text-gray-900"
-                    style={{
-                      width: `${columnWidths.performer}px`,
-                      minWidth: `${columnWidths.performer}px`,
-                    }}
-                  >
+                  <td className="px-3 py-2 font-medium text-gray-900">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <span>{performance.performers || "Guest"}</span>
-                      {hasInstagram && (
-                        <a
-                          href={`https://instagram.com/${instagramHandle}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-pink-600 hover:text-pink-700 hover:underline text-xs font-medium"
-                        >
-                          @{instagramHandle}
-                        </a>
-                      )}
                     </div>
                   </td>
                   <td
                     className="px-3 py-2 text-gray-700 truncate"
                     title={songsText}
-                    style={{
-                      width: `${columnWidths.songs}px`,
-                      minWidth: `${columnWidths.songs}px`,
-                    }}
                   >
                     {songsText || "-"}
                   </td>
-                  <td
-                    className="px-3 py-2 text-gray-700"
-                    style={{
-                      width: `${columnWidths.inputs}px`,
-                      minWidth: `${columnWidths.inputs}px`,
-                    }}
-                  >
-                    {performance.inputs || "-"}
-                  </td>
-                  <td
-                    className="px-3 py-2 text-right text-gray-700"
-                    style={{
-                      width: `${columnWidths.likes}px`,
-                      minWidth: `${columnWidths.likes}px`,
-                    }}
-                  >
+                  <td className="px-3 py-2 text-right text-gray-700">
                     {performance.likes || 0}
                   </td>
-                  {isAdminOrHost && onDelete && (
-                    <td
-                      className="px-3 py-2 text-right"
-                      style={{
-                        width: `${columnWidths.action}px`,
-                        minWidth: `${columnWidths.action}px`,
-                      }}
-                    >
+                  {isAdmin && onDelete && (
+                    <td className="px-3 py-2 text-right">
                       <button
-                        className="text-red-600 hover:text-red-700 text-xs font-semibold"
+                        className="rounded p-1 text-red-600 hover:bg-red-50 hover:text-red-700"
+                        aria-label="Delete performance"
+                        title="Delete"
                         onClick={() => onDelete(performance)}
                       >
-                        Delete
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
                       </button>
                     </td>
                   )}
@@ -364,6 +241,16 @@ export default function PerformancesCompactView({
             })}
           </tbody>
         </table>
+      </div>
+      <div className="mt-3 flex justify-end">
+        <button
+          type="button"
+          onClick={handleExportCsv}
+          disabled={sortedPerformances.length === 0}
+          className="rounded bg-yellow-600 px-3 py-2 text-sm font-medium text-white hover:bg-yellow-700 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          Export CSV
+        </button>
       </div>
     </PerformancesListViewContainer>
   );

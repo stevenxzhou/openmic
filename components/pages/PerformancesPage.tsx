@@ -37,7 +37,6 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
   const [currentPerformanceIndex] = useState<number>(0);
   const [showSkipConfirm, toggleSkipConfirmModal] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
-  const [highlightLastPending, setHighlightLastPending] = useState(false);
   const [scrollToBottomSignal, setScrollToBottomSignal] = useState(0);
   const [pendingHighlightAfterAdd, setPendingHighlightAfterAdd] =
     useState(false);
@@ -62,15 +61,8 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
       return;
     }
 
-    setHighlightLastPending(true);
     setScrollToBottomSignal((prev) => prev + 1);
     setPendingHighlightAfterAdd(false);
-
-    const timeoutId = setTimeout(() => {
-      setHighlightLastPending(false);
-    }, 5000);
-
-    return () => clearTimeout(timeoutId);
   }, [performances, pendingHighlightAfterAdd]);
 
   // Validate event when page is accessed with event_id in URL
@@ -296,7 +288,6 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
             onComplete={handleComplete}
             onDelete={handleDelete}
             onMoveNext={handleMoveNext}
-            highlightLastCard={highlightLastPending}
             scrollToBottomSignal={scrollToBottomSignal}
             eventStatus={eventDetails?.status}
             isAdminOrHost={isAdminOrHost}

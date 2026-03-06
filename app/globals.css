@@ -34,25 +34,4 @@ body {
   outline-offset: 2px;
 }
 
-@keyframes blinkBgOnce {
-  0% {
-    background-color: rgba(250, 204, 21, 0);
-  }
-  25% {
-    background-color: rgba(250, 204, 21, 0.35);
-  }
-  50% {
-    background-color: rgba(250, 204, 21, 0);
-  }
-  75% {
-    background-color: rgba(250, 204, 21, 0.35);
-  }
-  100% {
-    background-color: rgba(250, 204, 21, 0);
-  }
-}
-
-.blink-once-bg {
-  animation: blinkBgOnce 5s ease-in-out 1;
-}
 

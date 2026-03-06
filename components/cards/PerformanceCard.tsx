@@ -11,7 +11,6 @@ type PerformanceCardProps = {
   calculateWaitTime: (index: number) => string;
   showWaitTime?: boolean;
   showActions?: boolean;
-  isHighlighted?: boolean;
   onComplete?: (performance: PerformanceUser) => void;
   onDelete?: (performance: PerformanceUser) => void;
   onMoveNext?: (performance: PerformanceUser) => void;
@@ -24,7 +23,6 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
   calculateWaitTime,
   showWaitTime = true,
   showActions = false,
-  isHighlighted = false,
   onComplete,
   onDelete,
   onMoveNext,
@@ -110,8 +108,8 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
 
   return (
     <div
-      className={`relative border-2 border-yellow-500 p-3 rounded transition-all ${
-        isHighlighted ? "blink-once-bg" : ""
+      className={`relative border-2 p-3 rounded transition-all ${
+        index === 0 ? "border-yellow-500" : "border-gray-300"
       }`}
     >
       {/* Large background number */}

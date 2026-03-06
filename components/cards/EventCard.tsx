@@ -14,6 +14,30 @@ export const EventCard = (props: EventCardProps) => {
   const router = useRouter();
   const { user } = useContext(GlobalContext);
   const isAdmin = user.role?.toLowerCase() === "admin";
+  const normalizedStatus = String(props.status || "NEW").toUpperCase();
+  const isStarted = normalizedStatus === "IN_PROGRESS";
+
+  const statusBadge = (() => {
+    if (normalizedStatus === "IN_PROGRESS") {
+      return {
+        label: "Started",
+        className: "bg-emerald-100 text-emerald-700 border-emerald-200",
+      };
+    }
+
+    if (normalizedStatus === "COMPLETED") {
+      return {
+        label: "Completed",
+        className: "bg-gray-100 text-gray-700 border-gray-200",
+      };
+    }
+
+    return {
+      label: "Not Started",
+      className: "bg-amber-100 text-amber-700 border-amber-200",
+    };
+  })();
+
   const convertDateFormat = (datestr: string): string => {
     if (!datestr) return "Invalid date";
 
@@ -55,7 +79,7 @@ export const EventCard = (props: EventCardProps) => {
       className="relative bg-white rounded-lg shadow-xl border-gray-200 p-4 sm:p-6 hover:shadow-2xl transition-shadow text-sm cursor-pointer"
       onClick={handleCardClick}
     >
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-start gap-3">
         <div className="flex-1">
           {/* <!-- Date --> */}
           <p className="text-sm font-medium text-yellow-600">
@@ -77,6 +101,17 @@ export const EventCard = (props: EventCardProps) => {
           <div className="mt-4 flex items-center text-sm text-gray-500">
             <span>{props.location}</span>
           </div>
+        </div>
+        <div
+          className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-semibold whitespace-nowrap ${statusBadge.className}`}
+          title={`Event status: ${normalizedStatus}`}
+        >
+          <span
+            className={`h-1.5 w-1.5 rounded-full ${
+              isStarted ? "bg-emerald-600" : "bg-amber-600"
+            }`}
+          />
+          {statusBadge.label}
         </div>
       </div>
 

@@ -89,29 +89,45 @@ function convertEventDates(event: any): any {
 
 // Events
 export async function getEvents() {
-    const events = await query('SELECT * FROM events ORDER BY start_date DESC');
+    const events = await query(`
+        SELECT
+            e.*, 
+            COUNT(CASE WHEN p.status = 'COMPLETED' THEN 1 END) AS completed_performances
+        FROM events e
+        LEFT JOIN performances p ON p.event_id = e.event_id
+        GROUP BY e.event_id
+        ORDER BY e.start_date DESC
+    `);
     return events.map(convertEventDates);
 }
 
 export async function getEventById(eventId: number) {
-    const result = await query('SELECT * FROM events WHERE event_id = ?', [eventId]);
+    const result = await query(`
+        SELECT
+            e.*, 
+            COUNT(CASE WHEN p.status = 'COMPLETED' THEN 1 END) AS completed_performances
+        FROM events e
+        LEFT JOIN performances p ON p.event_id = e.event_id
+        WHERE e.event_id = ?
+        GROUP BY e.event_id
+    `, [eventId]);
     return result?.[0] ? convertEventDates(result[0]) : null;
 }
 
 export async function createEvent(eventData: any) {
-    const { title, description, start_date, end_date, location, status } = eventData;
+    const { title, description, start_date, end_date, location, host_names, status } = eventData;
     const result = await query(
-        'INSERT INTO events (title, description, start_date, end_date, location, status) VALUES (?, ?, ?, ?, ?, ?)',
-        [title, description, toMySQLDateTime(start_date), toMySQLDateTime(end_date), location, status || 'NEW']
+        'INSERT INTO events (title, description, start_date, end_date, location, host_names, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [title, description, toMySQLDateTime(start_date), toMySQLDateTime(end_date), location, host_names || '', status || 'NEW']
     );
     return { event_id: Number(result.insertId), ...eventData };
 }
 
 export async function updateEvent(eventId: number, eventData: any) {
-    const { title, description, start_date, end_date, location, status } = eventData;
+    const { title, description, start_date, end_date, location, host_names, status } = eventData;
     await query(
-        'UPDATE events SET title = ?, description = ?, start_date = ?, end_date = ?, location = ?, status = ? WHERE event_id = ?',
-        [title, description, toMySQLDateTime(start_date), toMySQLDateTime(end_date), location, status || 'NEW', eventId]
+        'UPDATE events SET title = ?, description = ?, start_date = ?, end_date = ?, location = ?, host_names = ?, status = ? WHERE event_id = ?',
+        [title, description, toMySQLDateTime(start_date), toMySQLDateTime(end_date), location, host_names || '', status || 'NEW', eventId]
     );
     return getEventById(eventId);
 }
