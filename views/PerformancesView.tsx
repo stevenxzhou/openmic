@@ -97,6 +97,17 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
     validateEvent();
   }, [eventId, showEventIdModal]);
 
+  // Poll for performance updates every 15 seconds
+  useEffect(() => {
+    if (!eventId) return;
+
+    const interval = setInterval(() => {
+      fetchPerformances(eventId);
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const handlePerformanceAdded = async () => {
     setPendingHighlightAfterAdd(true);
     await fetchPerformances(eventId!);

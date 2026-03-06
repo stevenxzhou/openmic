@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { type PerformanceUser } from "@/hooks/usePerformances";
 import { InstagramIcon } from "./SocialMediaIcons";
 import { apiUrl } from "@/lib/utils";
@@ -32,6 +32,11 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
   const { user } = useContext(GlobalContext);
   const isAdminOrHost =
     user.role?.toLowerCase() === "admin" || user.role?.toLowerCase() === "host";
+
+  // Sync likes whenever performance prop updates
+  useEffect(() => {
+    setLikes(performance.likes || 0);
+  }, [performance.likes]);
 
   const songs = Array.isArray(performance.songs)
     ? performance.songs
@@ -107,6 +112,16 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
         isHighlighted ? "blink-once-bg" : ""
       }`}
     >
+      {/* Large background number */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden rounded -z-10">
+        <span
+          className="text-gray-100 font-bold leading-none"
+          style={{ fontSize: "120px" }}
+        >
+          {index + 1}
+        </span>
+      </div>
+
       {/* Performer name */}
       <div className="flex items-end">
         <h1
