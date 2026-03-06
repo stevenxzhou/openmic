@@ -4,6 +4,9 @@ import { InstagramIcon } from "../utilities/SocialMediaIcons";
 import { apiUrl } from "@/lib/utils";
 import { GlobalContext } from "@/context/useGlobalContext";
 
+const LIKED_PERFORMANCES_KEY = "likedPerformances";
+const MAX_LIKES_PER_EVENT = 50;
+
 type PerformanceCardProps = {
   performance: PerformanceUser;
   index: number;
@@ -30,6 +33,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
   const [likes, setLikes] = useState(performance.likes || 0);
   const [isLiking, setIsLiking] = useState(false);
   const [hasUserLiked, setHasUserLiked] = useState(false);
+  const [showLikeLimitToast, setShowLikeLimitToast] = useState(false);
   const { user } = useContext(GlobalContext);
   const isAdminOrHost =
     user.role?.toLowerCase() === "admin" || user.role?.toLowerCase() === "host";
@@ -41,34 +45,64 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
 
   // Load liked state from session storage on mount
   useEffect(() => {
-    const likedPerformancesJson = sessionStorage.getItem("likedPerformances");
+    const likedPerformancesJson = sessionStorage.getItem(
+      LIKED_PERFORMANCES_KEY,
+    );
     const likedPerformances = likedPerformancesJson
       ? JSON.parse(likedPerformancesJson)
       : {};
-    if (
-      performance.performance_id &&
-      likedPerformances[String(performance.performance_id)]
-    ) {
+
+    if (!performance.performance_id) return;
+
+    const key = String(performance.performance_id);
+    const likedEntry = likedPerformances[key];
+    if (likedEntry) {
       setHasUserLiked(true);
+
+      // Migrate legacy boolean value to event_id value for per-event counting.
+      if (likedEntry === true && performance.event_id) {
+        likedPerformances[key] = performance.event_id;
+        sessionStorage.setItem(
+          LIKED_PERFORMANCES_KEY,
+          JSON.stringify(likedPerformances),
+        );
+      }
     }
-  }, [performance.performance_id]);
+  }, [performance.performance_id, performance.event_id]);
 
   // Save liked state to session storage whenever it changes
   useEffect(() => {
-    if (hasUserLiked) {
-      const likedPerformancesJson = sessionStorage.getItem("likedPerformances");
-      const likedPerformances = likedPerformancesJson
-        ? JSON.parse(likedPerformancesJson)
-        : {};
-      if (performance.performance_id) {
-        likedPerformances[String(performance.performance_id)] = true;
+    const likedPerformancesJson = sessionStorage.getItem(
+      LIKED_PERFORMANCES_KEY,
+    );
+    const likedPerformances = likedPerformancesJson
+      ? JSON.parse(likedPerformancesJson)
+      : {};
+
+    if (performance.performance_id) {
+      const key = String(performance.performance_id);
+      if (hasUserLiked) {
+        likedPerformances[key] = performance.event_id || true;
+      } else {
+        delete likedPerformances[key];
       }
+
       sessionStorage.setItem(
-        "likedPerformances",
+        LIKED_PERFORMANCES_KEY,
         JSON.stringify(likedPerformances),
       );
     }
-  }, [hasUserLiked, performance.performance_id]);
+  }, [hasUserLiked, performance.performance_id, performance.event_id]);
+
+  useEffect(() => {
+    if (!showLikeLimitToast) return;
+
+    const timeoutId = setTimeout(() => {
+      setShowLikeLimitToast(false);
+    }, 2500);
+
+    return () => clearTimeout(timeoutId);
+  }, [showLikeLimitToast]);
   const songs = Array.isArray(performance.songs)
     ? performance.songs
     : typeof performance.songs === "string"
@@ -114,13 +148,35 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
     socialMediaValue && isInstagramHandle(socialMediaValue);
 
   const handleLike = async () => {
-    if (isLiking || hasUserLiked) return;
+    if (isLiking) return;
+
+    if (!hasUserLiked && performance.event_id) {
+      const likedPerformancesJson = sessionStorage.getItem(
+        LIKED_PERFORMANCES_KEY,
+      );
+      const likedPerformances = likedPerformancesJson
+        ? JSON.parse(likedPerformancesJson)
+        : {};
+
+      const likesInCurrentEvent = Object.values(likedPerformances).reduce(
+        (count: number, entry) =>
+          Number(entry) === Number(performance.event_id) ? count + 1 : count,
+        0,
+      );
+
+      if (likesInCurrentEvent >= MAX_LIKES_PER_EVENT) {
+        setShowLikeLimitToast(true);
+        return;
+      }
+    }
+
     setIsLiking(true);
     try {
+      const method = hasUserLiked ? "DELETE" : "POST";
       const response = await fetch(
         apiUrl(`/api/performances/${performance.performance_id}/like`),
         {
-          method: "POST",
+          method,
           headers: {
             "Content-Type": "application/json",
           },
@@ -128,8 +184,12 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
       );
       if (response.ok) {
         const data = await response.json();
-        setLikes(data.likes || likes + 1);
-        setHasUserLiked(true);
+        if (typeof data.likes === "number") {
+          setLikes(data.likes);
+        } else {
+          setLikes((prev) => (hasUserLiked ? Math.max(prev - 1, 0) : prev + 1));
+        }
+        setHasUserLiked((prev) => !prev);
       }
     } catch (error) {
       console.error("Error liking performance:", error);
@@ -174,8 +234,8 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
       {(!showWaitTime || index === 0) && (
         <button
           onClick={handleLike}
-          disabled={isLiking}
-          className={`absolute top-2 right-0 p-2 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center ${hasUserLiked ? "cursor-default focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0" : "cursor-pointer"}`}
+          aria-disabled={isLiking}
+          className={`absolute top-2 right-0 p-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer ${isLiking ? "opacity-50" : ""} ${hasUserLiked ? "focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0" : ""}`}
           title="Like"
         >
           <svg
@@ -192,6 +252,12 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
           </svg>
         </button>
+      )}
+
+      {showLikeLimitToast && (
+        <div className="absolute right-0 top-12 z-10 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 shadow">
+          You can like up to {MAX_LIKES_PER_EVENT} performances per event.
+        </div>
       )}
 
       {/* Wait time - only show for 2nd card onward in lineup */}

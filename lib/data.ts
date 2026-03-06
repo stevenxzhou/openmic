@@ -240,6 +240,14 @@ export async function incrementPerformanceLikes(performanceId: number) {
     return getPerformanceById(performanceId);
 }
 
+export async function decrementPerformanceLikes(performanceId: number) {
+    await query(
+        'UPDATE performances SET likes = GREATEST(likes - 1, 0) WHERE performance_id = ?',
+        [performanceId]
+    );
+    return getPerformanceById(performanceId);
+}
+
 export async function movePerformanceNext(performanceId: number, eventId: number) {
     // Get all pending performances for this event sorted by index
     const performances = await query(`
