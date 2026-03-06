@@ -109,49 +109,49 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
     >
       {/* Performer name */}
       <div className="flex items-end">
-        <h1 className="font-md text-[2rem] leading-tight text-gray-900 mr-2">
+        <h1
+          className={`font-md leading-tight text-gray-900 mr-2 ${index === 0 ? "text-[2rem]" : "text-lg"}`}
+        >
           {performance.performers || "Guest"}
         </h1>
 
         {/* Social media - Instagram handle only */}
-        {showInstagramIcon && (
+        {showInstagramIcon && index === 0 && (
           <div className="w-5 h-5 flex-shrink-0 text-pink-600 mb-3">
             <InstagramIcon className="w-5" handle={socialMediaValue} />
           </div>
         )}
       </div>
 
-      {/* Likes and Wait Time Row */}
-      <div className="flex items-center mt-3">
-        {/* Like button and count - show for first card in lineup OR all cards in completed list */}
-        {(!showWaitTime || index === 0) && (
-          <div className="flex items-center gap-1">
-            <button
-              onClick={handleLike}
-              disabled={isLiking || !showWaitTime}
-              className="pr-1.5 hover:bg-yellow-100 rounded-lg transition-colors disabled:opacity-50"
-              title="Like"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-yellow-600"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
-            </button>
-            <span className="text-sm font-bold text-gray-800">{likes}</span>
-          </div>
-        )}
+      {/* Like button - top right */}
+      {(!showWaitTime || index === 0) && (
+        <button
+          onClick={handleLike}
+          disabled={isLiking || !showWaitTime}
+          className="absolute top-2 right-0 p-2 hover:bg-yellow-100 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+          title="Like"
+        >
+          <span className="text-sm font-bold text-gray-800">{likes}</span>
 
-        {/* Wait time - only show for 2nd card onward in lineup */}
-        {showWaitTime && index > 0 && (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8 text-yellow-600"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
+        </button>
+      )}
+
+      {/* Wait time - only show for 2nd card onward in lineup */}
+      {showWaitTime && index > 0 && (
+        <div className="absolute top-2 right-0 p-2 flex items-center">
           <span className="text-sm text-gray-600 font-medium">
             ⏱ {calculateWaitTime(index)}
           </span>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Songs */}
       <p className="text-sm text-gray-800 font-medium mt-3 line-clamp-2">
@@ -162,7 +162,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
       {showActions &&
         isAdminOrHost &&
         (onComplete || onDelete || onMoveToFirst) && (
-          <div className="absolute bottom-2 right-2 flex flex-col gap-1 items-end">
+          <div className="absolute mt-10 bottom-2 right-2 flex gap-1 items-end">
             {/* Inputs display */}
             {performance.inputs && (
               <p className="text-xs text-gray-600 mb-1">{performance.inputs}</p>
