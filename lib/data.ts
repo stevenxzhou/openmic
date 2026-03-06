@@ -23,10 +23,14 @@ export async function query(sql: string, params?: any[]) {
     }
 }
 
-// Helper function to convert BigInt to Number
+// Helper function to convert BigInt to Number and Date to string
 function convertBigIntToNumber(obj: any): any {
     if (typeof obj === 'bigint') {
         return Number(obj);
+    }
+    if (obj instanceof Date) {
+        // Convert Date to ISO string for JSON serialization
+        return obj.toISOString().slice(0, 19).replace('T', ' ');
     }
     if (Array.isArray(obj)) {
         return obj.map(convertBigIntToNumber);
@@ -58,6 +62,13 @@ export async function createEvent(eventData: any) {
         [title, description, start_date, end_date, location]
     );
     return { event_id: Number(result.insertId), ...eventData };
+}
+
+export async function deleteEvent(eventId: number) {
+    // First, delete all performances associated with this event
+    await query('DELETE FROM performances WHERE event_id = ?', [eventId]);
+    // Then delete the event
+    await query('DELETE FROM events WHERE event_id = ?', [eventId]);
 }
 
 // Performances
@@ -158,6 +169,34 @@ export async function incrementPerformanceLikes(performanceId: number) {
         'UPDATE performances SET likes = likes + 1 WHERE performance_id = ?',
         [performanceId]
     );
+    return getPerformanceById(performanceId);
+}
+
+export async function movePerformanceToFirst(performanceId: number, eventId: number) {
+    // Get all pending performances for this event
+    const performances = await query(`
+        SELECT performance_id, performance_index 
+        FROM performances 
+        WHERE event_id = ? AND status = 'PENDING'
+        ORDER BY performance_index ASC
+    `, [eventId]);
+    
+    if (performances.length === 0) {
+        throw new Error('No performances found');
+    }
+    
+    // Find the minimum performance_index
+    const minIndex = performances[0].performance_index;
+    
+    // Set the target performance's index to be 10 less than the current minimum
+    // This places it at the front of the queue
+    const newIndex = minIndex - 10;
+    
+    await query(
+        'UPDATE performances SET performance_index = ? WHERE performance_id = ?',
+        [newIndex, performanceId]
+    );
+    
     return getPerformanceById(performanceId);
 }
 

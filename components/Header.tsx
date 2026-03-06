@@ -127,6 +127,13 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
                       </p>
                     )}
                   </div>
+                  <Link
+                    href="/events"
+                    onClick={() => setShowProfileMenu(false)}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    Manage Events
+                  </Link>
                   <button
                     onClick={userLogoutHandler}
                     className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"

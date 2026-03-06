@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import usePerformances from "@/hooks/usePerformances";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Modal from "@/components/Modal";
 import { SocialIcon } from "react-social-icons";
+import { GlobalContext } from "@/context/useGlobalContext";
 
 type SignUpViewProps = {
   eventId: number | string;
@@ -20,6 +21,12 @@ const SignUpView = ({
 }: SignUpViewProps) => {
   const router = useRouter();
   const eventId = parseInt(String(rawEventId), 10);
+  const { user } = useContext(GlobalContext);
+
+  // Check if user is admin or host
+  const isAdminOrHost =
+    user.role?.toLowerCase() === "admin" || user.role?.toLowerCase() === "host";
+  const storageKey = `performance_draft_${eventId}`;
 
   // Form state
   const [performer, setPerformer] = useState("");
@@ -29,6 +36,39 @@ const SignUpView = ({
   const [socialMediaError, setSocialMediaError] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
   const { performances, addPerformance } = usePerformances(eventId);
+
+  // Load saved data from sessionStorage on mount (only for non-admin/non-host users)
+  useEffect(() => {
+    if (!isAdminOrHost && typeof window !== "undefined") {
+      const savedData = sessionStorage.getItem(storageKey);
+      if (savedData) {
+        try {
+          const parsed = JSON.parse(savedData);
+          setPerformer(parsed.performer || "");
+          setInputs(parsed.inputs || "");
+          setSocialMedia(parsed.socialMedia || "");
+          // Note: songs field is intentionally not loaded
+        } catch (error) {
+          console.error("Error loading saved performance data:", error);
+        }
+      }
+    }
+  }, [isAdminOrHost, storageKey]);
+
+  // Save data to sessionStorage when form fields change (except songs)
+  useEffect(() => {
+    if (!isAdminOrHost && typeof window !== "undefined") {
+      // Only save if at least one field has a value
+      if (performer || inputs || socialMedia) {
+        const dataToSave = {
+          performer,
+          inputs,
+          socialMedia,
+        };
+        sessionStorage.setItem(storageKey, JSON.stringify(dataToSave));
+      }
+    }
+  }, [performer, inputs, socialMedia, isAdminOrHost, storageKey]);
 
   // Validate Instagram handle format
   const isValidInstagramHandle = (value: string): boolean => {
@@ -98,11 +138,7 @@ const SignUpView = ({
 
   const closeModal = () => {
     setShowConfirmation(false);
-    setPerformer("");
     setSongs("");
-    setInputs("");
-    setSocialMedia("");
-    setSocialMediaError("");
     onClose?.();
   };
 

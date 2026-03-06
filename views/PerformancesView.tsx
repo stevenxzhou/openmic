@@ -20,6 +20,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
     updatePerformance,
     removePerformance,
     fetchPerformances,
+    moveToFirst,
   } = usePerformances(eventId ?? 0);
 
   const [currentPerformanceIndex] = useState<number>(0);
@@ -100,6 +101,12 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
     setDeleteConfirmation(null);
   };
 
+  const handleMoveToFirst = (performance: PerformanceUser) => {
+    if (performance.performance_id) {
+      moveToFirst(eventId!, performance.performance_id);
+    }
+  };
+
   if (error) {
     return (
       <>
@@ -157,6 +164,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
           defaultCollapsed={false}
           onComplete={handleComplete}
           onDelete={handleDelete}
+          onMoveToFirst={handleMoveToFirst}
           highlightLastCard={highlightLastPending}
           scrollToBottomSignal={scrollToBottomSignal}
         />
@@ -177,7 +185,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
             className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-center block"
             onClick={() => setShowSignupModal(true)}
           >
-            Sign Up
+            Add New
           </button>
         </div>
 

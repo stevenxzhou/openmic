@@ -107,7 +107,24 @@ const usePerformances = (eventId: number) => {
         }
     };
 
-    return { performances, pendingPerformances, addPerformance, fetchPerformances, setPerformances, updatePerformance, removePerformance, error };
+    const moveToFirst = async (eventId: number, performanceId: number) => {
+        try {
+            const response = await fetch(apiUrl(`/api/performances/${performanceId}/move-to-first`), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ event_id: eventId }),
+            });
+            if (!response.ok) throw new Error('Network response was not ok');
+            // Fetch the updated list of performances
+            await fetchPerformances(eventId);
+        } catch (error) {
+            setError(`There was a problem with the fetch operation:${error}`);
+        }
+    };
+
+    return { performances, pendingPerformances, addPerformance, fetchPerformances, setPerformances, updatePerformance, removePerformance, moveToFirst, error };
 };
 
 export default usePerformances;

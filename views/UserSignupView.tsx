@@ -53,8 +53,7 @@ const UserSignupView = () => {
         throw new Error("Signup failed");
       }
 
-      alert("Signup successful! Please login.");
-      window.location.href = "/openmic/auth/login";
+      router.back();
     } catch (error) {
       console.error("Signup failed:", error);
       alert("Signup failed. Please try again.");

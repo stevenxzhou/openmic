@@ -81,5 +81,18 @@ export const useEvents = () => {
         }
     };
 
-    return { events, setEvents, createEvent, error }
+    const deleteEvent = async (eventId: number) => {
+        try {
+            const response = await fetch(apiUrl(`/api/events/${eventId}`), {
+                method: 'DELETE',
+            });
+            if (!response.ok) throw new Error('Network response was not ok');
+            // Fetch the updated list of events
+            getEvents();
+        } catch (error) {
+            setError(`There was a problem with the fetch operation:${error}`);
+        }
+    };
+
+    return { events, setEvents, createEvent, deleteEvent, error }
 }

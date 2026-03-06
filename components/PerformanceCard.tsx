@@ -13,6 +13,7 @@ type PerformanceCardProps = {
   isHighlighted?: boolean;
   onComplete?: (performance: PerformanceUser) => void;
   onDelete?: (performance: PerformanceUser) => void;
+  onMoveToFirst?: (performance: PerformanceUser) => void;
 };
 
 const PerformanceCard: React.FC<PerformanceCardProps> = ({
@@ -24,6 +25,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
   isHighlighted = false,
   onComplete,
   onDelete,
+  onMoveToFirst,
 }) => {
   const [likes, setLikes] = useState(performance.likes || 0);
   const [isLiking, setIsLiking] = useState(false);
@@ -157,63 +159,88 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
       </p>
 
       {/* Action buttons and inputs - bottom right corner */}
-      {showActions && isAdminOrHost && (onComplete || onDelete) && (
-        <div className="absolute bottom-2 right-2 flex flex-col gap-1 items-end">
-          {/* Inputs display */}
-          {performance.inputs && (
-            <p className="text-xs text-gray-600 mb-1">{performance.inputs}</p>
-          )}
-          {/* Action buttons */}
-          <div className="flex gap-1">
-            {onComplete && (
-              <button
-                className="p-1 bg-green-100 hover:bg-green-200 text-green-700 rounded transition-colors"
-                aria-label="Complete performance"
-                onClick={() => onComplete(performance)}
-                title="Complete"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={3}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </button>
+      {showActions &&
+        isAdminOrHost &&
+        (onComplete || onDelete || onMoveToFirst) && (
+          <div className="absolute bottom-2 right-2 flex flex-col gap-1 items-end">
+            {/* Inputs display */}
+            {performance.inputs && (
+              <p className="text-xs text-gray-600 mb-1">{performance.inputs}</p>
             )}
-            {onDelete && (
-              <button
-                className="p-1 bg-red-100 hover:bg-red-200 text-red-700 rounded transition-colors"
-                aria-label="Delete performance"
-                onClick={() => onDelete(performance)}
-                title="Delete"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+            {/* Action buttons */}
+            <div className="flex gap-1">
+              {onMoveToFirst && index > 0 && (
+                <button
+                  className="p-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors"
+                  aria-label="Move to first"
+                  onClick={() => onMoveToFirst(performance)}
+                  title="Move to First"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-              </button>
-            )}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 10l7-7m0 0l7 7m-7-7v18"
+                    />
+                  </svg>
+                </button>
+              )}
+              {onComplete && index === 0 && (
+                <button
+                  className="p-1 bg-green-100 hover:bg-green-200 text-green-700 rounded transition-colors"
+                  aria-label="Complete performance"
+                  onClick={() => onComplete(performance)}
+                  title="Complete"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={3}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  className="p-1 bg-red-100 hover:bg-red-200 text-red-700 rounded transition-colors"
+                  aria-label="Delete performance"
+                  onClick={() => onDelete(performance)}
+                  title="Delete"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 };
