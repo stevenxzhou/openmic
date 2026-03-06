@@ -2,8 +2,8 @@
 
 import React from "react";
 import { useSearchParams } from "next/navigation";
-import PerformanceSignUpView from "@/views/PerformanceCreateView";
-import ErrorView from "@/views/ErrorView";
+import PerformancesCreateView from "@/components/views/PerformancesCreateView";
+import ErrorPage from "@/components/pages/ErrorPage";
 
 export default function PerformanceCreatePageContent() {
   const searchParams = useSearchParams();
@@ -12,9 +12,9 @@ export default function PerformanceCreatePageContent() {
 
   if (!eventId || isNaN(eventId)) {
     return (
-      <ErrorView errorMessage="Missing or invalid event_id query parameter. Usage: ?event_id=102" />
+      <ErrorPage errorMessage="Missing or invalid event_id query parameter. Usage: ?event_id=102" />
     );
   }
 
-  return <PerformanceSignUpView eventId={eventId} />;
+  return <PerformancesCreateView eventId={eventId} />;
 }

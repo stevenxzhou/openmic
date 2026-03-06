@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import UserSignupView from "@/views/UserSignupView";
+import UserSignupPage from "@/components/pages/UserSignupPage";
 
-const UserSignupPage = () => {
-    return <UserSignupView />;
+const SignupPage = () => {
+  return <UserSignupPage />;
 };
 
-export default UserSignupPage;
+export default SignupPage;

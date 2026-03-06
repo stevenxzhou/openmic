@@ -1,17 +1,17 @@
 import { useState, useContext, useEffect } from "react";
 import { type PerformanceUser } from "@/hooks/usePerformances";
-import { InstagramIcon } from "./SocialMediaIcons";
+import { InstagramIcon } from "../utilities/SocialMediaIcons";
 import { apiUrl } from "@/lib/utils";
 import { GlobalContext } from "@/context/useGlobalContext";
 
 type PerformanceCardProps = {
   performance: PerformanceUser;
   index: number;
+  displayNumber?: number;
   calculateWaitTime: (index: number) => string;
   showWaitTime?: boolean;
   showActions?: boolean;
   isHighlighted?: boolean;
-  isLast?: boolean;
   onComplete?: (performance: PerformanceUser) => void;
   onDelete?: (performance: PerformanceUser) => void;
   onMoveNext?: (performance: PerformanceUser) => void;
@@ -20,11 +20,11 @@ type PerformanceCardProps = {
 const PerformanceCard: React.FC<PerformanceCardProps> = ({
   performance,
   index,
+  displayNumber,
   calculateWaitTime,
   showWaitTime = true,
   showActions = false,
   isHighlighted = false,
-  isLast = false,
   onComplete,
   onDelete,
   onMoveNext,
@@ -120,7 +120,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
           className="text-gray-100 font-bold leading-none"
           style={{ fontSize: "120px" }}
         >
-          {index + 1}
+          {displayNumber ?? index + 1}
         </span>
       </div>
 

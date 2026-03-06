@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import ErrorView from "@/views/ErrorView";
+import ErrorPage from "@/components/pages/ErrorPage";
 
-const ErrorPage = () => {
-    return <ErrorView />;
+const AppErrorPage = () => {
+  return <ErrorPage />;
 };
 
-export default ErrorPage;
+export default AppErrorPage;

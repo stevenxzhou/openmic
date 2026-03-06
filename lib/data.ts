@@ -99,19 +99,19 @@ export async function getEventById(eventId: number) {
 }
 
 export async function createEvent(eventData: any) {
-    const { title, description, start_date, end_date, location } = eventData;
+    const { title, description, start_date, end_date, location, status } = eventData;
     const result = await query(
-        'INSERT INTO events (title, description, start_date, end_date, location) VALUES (?, ?, ?, ?, ?)',
-        [title, description, toMySQLDateTime(start_date), toMySQLDateTime(end_date), location]
+        'INSERT INTO events (title, description, start_date, end_date, location, status) VALUES (?, ?, ?, ?, ?, ?)',
+        [title, description, toMySQLDateTime(start_date), toMySQLDateTime(end_date), location, status || 'NEW']
     );
     return { event_id: Number(result.insertId), ...eventData };
 }
 
 export async function updateEvent(eventId: number, eventData: any) {
-    const { title, description, start_date, end_date, location } = eventData;
+    const { title, description, start_date, end_date, location, status } = eventData;
     await query(
-        'UPDATE events SET title = ?, description = ?, start_date = ?, end_date = ?, location = ? WHERE event_id = ?',
-        [title, description, toMySQLDateTime(start_date), toMySQLDateTime(end_date), location, eventId]
+        'UPDATE events SET title = ?, description = ?, start_date = ?, end_date = ?, location = ?, status = ? WHERE event_id = ?',
+        [title, description, toMySQLDateTime(start_date), toMySQLDateTime(end_date), location, status || 'NEW', eventId]
     );
     return getEventById(eventId);
 }

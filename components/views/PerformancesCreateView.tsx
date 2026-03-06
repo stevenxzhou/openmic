@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import usePerformances from "@/hooks/usePerformances";
 import { useRouter } from "next/navigation";
-import Header from "@/components/Header";
-import Modal from "@/components/Modal";
+import Header from "@/components/layouts/Header";
+import Modal from "@/components/layouts/Modal";
 import { SocialIcon } from "react-social-icons";
 import { GlobalContext } from "@/context/useGlobalContext";
 

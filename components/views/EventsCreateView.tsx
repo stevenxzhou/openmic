@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useEvents, type Event } from "@/hooks/useEvents";
 import { useRouter } from "next/navigation";
-import Header from "@/components/Header";
-import Modal from "@/components/Modal";
+import Header from "@/components/layouts/Header";
+import Modal from "@/components/layouts/Modal";
 
 type CreateEventViewProps = {
   isModal?: boolean;

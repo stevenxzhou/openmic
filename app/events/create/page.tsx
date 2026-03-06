@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import EventCreateView from "@/views/EventCreateView";
+import EventsCreateView from "@/components/views/EventsCreateView";
 
 const CreateEventPage = () => {
-  return <EventCreateView />;
+  return <EventsCreateView />;
 };
 
 export default CreateEventPage;

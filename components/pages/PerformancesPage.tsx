@@ -1,18 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PerformanceStatus, PerformanceUser } from "@/hooks/usePerformances";
 import usePerformances from "@/hooks/usePerformances";
-import Header from "@/components/Header";
-import ErrorView from "./ErrorView";
-import PerformanceList from "@/components/PerformanceList";
-import PerformanceCreateView from "./PerformanceCreateView";
-import Modal from "@/components/Modal";
+import Header from "@/components/layouts/Header";
+import ErrorPage from "./ErrorPage";
+import PerformancesListViewLive from "@/components/views/PerformancesListViewPending";
+import PerformancesListViewCompact from "@/components/views/PerformancesListViewCompleted";
+import PerformancesCreateView from "../views/PerformancesCreateView";
+import Modal from "@/components/layouts/Modal";
 import { apiUrl } from "@/lib/utils";
 import { Event } from "@/hooks/useEvents";
-import QRCode from "@/components/QRCode";
+import EventDetailsCard from "@/components/cards/EventDetailsCard";
+import { GlobalContext } from "@/context/useGlobalContext";
 
 const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
   const router = useRouter();
+  const { user } = useContext(GlobalContext);
+  const isAdminOrHost =
+    user.role?.toLowerCase() === "admin" || user.role?.toLowerCase() === "host";
   const [eventId, setEventId] = useState<number | null>(propEventId ?? null);
   const [eventIdInput, setEventIdInput] = useState("");
   const [showEventIdModal, setShowEventIdModal] = useState(!propEventId);
@@ -32,7 +37,6 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
   const [currentPerformanceIndex] = useState<number>(0);
   const [showSkipConfirm, toggleSkipConfirmModal] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
-  const [showQRModal, setShowQRModal] = useState(false);
   const [highlightLastPending, setHighlightLastPending] = useState(false);
   const [scrollToBottomSignal, setScrollToBottomSignal] = useState(0);
   const [pendingHighlightAfterAdd, setPendingHighlightAfterAdd] =
@@ -41,6 +45,10 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
     useState<PerformanceUser | null>(null);
   const [completeConfirmation, setCompleteConfirmation] =
     useState<PerformanceUser | null>(null);
+  const [isStartingEvent, setIsStartingEvent] = useState(false);
+  const [activeView, setActiveView] = useState<"lineup" | "completed">(
+    "lineup",
+  );
 
   useEffect(() => {
     if (!pendingHighlightAfterAdd) return;
@@ -180,10 +188,41 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
     }
   };
 
+  const handleStartEvent = async () => {
+    if (!eventId || !eventDetails || isStartingEvent) return;
+
+    setIsStartingEvent(true);
+    try {
+      const response = await fetch(apiUrl(`/api/events/${eventId}`), {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...eventDetails,
+          status: "IN_PROGRESS",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to start event");
+      }
+
+      const updatedEvent = await response.json();
+      setEventDetails(updatedEvent);
+    } catch {
+      setEventValidationError(
+        "Unable to start event right now. Please try again.",
+      );
+    } finally {
+      setIsStartingEvent(false);
+    }
+  };
+
   if (error) {
     return (
       <>
-        <ErrorView errorMessage={error} />
+        <ErrorPage errorMessage={error} />
       </>
     );
   }
@@ -191,7 +230,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
   if (eventValidationError) {
     return (
       <>
-        <ErrorView errorMessage={eventValidationError} />
+        <ErrorPage errorMessage={eventValidationError} />
       </>
     );
   }
@@ -239,124 +278,66 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
     );
   }
 
-  const formatEventDateTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
-
   return (
     <>
       <Header showBackButton={false} />
       <div className="p-4 pb-20 relative">
         {eventDetails && (
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="flex flex-row gap-2 sm:gap-4 items-start">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <h1 className="text-lg sm:text-xl font-bold text-gray-900">
-                    {eventDetails.title}
-                  </h1>
-                  <button
-                    onClick={() => setShowQRModal(true)}
-                    className="p-1 hover:opacity-70 transition-opacity flex-shrink-0"
-                    title="Share event"
-                    aria-label="Share event"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 sm:h-6 sm:w-6 text-gray-700"
-                      viewBox="0 0 122.88 122.88"
-                    >
-                      <path
-                        fill="currentColor"
-                        d="M61.44,0A61.46,61.46,0,1,1,18,18,61.21,61.21,0,0,1,61.44,0ZM64.5,75.82,50,69.15A11.82,11.82,0,1,1,49,52.71l15.4-6.43a12.7,12.7,0,0,1-.14-1.85A11.81,11.81,0,0,1,76,32.62h0A11.82,11.82,0,1,1,68.45,53.5L52.76,60q.08.68.09,1.35L69.16,68.9a11.76,11.76,0,1,1-5,9.6,12.11,12.11,0,0,1,.31-2.68ZM97.89,25A51.54,51.54,0,1,0,113,61.44,51.38,51.38,0,0,0,97.89,25Z"
-                      />
-                    </svg>
-                  </button>
-                </div>
-                <div className="space-y-1 text-xs sm:text-sm text-gray-700">
-                  <div className="flex items-start">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-gray-500 flex-shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    <span className="break-words">
-                      {formatEventDateTime(eventDetails.start_date)}
-                    </span>
-                  </div>
-                  <div className="flex items-start">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-gray-500 flex-shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                    <span className="break-words">{eventDetails.location}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <EventDetailsCard eventDetails={eventDetails} eventId={eventId!} />
         )}
-        <PerformanceList
-          performances={performances}
-          currentPerformanceIndex={currentPerformanceIndex}
-          title="Line up"
-          performanceStatus={PerformanceStatus.PENDING}
-          eventId={eventId!}
-          toggleSkipConfirmModal={toggleSkipConfirmModal}
-          defaultCollapsed={false}
-          onComplete={handleComplete}
-          onDelete={handleDelete}
-          onMoveNext={handleMoveNext}
-          highlightLastCard={highlightLastPending}
-          scrollToBottomSignal={scrollToBottomSignal}
-        />
 
-        <PerformanceList
-          performances={performances}
-          currentPerformanceIndex={currentPerformanceIndex}
-          title="Completed"
-          performanceStatus={PerformanceStatus.COMPLETED}
-          eventId={eventId!}
-          toggleSkipConfirmModal={toggleSkipConfirmModal}
-          defaultCollapsed={true}
-          onDelete={handleDelete}
-        />
+        {activeView === "lineup" && (
+          <PerformancesListViewLive
+            performances={performances}
+            currentPerformanceIndex={currentPerformanceIndex}
+            title=""
+            eventId={eventId!}
+            toggleSkipConfirmModal={toggleSkipConfirmModal}
+            onComplete={handleComplete}
+            onDelete={handleDelete}
+            onMoveNext={handleMoveNext}
+            highlightLastCard={highlightLastPending}
+            scrollToBottomSignal={scrollToBottomSignal}
+            eventStatus={eventDetails?.status}
+            isAdminOrHost={isAdminOrHost}
+            onStartEvent={handleStartEvent}
+            isStartingEvent={isStartingEvent}
+          />
+        )}
 
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
+        {activeView === "completed" && (
+          <PerformancesListViewCompact
+            performances={performances}
+            title=""
+            onDelete={handleDelete}
+          />
+        )}
+
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t space-y-2">
+          {isAdminOrHost && (
+            <div className="flex gap-2">
+              <button
+                onClick={() => setActiveView("lineup")}
+                className={`flex-1 py-2 rounded font-medium transition-colors ${
+                  activeView === "lineup"
+                    ? "bg-yellow-600 hover:bg-yellow-700 text-white"
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                }`}
+              >
+                Live
+              </button>
+              <button
+                onClick={() => setActiveView("completed")}
+                className={`flex-1 py-2 rounded font-medium transition-colors ${
+                  activeView === "completed"
+                    ? "bg-yellow-600 hover:bg-yellow-700 text-white"
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                }`}
+              >
+                Finshed
+              </button>
+            </div>
+          )}
           <button
             className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-center block"
             onClick={() => setShowSignupModal(true)}
@@ -366,7 +347,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
         </div>
 
         {showSignupModal && (
-          <PerformanceCreateView
+          <PerformancesCreateView
             eventId={eventId!}
             isModal={true}
             onAdded={handlePerformanceAdded}
@@ -462,34 +443,6 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
                   Delete
                 </button>
               </div>
-            </div>
-          </Modal>
-        )}
-
-        {/* QR Code Modal */}
-        {showQRModal && (
-          <Modal>
-            <div className="text-center space-y-4">
-              <h2 className="text-xl font-semibold text-gray-800">
-                Event QR Code
-              </h2>
-              <p className="text-gray-600">
-                Scan this code to view event performances
-              </p>
-              <div className="flex justify-center">
-                <div className="w-64 h-64">
-                  <QRCode
-                    url={`${typeof window !== "undefined" ? window.location.origin : ""}/openmic/performances?event_id=${eventId}`}
-                    size={256}
-                  />
-                </div>
-              </div>
-              <button
-                onClick={() => setShowQRModal(false)}
-                className="w-full py-2 bg-gray-600 hover:bg-gray-700 text-white rounded"
-              >
-                Close
-              </button>
             </div>
           </Modal>
         )}

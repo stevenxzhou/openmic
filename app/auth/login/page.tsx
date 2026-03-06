@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import UserLoginView from "@/views/UserLoginView";
+import UserLoginPage from "@/components/pages/UserLoginPage";
 
 const LoginPage = () => {
-    return <UserLoginView />;
+  return <UserLoginPage />;
 };
 
 export default LoginPage;

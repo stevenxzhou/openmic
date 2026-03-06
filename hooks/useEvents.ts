@@ -10,6 +10,7 @@ export type Event = {
     start_date: string;
     end_date: string;
     location: string;
+    status?: string;
 }
 
 const normalizeEvent = (event: Event): Event => ({
