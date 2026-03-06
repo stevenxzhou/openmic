@@ -48,8 +48,12 @@ const EventsView = () => {
   const now = new Date();
   const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
+  const isCompletedStatus = (status?: string) =>
+    String(status || "").toUpperCase() === "COMPLETED";
+
   const futureEvents = (events || [])
     .filter((event) => {
+      if (isCompletedStatus(event.status)) return false;
       const eventDate = parseEventDate(event.start_date || event.end_date);
       return eventDate ? eventDate >= twentyFourHoursAgo : false;
     })
@@ -60,6 +64,7 @@ const EventsView = () => {
     });
 
   const pastEvents = (events || []).filter((event) => {
+    if (isCompletedStatus(event.status)) return true;
     const eventDate = parseEventDate(event.start_date || event.end_date);
     return eventDate ? eventDate < twentyFourHoursAgo : false;
   });

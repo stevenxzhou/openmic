@@ -34,6 +34,8 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
   const [currentPerformanceIndex] = useState<number>(0);
   const [showSkipConfirm, toggleSkipConfirmModal] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
+  const [showPerformanceAddedToast, setShowPerformanceAddedToast] =
+    useState(false);
   const [scrollToBottomSignal, setScrollToBottomSignal] = useState(0);
   const [pendingHighlightAfterAdd, setPendingHighlightAfterAdd] =
     useState(false);
@@ -111,7 +113,19 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (!showPerformanceAddedToast) return;
+
+    const timeoutId = setTimeout(() => {
+      setShowPerformanceAddedToast(false);
+    }, 3000);
+
+    return () => clearTimeout(timeoutId);
+  }, [showPerformanceAddedToast]);
+
   const handlePerformanceAdded = async () => {
+    setShowSignupModal(false);
+    setShowPerformanceAddedToast(true);
     setPendingHighlightAfterAdd(true);
     await fetchPerformances(eventId!);
   };
@@ -199,16 +213,24 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
   }
 
   if (eventId === null) return null;
+  const isCompletedEvent = eventDetails?.status?.toUpperCase() === "COMPLETED";
 
   return (
     <>
       <Header showBackButton={false} />
-      <div className="p-4 pb-20 relative">
+      {showPerformanceAddedToast && (
+        <div className="fixed top-[52px] left-1/2 z-50 -translate-x-1/2 px-4">
+          <div className="rounded border border-green-200 bg-green-50 px-4 py-2 text-sm text-green-700 shadow">
+            Performance added successfully.
+          </div>
+        </div>
+      )}
+      <div className={`p-4 relative ${isCompletedEvent ? "" : "pb-20"}`}>
         {eventDetails && (
           <EventDetailsCard eventDetails={eventDetails} eventId={eventId!} />
         )}
 
-        {activeView === "lineup" && (
+        {!isCompletedEvent && activeView === "lineup" && (
           <PerformancesListViewLive
             performances={performances}
             currentPerformanceIndex={currentPerformanceIndex}
@@ -226,7 +248,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
           />
         )}
 
-        {activeView === "completed" && (
+        {(isCompletedEvent || activeView === "completed") && (
           <PerformancesListViewCompact
             performances={performances}
             title=""
@@ -234,40 +256,42 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
           />
         )}
 
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t space-y-2">
-          {isAdminOrHost && (
-            <div className="flex gap-2">
-              <button
-                onClick={() => setActiveView("lineup")}
-                className={`flex-1 py-2 rounded font-medium transition-colors ${
-                  activeView === "lineup"
-                    ? "bg-yellow-600 hover:bg-yellow-700 text-white"
-                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-                }`}
-              >
-                Live
-              </button>
-              <button
-                onClick={() => setActiveView("completed")}
-                className={`flex-1 py-2 rounded font-medium transition-colors ${
-                  activeView === "completed"
-                    ? "bg-yellow-600 hover:bg-yellow-700 text-white"
-                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-                }`}
-              >
-                Finshed
-              </button>
-            </div>
-          )}
-          <button
-            className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-center block"
-            onClick={() => setShowSignupModal(true)}
-          >
-            Add New
-          </button>
-        </div>
+        {!isCompletedEvent && (
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t space-y-2">
+            {isAdminOrHost && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setActiveView("lineup")}
+                  className={`flex-1 py-2 rounded font-medium transition-colors ${
+                    activeView === "lineup"
+                      ? "bg-yellow-600 hover:bg-yellow-700 text-white"
+                      : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                  }`}
+                >
+                  Live
+                </button>
+                <button
+                  onClick={() => setActiveView("completed")}
+                  className={`flex-1 py-2 rounded font-medium transition-colors ${
+                    activeView === "completed"
+                      ? "bg-yellow-600 hover:bg-yellow-700 text-white"
+                      : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                  }`}
+                >
+                  Finshed
+                </button>
+              </div>
+            )}
+            <button
+              className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-center block"
+              onClick={() => setShowSignupModal(true)}
+            >
+              Add New
+            </button>
+          </div>
+        )}
 
-        {showSignupModal && (
+        {!isCompletedEvent && showSignupModal && (
           <PerformancesCreateView
             eventId={eventId!}
             isModal={true}
