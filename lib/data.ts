@@ -224,8 +224,8 @@ export async function incrementPerformanceLikes(performanceId: number) {
     return getPerformanceById(performanceId);
 }
 
-export async function movePerformanceToFirst(performanceId: number, eventId: number) {
-    // Get all pending performances for this event
+export async function movePerformanceNext(performanceId: number, eventId: number) {
+    // Get all pending performances for this event sorted by index
     const performances = await query(`
         SELECT performance_id, performance_index 
         FROM performances 
@@ -237,16 +237,30 @@ export async function movePerformanceToFirst(performanceId: number, eventId: num
         throw new Error('No performances found');
     }
     
-    // Find the minimum performance_index
-    const minIndex = performances[0].performance_index;
+    // Find the current performance and the previous one (to move up in queue)
+    const currentIndex = performances.findIndex((p: any) => Number(p.performance_id) === Number(performanceId));
     
-    // Set the target performance's index to be 10 less than the current minimum
-    // This places it at the front of the queue
-    const newIndex = minIndex - 10;
+    if (currentIndex === -1) {
+        throw new Error('Performance not found');
+    }
+    
+    if (currentIndex <= 0) {
+        // Performance is already first - no action needed
+        return getPerformanceById(performanceId);
+    }
+    
+    const currentPerformance = performances[currentIndex];
+    const previousPerformance = performances[currentIndex - 1];
+    
+    // Swap the performance_index values (move current up, previous down)
+    await query(
+        'UPDATE performances SET performance_index = ? WHERE performance_id = ?',
+        [previousPerformance.performance_index, currentPerformance.performance_id]
+    );
     
     await query(
         'UPDATE performances SET performance_index = ? WHERE performance_id = ?',
-        [newIndex, performanceId]
+        [currentPerformance.performance_index, previousPerformance.performance_id]
     );
     
     return getPerformanceById(performanceId);

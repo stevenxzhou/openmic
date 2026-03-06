@@ -15,8 +15,6 @@ export async function POST(
             );
         }
         
-        // Deprecated: This endpoint is kept for backward compatibility
-        // Use /move-next instead
         const performance = await movePerformanceNext(
             parseInt(params.id),
             event_id
@@ -24,7 +22,7 @@ export async function POST(
         
         return NextResponse.json(performance, { status: 200 });
     } catch (error) {
-        console.error('Move performance error:', error);
+        console.error('Move performance next error:', error);
         const errorMessage = error instanceof Error ? error.message : 'Internal server error';
         return NextResponse.json(
             { error: errorMessage },

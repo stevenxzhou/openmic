@@ -107,9 +107,9 @@ const usePerformances = (eventId: number) => {
         }
     };
 
-    const moveToFirst = async (eventId: number, performanceId: number) => {
+    const moveNext = async (eventId: number, performanceId: number) => {
         try {
-            const response = await fetch(apiUrl(`/api/performances/${performanceId}/move-to-first`), {
+            const response = await fetch(apiUrl(`/api/performances/${performanceId}/move-next`), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -124,7 +124,7 @@ const usePerformances = (eventId: number) => {
         }
     };
 
-    return { performances, pendingPerformances, addPerformance, fetchPerformances, setPerformances, updatePerformance, removePerformance, moveToFirst, error };
+    return { performances, pendingPerformances, addPerformance, fetchPerformances, setPerformances, updatePerformance, removePerformance, moveNext, error };
 };
 
 export default usePerformances;

@@ -26,7 +26,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
     updatePerformance,
     removePerformance,
     fetchPerformances,
-    moveToFirst,
+    moveNext,
   } = usePerformances(eventId ?? 0);
 
   const [currentPerformanceIndex] = useState<number>(0);
@@ -174,9 +174,9 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
     setDeleteConfirmation(null);
   };
 
-  const handleMoveToFirst = (performance: PerformanceUser) => {
+  const handleMoveNext = (performance: PerformanceUser) => {
     if (performance.performance_id) {
-      moveToFirst(eventId!, performance.performance_id);
+      moveNext(eventId!, performance.performance_id);
     }
   };
 
@@ -340,7 +340,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
           defaultCollapsed={false}
           onComplete={handleComplete}
           onDelete={handleDelete}
-          onMoveToFirst={handleMoveToFirst}
+          onMoveNext={handleMoveNext}
           highlightLastCard={highlightLastPending}
           scrollToBottomSignal={scrollToBottomSignal}
         />

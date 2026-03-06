@@ -14,7 +14,7 @@ export default function PerformanceList({
   defaultCollapsed = false,
   onComplete,
   onDelete,
-  onMoveToFirst,
+  onMoveNext,
   highlightLastCard,
   scrollToBottomSignal,
 }: {
@@ -27,7 +27,7 @@ export default function PerformanceList({
   defaultCollapsed?: boolean;
   onComplete?: (performance: PerformanceUser) => void;
   onDelete?: (performance: PerformanceUser) => void;
-  onMoveToFirst?: (performance: PerformanceUser) => void;
+  onMoveNext?: (performance: PerformanceUser) => void;
   highlightLastCard?: boolean;
   scrollToBottomSignal?: number;
 }) {
@@ -250,9 +250,10 @@ export default function PerformanceList({
                           isHighlighted={
                             Boolean(highlightLastCard) && isLastPendingCard
                           }
+                          isLast={isLastPendingCard}
                           onComplete={onComplete}
                           onDelete={onDelete}
-                          onMoveToFirst={onMoveToFirst}
+                          onMoveNext={onMoveNext}
                         />
                       </div>
                     );

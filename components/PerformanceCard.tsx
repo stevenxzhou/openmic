@@ -11,9 +11,10 @@ type PerformanceCardProps = {
   showWaitTime?: boolean;
   showActions?: boolean;
   isHighlighted?: boolean;
+  isLast?: boolean;
   onComplete?: (performance: PerformanceUser) => void;
   onDelete?: (performance: PerformanceUser) => void;
-  onMoveToFirst?: (performance: PerformanceUser) => void;
+  onMoveNext?: (performance: PerformanceUser) => void;
 };
 
 const PerformanceCard: React.FC<PerformanceCardProps> = ({
@@ -23,9 +24,10 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
   showWaitTime = true,
   showActions = false,
   isHighlighted = false,
+  isLast = false,
   onComplete,
   onDelete,
-  onMoveToFirst,
+  onMoveNext,
 }) => {
   const [likes, setLikes] = useState(performance.likes || 0);
   const [isLiking, setIsLiking] = useState(false);
@@ -176,7 +178,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
       {/* Action buttons and inputs - bottom right corner */}
       {showActions &&
         isAdminOrHost &&
-        (onComplete || onDelete || onMoveToFirst) && (
+        (onComplete || onDelete || onMoveNext) && (
           <div className="absolute mt-10 bottom-2 right-2 flex gap-1 items-end">
             {/* Inputs display */}
             {performance.inputs && (
@@ -184,12 +186,12 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
             )}
             {/* Action buttons */}
             <div className="flex gap-1">
-              {onMoveToFirst && index > 0 && (
+              {onMoveNext && index >= 2 && (
                 <button
                   className="p-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors"
-                  aria-label="Move to first"
-                  onClick={() => onMoveToFirst(performance)}
-                  title="Move to First"
+                  aria-label="Move next"
+                  onClick={() => onMoveNext(performance)}
+                  title="Move Next"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -230,7 +232,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
                   </svg>
                 </button>
               )}
-              {onDelete && (
+              {onDelete && index !== 0 && (
                 <button
                   className="p-1 bg-red-100 hover:bg-red-200 text-red-700 rounded transition-colors"
                   aria-label="Delete performance"
