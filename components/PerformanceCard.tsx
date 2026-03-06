@@ -143,14 +143,14 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({
         <button
           onClick={handleLike}
           disabled={isLiking || !showWaitTime}
-          className="absolute top-2 right-0 p-2 hover:bg-yellow-100 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+          className="absolute top-2 right-0 p-2 hover:bg-pink-100 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
           title="Like"
         >
           <span className="text-sm font-bold text-gray-800">{likes}</span>
 
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-8 w-8 text-yellow-600"
+            className="h-8 w-8 text-pink-600"
             viewBox="0 0 24 24"
             fill="currentColor"
           >
