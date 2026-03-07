@@ -1,0 +1,38 @@
+name: Promote version to latest
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to promote to latest (e.g., 1.0.21)"
+        required: true
+        type: string
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Log in to Docker registry
+        uses: docker/login-action@v3
+        with:
+          registry: stevenxzhou.com:5500
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Pull target version
+        run: |
+          docker pull stevenxzhou.com:5500/openmic:${{ inputs.version }}
+
+      - name: Tag as latest
+        run: |
+          docker tag stevenxzhou.com:5500/openmic:${{ inputs.version }} stevenxzhou.com:5500/openmic:latest
+
+      - name: Push latest tag
+        run: |
+          docker push stevenxzhou.com:5500/openmic:latest
+
+      - name: Summary
+        run: |
+          echo "✅ Successfully promoted version ${{ inputs.version }} to latest"
+          echo "Registry: stevenxzhou.com:5500/openmic:latest"
