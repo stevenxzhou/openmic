@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo, useCallback } from "react";
 import PerformanceCard from "@/components/cards/PerformanceCard";
 import { PerformanceStatus, PerformanceUser } from "@/hooks/usePerformances";
 import useHelpers from "@/hooks/useHelpers";
@@ -37,9 +37,17 @@ export default function PerformancesView({
 }: Props) {
   const lastCardRef = useRef<HTMLDivElement | null>(null);
 
-  const sortedPerformances = [...performances]
-    .filter((performance) => performance.status === PerformanceStatus.PENDING)
-    .sort((a, b) => (a.performance_index ?? 0) - (b.performance_index ?? 0));
+  const sortedPerformances = useMemo(
+    () =>
+      [...performances]
+        .filter(
+          (performance) => performance.status === PerformanceStatus.PENDING,
+        )
+        .sort(
+          (a, b) => (a.performance_index ?? 0) - (b.performance_index ?? 0),
+        ),
+    [performances],
+  );
 
   const { calculateWaitTime } = useHelpers({
     currentPerformanceIndex,

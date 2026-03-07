@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, memo } from "react";
 import Modal from "@/components/layouts/Modal";
 import QRCode from "@/components/utilities/QRCode";
 import { Event } from "@/hooks/useEvents";
@@ -23,26 +23,25 @@ const formatEventDateTime = (dateString: string) => {
   });
 };
 
-const getTopPerformer = (performances?: PerformanceUser[]) => {
-  if (!performances || performances.length === 0) return null;
-
-  let topPerformer = performances[0];
-  for (const perf of performances) {
-    if ((perf.likes || 0) > (topPerformer.likes || 0)) {
-      topPerformer = perf;
-    }
-  }
-
-  return (topPerformer.likes || 0) > 0 ? topPerformer : null;
-};
-
-export default function EventDetailsCard({
+export default memo(function EventDetailsCard({
   eventDetails,
   eventId,
   performances,
 }: EventDetailsCardProps) {
   const [showQRModal, setShowQRModal] = useState(false);
-  const topPerformer = getTopPerformer(performances);
+
+  const topPerformer = useMemo(() => {
+    if (!performances || performances.length === 0) return null;
+
+    let maxPerformer = performances[0];
+    for (const perf of performances) {
+      if ((perf.likes || 0) > (maxPerformer.likes || 0)) {
+        maxPerformer = perf;
+      }
+    }
+
+    return (maxPerformer.likes || 0) > 0 ? maxPerformer : null;
+  }, [performances]);
 
   return (
     <>
@@ -178,4 +177,4 @@ export default function EventDetailsCard({
       )}
     </>
   );
-}
+});
