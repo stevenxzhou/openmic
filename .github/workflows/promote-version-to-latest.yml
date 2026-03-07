@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to promote to latest (e.g., 1.0.21)"
+        description: "Pick a Version (e.g. 1.0.21)"
         required: true
         type: string
 
@@ -19,6 +19,26 @@ jobs:
           registry: stevenxzhou.com:5500
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: List available versions
+        id: list_versions
+        run: |
+          echo "📦 Available versions in registry (excluding 'latest'):"
+          TAGS=$(curl -s -u "${{ secrets.DOCKER_USERNAME }}:${{ secrets.DOCKER_PASSWORD }}" \
+            https://stevenxzhou.com:5500/v2/openmic/tags/list | \
+            jq -r '.tags[] | select(. != "latest")' | sort -V -r | head -5)
+          echo "$TAGS"
+          echo "---"
+
+          # Check if requested version exists
+          if echo "$TAGS" | grep -q "^${{ inputs.version }}$"; then
+            echo "✅ Version ${{ inputs.version }} found in registry"
+          else
+            echo "❌ Version ${{ inputs.version }} not found in registry"
+            echo "Available versions:"
+            echo "$TAGS"
+            exit 1
+          fi
 
       - name: Pull target version
         run: |
