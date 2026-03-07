@@ -337,9 +337,13 @@ const CreateEventView = ({
                     }}
                     className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
                   >
-                    <option value="NEW">NEW</option>
-                    <option value="IN_PROGRESS">IN_PROGRESS</option>
-                    <option value="COMPLETED">COMPLETED</option>
+                    <option value="NEW">{t("createEvent.statusNew")}</option>
+                    <option value="IN_PROGRESS">
+                      {t("createEvent.statusInProgress")}
+                    </option>
+                    <option value="COMPLETED">
+                      {t("createEvent.statusCompleted")}
+                    </option>
                   </select>
                 </div>
               )}
@@ -475,9 +479,13 @@ const CreateEventView = ({
                   }}
                   className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
                 >
-                  <option value="NEW">NEW</option>
-                  <option value="IN_PROGRESS">IN_PROGRESS</option>
-                  <option value="COMPLETED">COMPLETED</option>
+                  <option value="NEW">{t("createEvent.statusNew")}</option>
+                  <option value="IN_PROGRESS">
+                    {t("createEvent.statusInProgress")}
+                  </option>
+                  <option value="COMPLETED">
+                    {t("createEvent.statusCompleted")}
+                  </option>
                 </select>
               </div>
             )}

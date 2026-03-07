@@ -60,14 +60,21 @@ export default memo(function EventDetailsCard({
   const topPerformer = useMemo(() => {
     if (!performances || performances.length === 0) return null;
 
-    let maxPerformer = performances[0];
-    for (const perf of performances) {
+    // Only consider performers with at least one like
+    const performersWithLikes = performances.filter(
+      (perf) => (perf.likes || 0) > 0,
+    );
+    if (performersWithLikes.length === 0) return null;
+
+    // Find performer with most likes (first one wins in case of tie)
+    let maxPerformer = performersWithLikes[0];
+    for (const perf of performersWithLikes) {
       if ((perf.likes || 0) > (maxPerformer.likes || 0)) {
         maxPerformer = perf;
       }
     }
 
-    return (maxPerformer.likes || 0) > 0 ? maxPerformer : null;
+    return maxPerformer;
   }, [performances]);
 
   const topPerformerSocialMedia = useMemo(() => {
