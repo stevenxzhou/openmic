@@ -3,16 +3,28 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const pool: mariadb.Pool = mariadb.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: Number(process.env.DB_PORT),
-    connectionLimit: Number(process.env.DB_CONNECTION_LIMIT) || 10,
-    bigIntAsNumber: true,
-    dateStrings: true,  // Return dates as strings instead of Date objects
-});
+declare global {
+    var __openmicMariaDbPool: mariadb.Pool | undefined;
+}
+
+function getPool(): mariadb.Pool {
+    if (!globalThis.__openmicMariaDbPool) {
+        globalThis.__openmicMariaDbPool = mariadb.createPool({
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME,
+            port: Number(process.env.DB_PORT),
+            connectionLimit: Number(process.env.DB_CONNECTION_LIMIT) || 10,
+            bigIntAsNumber: true,
+            dateStrings: true,  // Return dates as strings instead of Date objects
+        });
+    }
+
+    return globalThis.__openmicMariaDbPool;
+}
+
+const pool: mariadb.Pool = getPool();
 
 export async function query(sql: string, params?: any[]) {
     const connection = await pool.getConnection();
@@ -137,6 +149,14 @@ export async function deleteEvent(eventId: number) {
     await query('DELETE FROM performances WHERE event_id = ?', [eventId]);
     // Then delete the event
     await query('DELETE FROM events WHERE event_id = ?', [eventId]);
+}
+
+export async function deleteNonCompletedPerformancesByEventId(eventId: number) {
+    const result = await query(
+        "DELETE FROM performances WHERE event_id = ? AND status <> 'COMPLETED'",
+        [eventId]
+    );
+    return Number(result?.affectedRows || 0);
 }
 
 // Performances

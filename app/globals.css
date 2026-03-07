@@ -34,4 +34,38 @@ body {
   outline-offset: 2px;
 }
 
+@keyframes heart-pop-ease-out {
+  0% {
+    opacity: 0;
+    transform: scale(0.45);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+
+@keyframes heart-glow-ease-out {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+}
+
+.heart-pop-ease-out {
+  animation: heart-pop-ease-out 700ms ease-out forwards;
+}
+
+.heart-glow-ease-out {
+  animation: heart-glow-ease-out 700ms ease-out forwards;
+}
+
 

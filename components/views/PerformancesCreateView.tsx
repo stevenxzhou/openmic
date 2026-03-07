@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import usePerformances from "@/hooks/usePerformances";
+import usePerformances, { type PerformanceUser } from "@/hooks/usePerformances";
 import { useRouter } from "next/navigation";
 import Header from "@/components/layouts/Header";
 import Modal from "@/components/layouts/Modal";
@@ -9,6 +9,7 @@ import { GlobalContext } from "@/context/useGlobalContext";
 type SignUpViewProps = {
   eventId: number | string;
   isModal?: boolean;
+  editingPerformance?: PerformanceUser | null;
   onClose?: () => void;
   onAdded?: () => void;
 };
@@ -16,6 +17,7 @@ type SignUpViewProps = {
 const SignUpView = ({
   eventId: rawEventId,
   isModal = false,
+  editingPerformance,
   onClose,
   onAdded,
 }: SignUpViewProps) => {
@@ -28,16 +30,49 @@ const SignUpView = ({
     user.role?.toLowerCase() === "admin" || user.role?.toLowerCase() === "host";
   const storageKey = `performance_draft_${eventId}`;
 
-  // Form state
-  const [performer, setPerformer] = useState("");
-  const [songs, setSongs] = useState("");
-  const [inputs, setInputs] = useState("");
-  const [socialMedia, setSocialMedia] = useState("");
-  const [socialMediaError, setSocialMediaError] = useState("");
-  const { performances, addPerformance } = usePerformances(eventId);
+  // Parse songs if editing
+  const parseSongs = (songsData: any): string => {
+    if (!songsData) return "";
+    if (Array.isArray(songsData)) return songsData.join(", ");
+    if (typeof songsData === "string") {
+      try {
+        const parsed = JSON.parse(songsData);
+        return Array.isArray(parsed) ? parsed.join(", ") : songsData;
+      } catch {
+        return songsData;
+      }
+    }
+    return "";
+  };
 
-  // Load saved data from sessionStorage on mount (only for non-admin/non-host users)
+  // Form state
+  const [performer, setPerformer] = useState(
+    editingPerformance?.performers || "",
+  );
+  const [songs, setSongs] = useState(parseSongs(editingPerformance?.songs));
+  const [inputs, setInputs] = useState(editingPerformance?.inputs || "");
+  const [socialMedia, setSocialMedia] = useState(
+    editingPerformance?.social_medias || "",
+  );
+  const [status, setStatus] = useState(
+    (editingPerformance?.status || "PENDING").toUpperCase(),
+  );
+  const [socialMediaError, setSocialMediaError] = useState("");
+  const { performances, addPerformance, updatePerformance } =
+    usePerformances(eventId);
+
+  // Update form when editingPerformance changes
   useEffect(() => {
+    if (editingPerformance) {
+      setPerformer(editingPerformance.performers || "");
+      setSongs(parseSongs(editingPerformance.songs));
+      setInputs(editingPerformance.inputs || "");
+      setSocialMedia(editingPerformance.social_medias || "");
+      setStatus((editingPerformance.status || "PENDING").toUpperCase());
+      return;
+    }
+
+    // Load saved data from sessionStorage on mount (only for non-admin/non-host users and not editing)
     if (!isAdminOrHost && typeof window !== "undefined") {
       const savedData = sessionStorage.getItem(storageKey);
       if (savedData) {
@@ -52,7 +87,7 @@ const SignUpView = ({
         }
       }
     }
-  }, [isAdminOrHost, storageKey]);
+  }, [editingPerformance, isAdminOrHost, storageKey]);
 
   // Save data to sessionStorage when form fields change (except songs)
   useEffect(() => {
@@ -88,7 +123,7 @@ const SignUpView = ({
     }
   };
 
-  // Add performance handler
+  // Add/Update performance handler
   const addPerformanceHandler = async () => {
     if (!performer || !songs) {
       alert(t("signupView.fillAll"));
@@ -111,18 +146,32 @@ const SignUpView = ({
       return;
     }
 
-    let newPerformance = {
-      event_id: eventId,
-      performance_index: (performances.length + 1) * 10,
-      songs: songList,
-      status: "PENDING",
-      performers: performer,
-      inputs: inputs,
-      social_medias: socialMedia,
-    };
+    if (editingPerformance) {
+      // Update existing performance
+      const updatedPerformance = {
+        ...editingPerformance,
+        performers: performer,
+        songs: songList,
+        status,
+        inputs: inputs,
+        social_medias: socialMedia,
+      };
+      await updatePerformance(eventId, updatedPerformance);
+    } else {
+      // Add new performance
+      let newPerformance = {
+        event_id: eventId,
+        performance_index: (performances.length + 1) * 10,
+        songs: songList,
+        status: "PENDING",
+        performers: performer,
+        inputs: inputs,
+        social_medias: socialMedia,
+      };
 
-    const isAdded = await addPerformance(eventId, newPerformance);
-    if (!isAdded) return;
+      const isAdded = await addPerformance(eventId, newPerformance);
+      if (!isAdded) return;
+    }
 
     onAdded?.();
 
@@ -183,36 +232,60 @@ const SignUpView = ({
             </div>
 
             <div>
-              <label className="block mb-1 font-medium">
-                {t("signupView.instagram")}
-              </label>
-              <div className="relative">
-                {socialMedia && isValidInstagramHandle(socialMedia) && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center text-pink-600">
-                    <SocialIcon
-                      url={`https://instagram.com/${socialMedia}`}
-                      style={{ height: 20, width: 20 }}
-                    />
-                  </div>
-                )}
-                <input
-                  type="text"
-                  value={socialMedia}
-                  onChange={(e) => handleSocialMediaChange(e.target.value)}
-                  className={`w-full p-3 pr-10 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none ${socialMediaError ? "border-red-500" : ""}`}
-                  placeholder={t("signupView.placeholder.instagram")}
-                />
-              </div>
-              {socialMediaError && (
-                <p className="text-red-500 text-sm mt-1">{socialMediaError}</p>
+              {editingPerformance && (
+                <div>
+                  <label className="block mb-1 font-medium">
+                    {t("signupView.status")}
+                  </label>
+                  <select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+                  >
+                    <option value="PENDING">
+                      {t("signupView.statusPending")}
+                    </option>
+                    <option value="COMPLETED">
+                      {t("signupView.statusCompleted")}
+                    </option>
+                  </select>
+                </div>
               )}
+
+              <div>
+                <label className="block mb-1 font-medium">
+                  {t("signupView.instagram")}
+                </label>
+                <div className="relative">
+                  {socialMedia && isValidInstagramHandle(socialMedia) && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center text-pink-600">
+                      <SocialIcon
+                        url={`https://instagram.com/${socialMedia}`}
+                        style={{ height: 20, width: 20 }}
+                      />
+                    </div>
+                  )}
+                  <input
+                    type="text"
+                    value={socialMedia}
+                    onChange={(e) => handleSocialMediaChange(e.target.value)}
+                    className={`w-full p-3 pr-10 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none ${socialMediaError ? "border-red-500" : ""}`}
+                    placeholder={t("signupView.placeholder.instagram")}
+                  />
+                </div>
+                {socialMediaError && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {socialMediaError}
+                  </p>
+                )}
+              </div>
             </div>
 
             <button
               onClick={addPerformanceHandler}
               className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded"
             >
-              {t("signupView.add")}
+              {editingPerformance ? t("common.update") : t("signupView.add")}
             </button>
           </>
         </Modal>
@@ -259,36 +332,60 @@ const SignUpView = ({
             </div>
 
             <div>
-              <label className="block mb-1 font-medium">
-                {t("signupView.instagram")}
-              </label>
-              <div className="relative">
-                {socialMedia && isValidInstagramHandle(socialMedia) && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center text-pink-600">
-                    <SocialIcon
-                      url={`https://instagram.com/${socialMedia}`}
-                      style={{ height: 20, width: 20 }}
-                    />
-                  </div>
-                )}
-                <input
-                  type="text"
-                  value={socialMedia}
-                  onChange={(e) => handleSocialMediaChange(e.target.value)}
-                  className={`w-full p-3 pr-10 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none ${socialMediaError ? "border-red-500" : ""}`}
-                  placeholder={t("signupView.placeholder.instagram")}
-                />
-              </div>
-              {socialMediaError && (
-                <p className="text-red-500 text-sm mt-1">{socialMediaError}</p>
+              {editingPerformance && (
+                <div>
+                  <label className="block mb-1 font-medium">
+                    {t("signupView.status")}
+                  </label>
+                  <select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+                  >
+                    <option value="PENDING">
+                      {t("signupView.statusPending")}
+                    </option>
+                    <option value="COMPLETED">
+                      {t("signupView.statusCompleted")}
+                    </option>
+                  </select>
+                </div>
               )}
+
+              <div>
+                <label className="block mb-1 font-medium">
+                  {t("signupView.instagram")}
+                </label>
+                <div className="relative">
+                  {socialMedia && isValidInstagramHandle(socialMedia) && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center text-pink-600">
+                      <SocialIcon
+                        url={`https://instagram.com/${socialMedia}`}
+                        style={{ height: 20, width: 20 }}
+                      />
+                    </div>
+                  )}
+                  <input
+                    type="text"
+                    value={socialMedia}
+                    onChange={(e) => handleSocialMediaChange(e.target.value)}
+                    className={`w-full p-3 pr-10 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none ${socialMediaError ? "border-red-500" : ""}`}
+                    placeholder={t("signupView.placeholder.instagram")}
+                  />
+                </div>
+                {socialMediaError && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {socialMediaError}
+                  </p>
+                )}
+              </div>
             </div>
 
             <button
               onClick={addPerformanceHandler}
               className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded"
             >
-              {t("signupView.add")}
+              {editingPerformance ? t("common.update") : t("signupView.add")}
             </button>
           </div>
         </div>

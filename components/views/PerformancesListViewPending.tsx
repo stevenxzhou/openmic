@@ -1,4 +1,4 @@
-import { useRef, useEffect, useMemo, useContext } from "react";
+import { useMemo, useContext } from "react";
 import PerformanceCard from "@/components/cards/PerformanceCard";
 import { PerformanceStatus, PerformanceUser } from "@/hooks/usePerformances";
 import useHelpers from "@/hooks/useHelpers";
@@ -14,7 +14,7 @@ type Props = {
   onComplete?: (performance: PerformanceUser) => void;
   onDelete?: (performance: PerformanceUser) => void;
   onMoveNext?: (performance: PerformanceUser) => void;
-  scrollToBottomSignal?: number;
+  onEdit?: (performance: PerformanceUser) => void;
   eventStatus?: string;
   isAdminOrHost?: boolean;
   onStartEvent?: () => void;
@@ -30,13 +30,12 @@ export default function PerformancesView({
   onComplete,
   onDelete,
   onMoveNext,
-  scrollToBottomSignal,
+  onEdit,
   eventStatus,
   isAdminOrHost,
   onStartEvent,
   isStartingEvent,
 }: Props) {
-  const lastCardRef = useRef<HTMLDivElement | null>(null);
   const { t } = useContext(GlobalContext);
 
   const sortedPerformances = useMemo(
@@ -59,24 +58,10 @@ export default function PerformancesView({
 
   const showActions = Boolean(onComplete || onDelete);
 
-  useEffect(() => {
-    if (scrollToBottomSignal === undefined || !lastCardRef.current) {
-      return;
-    }
-
-    const timeoutId = setTimeout(() => {
-      lastCardRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-    }, 50);
-
-    return () => clearTimeout(timeoutId);
-  }, [scrollToBottomSignal]);
-
   return (
     <PerformancesListViewContainer
       title={title}
       hasItems={sortedPerformances.slice(currentPerformanceIndex).length > 0}
-      scrollToBottomSignal={scrollToBottomSignal}
-      enableAutoScrollToBottom={true}
     >
       <div className="space-y-4">
         {eventStatus === "NEW" && (
@@ -106,12 +91,8 @@ export default function PerformancesView({
         {sortedPerformances.map((performance, idx) => {
           const indexOffset = eventStatus === "NEW" ? 1 : 0;
           const index = currentPerformanceIndex + idx + indexOffset;
-          const isLastPendingCard = idx === sortedPerformances.length - 1;
           return (
-            <div
-              key={performance.performance_id}
-              ref={isLastPendingCard ? lastCardRef : null}
-            >
+            <div key={performance.performance_id}>
               <PerformanceCard
                 performance={performance}
                 index={index}
@@ -122,6 +103,7 @@ export default function PerformancesView({
                 onComplete={onComplete}
                 onDelete={onDelete}
                 onMoveNext={onMoveNext}
+                onEdit={onEdit}
               />
             </div>
           );

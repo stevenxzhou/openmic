@@ -9,6 +9,11 @@ type EventDetailsCardProps = {
   eventDetails: Event;
   eventId: number;
   performances?: PerformanceUser[];
+  canEdit?: boolean;
+  canComplete?: boolean;
+  isCompleting?: boolean;
+  onEdit?: () => void;
+  onComplete?: () => void;
 };
 
 const formatEventDateTime = (dateString: string, language: "en" | "zh") => {
@@ -28,6 +33,11 @@ export default memo(function EventDetailsCard({
   eventDetails,
   eventId,
   performances,
+  canEdit = false,
+  canComplete = false,
+  isCompleting = false,
+  onEdit,
+  onComplete,
 }: EventDetailsCardProps) {
   const [showQRModal, setShowQRModal] = useState(false);
   const { language, t } = useContext(GlobalContext);
@@ -48,8 +58,8 @@ export default memo(function EventDetailsCard({
   return (
     <>
       <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-        <div className="flex flex-row gap-2 sm:gap-4 items-start justify-between">
-          <div className="flex-1 min-w-0">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 sm:gap-4 items-start">
+          <div className="min-w-0">
             <div className="flex items-center gap-2 mb-2">
               <h1 className="text-lg sm:text-xl font-bold text-gray-900">
                 {eventDetails.title}
@@ -136,20 +146,81 @@ export default memo(function EventDetailsCard({
               )}
             </div>
           </div>
-          {topPerformer && (
-            <div className="flex-shrink-0 text-right">
-              <div className="text-2xl mb-1">🏅</div>
-              <div className="text-xs sm:text-sm font-semibold text-gray-900 break-words max-w-[120px]">
-                {topPerformer.performers}
+
+          <div className="flex flex-col items-end gap-3 min-w-[44px]">
+            {topPerformer && (
+              <div className="text-right">
+                <div className="text-2xl mb-1">🏅</div>
+                <div className="text-xs sm:text-sm font-semibold text-gray-900 break-words max-w-[120px]">
+                  {topPerformer.performers}
+                </div>
+                <div className="text-xs text-gray-600 mt-1">
+                  {topPerformer.likes}{" "}
+                  {topPerformer.likes === 1
+                    ? t("eventDetails.like")
+                    : t("eventDetails.likes")}
+                </div>
               </div>
-              <div className="text-xs text-gray-600 mt-1">
-                {topPerformer.likes}{" "}
-                {topPerformer.likes === 1
-                  ? t("eventDetails.like")
-                  : t("eventDetails.likes")}
+            )}
+
+            {(canEdit || canComplete) && (
+              <div className="flex gap-2">
+                {canComplete && (
+                  <button
+                    type="button"
+                    onClick={onComplete}
+                    disabled={isCompleting}
+                    className="p-1 bg-green-100 hover:bg-green-200 text-green-700 rounded transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                    aria-label={t("eventDetails.completeEvent")}
+                    title={
+                      isCompleting
+                        ? t("eventDetails.completing")
+                        : t("eventDetails.completeEvent")
+                    }
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={3}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </button>
+                )}
+                {canEdit && (
+                  <button
+                    type="button"
+                    onClick={onEdit}
+                    className="p-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors"
+                    aria-label={t("common.edit")}
+                    title={t("common.edit")}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                  </button>
+                )}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
