@@ -351,10 +351,10 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
           {showActions &&
             isAdminOrHost &&
             (onComplete || onDelete || onMoveNext || onEdit) && (
-              <div className="flex flex-wrap items-end gap-2 justify-end md:justify-between">
+              <div className="flex flex-wrap items-end gap-2 justify-between">
                 {/* Inputs display */}
                 {performance.inputs && (
-                  <p className="text-xs text-gray-600 mb-1 md:order-1">
+                  <p className="text-xs text-gray-600 mb-1 md:order-2">
                     {performance.inputs}
                   </p>
                 )}
