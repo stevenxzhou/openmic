@@ -56,7 +56,6 @@ export const EventCard = (props: EventCardProps) => {
       day: "numeric",
       hour: "numeric",
       minute: "2-digit",
-      timeZoneName: "short",
     });
   };
 
