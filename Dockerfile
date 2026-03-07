@@ -14,6 +14,13 @@ RUN npm run build
 FROM base AS runner
 ENV NODE_ENV=production
 ENV PORT=3000
+ARG APP_VERSION=dev
+ARG BUILD_DATE=unknown
+ARG VCS_REF=unknown
+LABEL org.opencontainers.image.version=$APP_VERSION
+LABEL org.opencontainers.image.created=$BUILD_DATE
+LABEL org.opencontainers.image.revision=$VCS_REF
+ENV APP_VERSION=$APP_VERSION
 
 RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
 

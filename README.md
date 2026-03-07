@@ -34,3 +34,18 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Docker build tags
+
+Build with both the workflow-bumped app version tag and `latest` (which is overwritten each build):
+
+```bash
+npm run docker:build
+```
+
+This generates tags like:
+
+- `openmic-web:1.0.21`
+- `openmic-web:latest`
+
+`openmic-web:<version>` is read from `package.json` (or `IMAGE_VERSION` if set).

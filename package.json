@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "playwright test"
+    "test": "playwright test",
+    "docker:build": "VERSION=${IMAGE_VERSION:-$(node -p \"require('./package.json').version\")} && VCS_REF=$(git rev-parse --short HEAD 2>/dev/null || echo nogit) && docker build --build-arg APP_VERSION=$VERSION --build-arg BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ) --build-arg VCS_REF=$VCS_REF -t openmic-web:$VERSION -t openmic-web:latest . && echo Built image tags: openmic-web:$VERSION, openmic-web:latest"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.2",
