@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { getEvents, createEvent } from "@/lib/data";
+import { validateSessionToken } from "@/lib/session";
 
 export async function GET(request: NextRequest) {
     try {
@@ -16,6 +17,22 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     try {
+        const sessionToken = request.cookies.get('user_session')?.value;
+        if (!sessionToken) {
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 }
+            );
+        }
+
+        const sessionData = validateSessionToken(sessionToken);
+        if (!sessionData?.userId) {
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 }
+            );
+        }
+
         const eventData = await request.json();
         console.log('\n=== POST /api/events ===');
         console.log('Incoming event data:', JSON.stringify(eventData, null, 2));
@@ -72,7 +89,10 @@ export async function POST(request: NextRequest) {
         }
         
         console.log('No duplicate found, creating event');
-        const event = await createEvent(eventData);
+        const event = await createEvent({
+            ...eventData,
+            created_by: sessionData.userId,
+        });
         return NextResponse.json(event, { status: 201 });
     } catch (error) {
         console.error('Create event error:', error);

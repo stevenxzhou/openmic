@@ -115,10 +115,10 @@ export async function getEventById(eventId: number) {
 }
 
 export async function createEvent(eventData: any) {
-    const { title, description, start_date, end_date, location, host_names, status } = eventData;
+    const { title, description, start_date, end_date, location, host_names, status, created_by } = eventData;
     const result = await query(
-        'INSERT INTO events (title, description, start_date, end_date, location, host_names, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [title, description, toMySQLDateTime(start_date), toMySQLDateTime(end_date), location, host_names || '', status || 'NEW']
+        'INSERT INTO events (title, description, start_date, end_date, location, host_names, status, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [title, description, toMySQLDateTime(start_date), toMySQLDateTime(end_date), location, host_names || '', status || 'NEW', created_by]
     );
     return { event_id: Number(result.insertId), ...eventData };
 }
