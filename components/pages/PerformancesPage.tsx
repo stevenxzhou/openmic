@@ -404,7 +404,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
       )}
       <div
         className={`p-4 relative ${
-          isCompletedEvent ? "" : isAdminOrHost ? "pb-36" : "pb-24"
+          isCompletedEvent ? "" : isAdmin ? "pb-36" : "pb-24"
         }`}
       >
         {eventDetails && (
