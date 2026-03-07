@@ -296,16 +296,21 @@ export async function getUserByEmail(email: string) {
     return result?.[0] || null;
 }
 
+export async function getUserByUsername(username: string) {
+    const result = await query('SELECT * FROM users WHERE username = ?', [username]);
+    return result?.[0] || null;
+}
+
 export async function getUserById(userId: number) {
     const result = await query('SELECT * FROM users WHERE user_id = ?', [userId]);
     return result?.[0] || null;
 }
 
 export async function createUser(userData: any) {
-    const { email, password, first_name, last_name, role = "Guest" } = userData;
+    const { username, email, password, first_name, last_name, role = "Guest" } = userData;
     const result = await query(
-        'INSERT INTO users (email, password, first_name, last_name, role) VALUES (?, ?, ?, ?, ?)',
-        [email, password, first_name || '', last_name || '', role]
+        'INSERT INTO users (username, email, password, first_name, last_name, role) VALUES (?, ?, ?, ?, ?, ?)',
+        [username, email, password, first_name || '', last_name || '', role]
     );
-    return { user_id: Number(result.insertId), email, first_name, last_name, role };
+    return { user_id: Number(result.insertId), username, email, first_name, last_name, role };
 }

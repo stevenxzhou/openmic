@@ -1,20 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserByEmail } from "@/lib/data";
+import { getUserByUsername } from "@/lib/data";
+import bcryptjs from "bcryptjs";
+import { createSessionToken } from "@/lib/session";
 
 export async function POST(request: NextRequest) {
     try {
         const loginForm = await request.formData();
-        const email = loginForm.get('email') as string;
+        const username = loginForm.get('username') as string;
         const password = loginForm.get('password') as string;
 
-        if (!email || !password) {
+        if (!username || !password) {
             return NextResponse.json(
-                { error: 'Email and password are required' },
+                { error: 'Username and password are required' },
                 { status: 400 }
             );
         }
 
-        const user = await getUserByEmail(email);
+        const user = await getUserByUsername(username);
         
         if (!user) {
             return NextResponse.json(
@@ -23,9 +25,9 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // TODO: Add proper password hashing verification (bcrypt)
-        // For now, simple comparison (NOT SECURE - implement bcrypt in production)
-        if (user.password !== password) {
+        // Verify password with bcrypt
+        const isPasswordValid = await bcryptjs.compare(password, user.password);
+        if (!isPasswordValid) {
             return NextResponse.json(
                 { error: 'Invalid password' },
                 { status: 401 }
@@ -42,8 +44,9 @@ export async function POST(request: NextRequest) {
         
         const response = NextResponse.json(userData, { status: 200 });
         
-        // Set session cookie with user email (httpOnly for security)
-        response.cookies.set('user_session', user.email, {
+        // Create encrypted session token
+        const sessionToken = createSessionToken(user.user_id, user.email);
+        response.cookies.set('user_session', sessionToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',

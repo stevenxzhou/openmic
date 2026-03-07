@@ -19,12 +19,15 @@ const UserSignupView = () => {
   }, [user.authenticated]);
 
   const [formData, setFormData] = useState({
+    username: "",
     email: "",
     password: "",
     rePassword: "",
     firstName: "",
     lastName: "",
   });
+
+  const [error, setError] = useState("");
 
   function handleChange(e: ChangeEvent<HTMLInputElement>): void {
     setFormData({
@@ -37,8 +40,23 @@ const UserSignupView = () => {
     event: FormEvent<HTMLFormElement>,
   ): Promise<void> {
     event.preventDefault();
+    setError(""); // Clear previous errors
+
+    // Validate passwords match
+    if (formData.password !== formData.rePassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    // Validate password length
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+
     try {
       const formPayload = new FormData();
+      formPayload.append("username", formData.username);
       formPayload.append("email", formData.email);
       formPayload.append("password", formData.password);
       formPayload.append("first_name", formData.firstName);
@@ -50,7 +68,9 @@ const UserSignupView = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Signup failed");
+        const errorData = await response.json();
+        setError(errorData.error || "Signup failed. Please try again.");
+        return;
       }
 
       // Check if there's a stored event ID
@@ -64,7 +84,7 @@ const UserSignupView = () => {
       }
     } catch (error) {
       console.error("Signup failed:", error);
-      alert("Signup failed. Please try again.");
+      setError("Signup failed. Please try again.");
     }
   }
 
@@ -81,6 +101,13 @@ const UserSignupView = () => {
           <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             Sign Up
           </h2>
+
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
+              <p className="text-sm">{error}</p>
+            </div>
+          )}
 
           {/* Form */}
           <form className="space-y-4" onSubmit={handleSubmit}>
@@ -124,6 +151,27 @@ const UserSignupView = () => {
               </div>
             </div>
 
+            {/* Username Field */}
+            <div>
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Username
+              </label>
+              <input
+                type="text"
+                name="username"
+                id="username"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md 
+                                        focus:outline-none focus:ring-2 focus:ring-yellow-500 
+                                        focus:border-transparent"
+                placeholder="username"
+                onChange={handleChange}
+                required
+              />
+            </div>
+
             {/* Email Field */}
             <div>
               <label
@@ -141,6 +189,7 @@ const UserSignupView = () => {
                                         focus:border-transparent"
                 placeholder="your@email.com"
                 onChange={handleChange}
+                required
               />
             </div>
 
@@ -161,26 +210,31 @@ const UserSignupView = () => {
                                         focus:border-transparent"
                 placeholder="••••••••"
                 onChange={handleChange}
+                required
               />
+              <p className="mt-1 text-xs text-gray-500">
+                Must be at least 8 characters
+              </p>
             </div>
 
             {/* Confirm Password Field */}
             <div>
               <label
-                htmlFor="confirmPassword"
+                htmlFor="rePassword"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
                 Confirm Password
               </label>
               <input
                 type="password"
-                name="confirmPassword"
-                id="confirmPassword"
+                name="rePassword"
+                id="rePassword"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md 
                                         focus:outline-none focus:ring-2 focus:ring-yellow-500 
                                         focus:border-transparent"
                 placeholder="••••••••"
                 onChange={handleChange}
+                required
               />
             </div>
 
@@ -210,7 +264,7 @@ const UserSignupView = () => {
                     sessionStorage.setItem("eventId", eventId);
                   }
                 }
-                router.push("/auth/login");
+                router.push("/login");
               }}
               className="text-sm text-yellow-600 hover:text-yellow-800 font-medium bg-transparent border-none cursor-pointer"
             >

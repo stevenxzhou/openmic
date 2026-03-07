@@ -22,9 +22,6 @@ const useUser = (user_id: number) => {
             setLoading(true);
             setError(null);
             try {
-                // TODO: Create dedicated GET /api/users/:id endpoint
-                // For now, you can fetch from your database directly
-                // or create this endpoint in app/api/users/[id]/route.ts
                 const response = await fetch(`/api/users/${user_id}`, {
                     credentials: 'include'
                 });

@@ -1,20 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserByEmail } from "@/lib/data";
+import { validateSessionToken, createSessionToken } from "@/lib/session";
 
 export async function POST(request: NextRequest) {
     try {
-        // Get user email from session cookie
-        const userEmail = request.cookies.get('user_session')?.value;
+        // Get encrypted session token from cookie
+        const sessionToken = request.cookies.get('user_session')?.value;
         
-        if (!userEmail) {
+        if (!sessionToken) {
             return NextResponse.json(
                 { error: 'No valid session' },
                 { status: 401 }
             );
         }
         
+        // Validate and decrypt session token
+        const sessionData = validateSessionToken(sessionToken);
+        if (!sessionData) {
+            return NextResponse.json(
+                { error: 'Invalid session' },
+                { status: 401 }
+            );
+        }
+        
         // Fetch user data by email
-        const user = await getUserByEmail(userEmail);
+        const user = await getUserByEmail(sessionData.email);
         
         if (!user) {
             // User no longer exists in database
@@ -35,7 +45,19 @@ export async function POST(request: NextRequest) {
             authenticated: true
         };
         
-        return NextResponse.json(userData, { status: 200 });
+        const response = NextResponse.json(userData, { status: 200 });
+        
+        // Refresh the encrypted session token (update expiration)
+        const newSessionToken = createSessionToken(user.user_id, user.email);
+        response.cookies.set('user_session', newSessionToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24 * 7, // 7 days
+            path: '/'
+        });
+        
+        return response;
     } catch (error) {
         console.error('Refresh error:', error);
         return NextResponse.json(

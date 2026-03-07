@@ -155,7 +155,7 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
                         sessionStorage.setItem("eventId", eventId);
                       }
                     }
-                    router.push("/auth/login");
+                    router.push("/login");
                   }}
                   className="px-3 py-2 text-sm font-medium text-gray-900 hover:bg-yellow-600 rounded-lg transition-colors bg-transparent border-none cursor-pointer"
                 >
