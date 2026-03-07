@@ -59,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
   return (
     <>
       <header className="flex justify-between items-center px-4 bg-yellow-500 w-full fixed z-50">
-        <div className="flex-shrink-0 w-6">
+        <div className="flex-shrink-0 w-28">
           {showBackButton && (
             <button
               className="hover:opacity-50 transition-opacity"
@@ -165,7 +165,7 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
             )}
           </div>
         </div>
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 w-28 flex justify-end">
           <div className="flex items-center gap-1 rounded-md bg-yellow-500/40 p-1">
             <button
               type="button"
