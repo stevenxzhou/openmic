@@ -126,7 +126,7 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
                       onClick={() => setShowProfileMenu(false)}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                     >
-                      Manage Events
+                      Events List
                     </Link>
                     <button
                       onClick={userLogoutHandler}
@@ -134,6 +134,11 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
                     >
                       Logout
                     </button>
+                    <div className="px-4 py-3 border-t border-gray-200">
+                      <p className="text-xs text-gray-400 font-mono text-center">
+                        v{process.env.NEXT_PUBLIC_APP_VERSION || "dev"}
+                      </p>
+                    </div>
                   </div>
                 )}
               </>
