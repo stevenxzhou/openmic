@@ -303,7 +303,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
             )}
 
           {/* Performer name */}
-          <div className="flex items-end">
+          <div className="flex items-end justify-between">
             <h1
               className={`font-md leading-tight text-gray-900 mr-2 ${index === 0 ? "text-[2rem]" : "text-lg"}`}
             >
@@ -312,8 +312,15 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
 
             {/* Social media - Instagram handle only */}
             {showInstagramIcon && index === 0 && (
-              <div className="w-5 h-5 flex-shrink-0 text-pink-600 mb-3">
-                <InstagramIcon className="w-5" handle={socialMediaValue} />
+              <div className="flex-shrink-0 text-pink-600 mb-3">
+                <a
+                  href={`https://instagram.com/${socialMediaValue}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs sm:text-sm font-semibold text-pink-600 hover:text-pink-700 hover:underline break-words max-w-[120px]"
+                >
+                  @{socialMediaValue}
+                </a>
               </div>
             )}
           </div>
