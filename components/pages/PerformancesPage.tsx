@@ -457,7 +457,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
 
         {!isCompletedEvent && (
           <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t space-y-2">
-            {isAdminOrHost && (
+            {isAdmin && (
               <div className="flex gap-2">
                 <button
                   onClick={() => setActiveView("lineup")}
