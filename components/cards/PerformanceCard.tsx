@@ -6,7 +6,10 @@ import {
   memo,
   useRef,
 } from "react";
-import { type PerformanceUser } from "@/hooks/usePerformances";
+import {
+  type PerformanceUser,
+  PerformanceStatus,
+} from "@/hooks/usePerformances";
 import { InstagramIcon } from "../utilities/SocialMediaIcons";
 import { apiUrl } from "@/lib/utils";
 import { GlobalContext } from "@/context/useGlobalContext";
@@ -21,6 +24,7 @@ type PerformanceCardProps = {
   calculateWaitTime: (index: number) => string;
   showWaitTime?: boolean;
   showActions?: boolean;
+  enableHeartAnimation?: boolean;
   onComplete?: (performance: PerformanceUser) => void;
   onDelete?: (performance: PerformanceUser) => void;
   onMoveNext?: (performance: PerformanceUser) => void;
@@ -35,6 +39,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
     calculateWaitTime,
     showWaitTime = true,
     showActions = false,
+    enableHeartAnimation = false,
     onComplete,
     onDelete,
     onMoveNext,
@@ -46,6 +51,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
     const [showLikeLimitToast, setShowLikeLimitToast] = useState(false);
     const [showHeartAnimation, setShowHeartAnimation] = useState(false);
     const previousLikesRef = useRef(likes);
+    const previousHasUserLikedRef = useRef(false);
     const heartAnimationTimeoutRef = useRef<ReturnType<
       typeof setTimeout
     > | null>(null);
@@ -122,10 +128,17 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
     }, [showLikeLimitToast]);
 
     useEffect(() => {
-      const previousLikes = previousLikesRef.current;
-      previousLikesRef.current = likes;
+      const wasPreviouslyLiked = previousHasUserLikedRef.current;
+      previousHasUserLikedRef.current = hasUserLiked;
 
-      if (index !== 0 || likes <= previousLikes) return;
+      // Only show animation when transitioning from not liked to liked, and for completed performances
+      if (
+        (!enableHeartAnimation && index !== 0) ||
+        wasPreviouslyLiked === true ||
+        hasUserLiked === false ||
+        performance.status?.toUpperCase() !== PerformanceStatus.COMPLETED
+      )
+        return;
 
       setShowHeartAnimation(true);
       if (heartAnimationTimeoutRef.current) {
@@ -135,7 +148,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
       heartAnimationTimeoutRef.current = setTimeout(() => {
         setShowHeartAnimation(false);
       }, 700);
-    }, [likes, index]);
+    }, [hasUserLiked, index, performance.status, enableHeartAnimation]);
 
     useEffect(() => {
       return () => {
@@ -264,28 +277,30 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
         </div>
 
         <div className="relative z-10">
-          {showHeartAnimation && index === 0 && (
-            <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-              <div className="relative h-20 w-20">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  className="absolute inset-0 h-20 w-20 text-pink-300 opacity-70 heart-glow-ease-out"
-                  fill="currentColor"
-                >
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </svg>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  className="relative h-20 w-20 text-pink-500 heart-pop-ease-out drop-shadow"
-                  fill="currentColor"
-                >
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </svg>
+          {showHeartAnimation &&
+            performance.status?.toUpperCase() ===
+              PerformanceStatus.COMPLETED && (
+              <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                <div className="relative h-20 w-20">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    className="absolute inset-0 h-20 w-20 text-pink-300 opacity-70 heart-glow-ease-out"
+                    fill="currentColor"
+                  >
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                  </svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    className="relative h-20 w-20 text-pink-500 heart-pop-ease-out drop-shadow"
+                    fill="currentColor"
+                  >
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                  </svg>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* Performer name */}
           <div className="flex items-end">
@@ -303,29 +318,31 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
             )}
           </div>
 
-          {/* Like button - top right */}
-          {(!showWaitTime || index === 0) && (
-            <button
-              onClick={handleLike}
-              aria-disabled={isLiking}
-              className={`absolute top-2 right-0 p-2 pr-0 rounded-lg transition-colors flex items-center justify-center cursor-pointer ${isLiking ? "opacity-50" : ""} ${hasUserLiked ? "focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0" : ""}`}
-              title="Like"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-8 w-8"
-                viewBox="0 0 24 24"
-                fill={hasUserLiked ? "currentColor" : "none"}
-                stroke={hasUserLiked ? "none" : "currentColor"}
-                strokeWidth={hasUserLiked ? 0 : 2}
-                style={{
-                  color: hasUserLiked ? "#ec4899" : "#d1d5db",
-                }}
+          {/* Like button - top right (only for completed performances) */}
+          {(!showWaitTime || index === 0) &&
+            performance.status?.toUpperCase() ===
+              PerformanceStatus.COMPLETED && (
+              <button
+                onClick={handleLike}
+                aria-disabled={isLiking}
+                className={`absolute top-2 right-0 p-2 pr-0 rounded-lg transition-colors flex items-center justify-center cursor-pointer ${isLiking ? "opacity-50" : ""} ${hasUserLiked ? "focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0" : ""}`}
+                title="Like"
               >
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
-            </button>
-          )}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8"
+                  viewBox="0 0 24 24"
+                  fill={hasUserLiked ? "currentColor" : "none"}
+                  stroke={hasUserLiked ? "none" : "currentColor"}
+                  strokeWidth={hasUserLiked ? 0 : 2}
+                  style={{
+                    color: hasUserLiked ? "#ec4899" : "#d1d5db",
+                  }}
+                >
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                </svg>
+              </button>
+            )}
 
           {showLikeLimitToast && (
             <div className="absolute right-0 top-12 z-10 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 shadow">

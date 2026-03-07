@@ -4,6 +4,7 @@ import QRCode from "@/components/utilities/QRCode";
 import { Event } from "@/hooks/useEvents";
 import { type PerformanceUser } from "@/hooks/usePerformances";
 import { GlobalContext } from "@/context/useGlobalContext";
+import { InstagramIcon } from "@/components/utilities/SocialMediaIcons";
 
 type EventDetailsCardProps = {
   eventDetails: Event;
@@ -27,6 +28,20 @@ const formatEventDateTime = (dateString: string, language: "en" | "zh") => {
     minute: "2-digit",
     hour12: true,
   });
+};
+
+const isInstagramHandle = (value: string): boolean => {
+  if (!value) return false;
+  // Valid handles: 1-30 characters, letters, numbers, periods, underscores
+  // Can't start with a number, no URLs allowed
+  return (
+    !value.startsWith("http://") &&
+    !value.startsWith("https://") &&
+    !value.includes(".com") &&
+    !value.includes(".net") &&
+    !value.includes(".org") &&
+    /^[a-zA-Z_][a-zA-Z0-9_.]{0,29}$/.test(value)
+  );
 };
 
 export default memo(function EventDetailsCard({
@@ -54,6 +69,26 @@ export default memo(function EventDetailsCard({
 
     return (maxPerformer.likes || 0) > 0 ? maxPerformer : null;
   }, [performances]);
+
+  const topPerformerSocialMedia = useMemo(() => {
+    if (!topPerformer?.social_medias) return "";
+
+    if (typeof topPerformer.social_medias === "string") {
+      return topPerformer.social_medias.trim();
+    }
+
+    if (
+      typeof topPerformer.social_medias === "object" &&
+      topPerformer.social_medias !== null
+    ) {
+      return (Object.values(topPerformer.social_medias)[0] as string) || "";
+    }
+
+    return "";
+  }, [topPerformer]);
+
+  const showTopPerformerIg =
+    topPerformerSocialMedia && isInstagramHandle(topPerformerSocialMedia);
 
   return (
     <>
@@ -151,8 +186,21 @@ export default memo(function EventDetailsCard({
             {topPerformer && (
               <div className="text-right">
                 <div className="text-2xl mb-1">🏅</div>
-                <div className="text-xs sm:text-sm font-semibold text-gray-900 break-words max-w-[120px]">
-                  {topPerformer.performers}
+                <div className="flex items-center justify-end gap-1 mb-1">
+                  {showTopPerformerIg ? (
+                    <a
+                      href={`https://instagram.com/${topPerformerSocialMedia}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs sm:text-sm font-semibold text-pink-600 hover:text-pink-700 hover:underline break-words max-w-[120px]"
+                    >
+                      @{topPerformerSocialMedia}
+                    </a>
+                  ) : (
+                    <div className="text-xs sm:text-sm font-semibold text-gray-900 break-words max-w-[120px]">
+                      {topPerformer.performers}
+                    </div>
+                  )}
                 </div>
                 <div className="text-xs text-gray-600 mt-1">
                   {topPerformer.likes}{" "}

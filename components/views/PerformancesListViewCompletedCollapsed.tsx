@@ -57,6 +57,7 @@ export default function PerformancesListViewCompletedCollapsed({
                 calculateWaitTime={() => ""}
                 showWaitTime={false}
                 showActions={false}
+                enableHeartAnimation={true}
               />
             ))}
           </div>
