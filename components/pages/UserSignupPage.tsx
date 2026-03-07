@@ -5,7 +5,7 @@ import Link from "next/link";
 import { apiUrl } from "@/lib/utils";
 
 const UserSignupView = () => {
-  const { user } = useGlobalContext();
+  const { user, t } = useGlobalContext();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -44,13 +44,13 @@ const UserSignupView = () => {
 
     // Validate passwords match
     if (formData.password !== formData.rePassword) {
-      setError("Passwords do not match.");
+      setError(t("auth.error.passwordMismatch"));
       return;
     }
 
     // Validate password length
     if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long.");
+      setError(t("auth.error.passwordShort"));
       return;
     }
 
@@ -69,7 +69,7 @@ const UserSignupView = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        setError(errorData.error || "Signup failed. Please try again.");
+        setError(errorData.error || t("auth.error.signupFailed"));
         return;
       }
 
@@ -84,7 +84,7 @@ const UserSignupView = () => {
       }
     } catch (error) {
       console.error("Signup failed:", error);
-      setError("Signup failed. Please try again.");
+      setError(t("auth.error.signupFailed"));
     }
   }
 
@@ -99,7 +99,7 @@ const UserSignupView = () => {
         <div className="bg-white rounded-lg shadow-xl p-6 sm:p-8">
           {/* Form Header */}
           <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            Sign Up
+            {t("auth.signup")}
           </h2>
 
           {/* Error Message */}
@@ -118,7 +118,7 @@ const UserSignupView = () => {
                   htmlFor="firstName"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  First Name
+                  {t("auth.firstName")}
                 </label>
                 <input
                   type="text"
@@ -136,7 +136,7 @@ const UserSignupView = () => {
                   htmlFor="lastName"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Last Name
+                  {t("auth.lastName")}
                 </label>
                 <input
                   type="text"
@@ -157,7 +157,7 @@ const UserSignupView = () => {
                 htmlFor="username"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Username
+                {t("auth.username")}
               </label>
               <input
                 type="text"
@@ -166,7 +166,7 @@ const UserSignupView = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md 
                                         focus:outline-none focus:ring-2 focus:ring-yellow-500 
                                         focus:border-transparent"
-                placeholder="username"
+                placeholder={t("auth.username")}
                 onChange={handleChange}
                 required
               />
@@ -178,7 +178,7 @@ const UserSignupView = () => {
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Email
+                {t("auth.email")}
               </label>
               <input
                 type="email"
@@ -199,7 +199,7 @@ const UserSignupView = () => {
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Password
+                {t("auth.password")}
               </label>
               <input
                 type="password"
@@ -213,7 +213,7 @@ const UserSignupView = () => {
                 required
               />
               <p className="mt-1 text-xs text-gray-500">
-                Must be at least 8 characters
+                {t("auth.passwordMinLength")}
               </p>
             </div>
 
@@ -223,7 +223,7 @@ const UserSignupView = () => {
                 htmlFor="rePassword"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Confirm Password
+                {t("auth.confirmPassword")}
               </label>
               <input
                 type="password"
@@ -246,14 +246,14 @@ const UserSignupView = () => {
                                     focus:ring-yellow-500 focus:ring-offset-2 
                                     transition duration-150 ease-in-out"
             >
-              Sign Up
+              {t("auth.signup")}
             </button>
           </form>
 
           {/* Login Link */}
           <div className="mt-6 text-center">
             <span className="text-sm text-gray-600">
-              Already have an account?{" "}
+              {t("auth.hasAccount")}{" "}
             </span>
             <button
               onClick={() => {
@@ -268,7 +268,7 @@ const UserSignupView = () => {
               }}
               className="text-sm text-yellow-600 hover:text-yellow-800 font-medium bg-transparent border-none cursor-pointer"
             >
-              Login
+              {t("auth.login")}
             </button>
           </div>
           <div className="mt-2 text-center">
@@ -285,7 +285,7 @@ const UserSignupView = () => {
               }}
               className="text-sm text-gray-500 hover:text-yellow-600 underline bg-transparent border-none cursor-pointer"
             >
-              Continue as guest
+              {t("auth.continueGuest")}
             </button>
           </div>
         </div>

@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 const EventsView = () => {
   const router = useRouter();
   const { events, createEvent, updateEvent, deleteEvent, error } = useEvents();
-  const { user } = useContext(GlobalContext);
+  const { user, language, t } = useContext(GlobalContext);
   const [deleteConfirmation, setDeleteConfirmation] = useState<Event | null>(
     null,
   );
@@ -37,8 +37,8 @@ const EventsView = () => {
 
   const formatEventDate = (dateValue: string) => {
     const parsed = parseEventDate(dateValue);
-    if (!parsed) return "Invalid date";
-    return parsed.toLocaleDateString("en-US", {
+    if (!parsed) return t("events.invalidDate");
+    return parsed.toLocaleDateString(language === "zh" ? "zh-CN" : "en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -127,7 +127,7 @@ const EventsView = () => {
       (() => {
         const parsed = parseEventDate(event.start_date || event.end_date);
         return parsed
-          ? parsed.toLocaleString("en-US", {
+          ? parsed.toLocaleString(language === "zh" ? "zh-CN" : "en-US", {
               year: "numeric",
               month: "short",
               day: "numeric",
@@ -203,12 +203,22 @@ const EventsView = () => {
                   <table className="min-w-full text-sm">
                     <thead className="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
                       <tr>
-                        <th className="px-4 py-3 text-left">Date</th>
-                        <th className="px-4 py-3 text-left">Title</th>
-                        <th className="px-4 py-3 text-left">Location</th>
-                        <th className="px-4 py-3 text-right">Performances</th>
+                        <th className="px-4 py-3 text-left">
+                          {t("events.table.date")}
+                        </th>
+                        <th className="px-4 py-3 text-left">
+                          {t("events.table.title")}
+                        </th>
+                        <th className="px-4 py-3 text-left">
+                          {t("events.table.location")}
+                        </th>
+                        <th className="px-4 py-3 text-right">
+                          {t("events.table.performances")}
+                        </th>
                         {isAdmin && (
-                          <th className="px-4 py-3 text-right">Actions</th>
+                          <th className="px-4 py-3 text-right">
+                            {t("events.table.actions")}
+                          </th>
                         )}
                       </tr>
                     </thead>
@@ -237,8 +247,8 @@ const EventsView = () => {
                                 <button
                                   onClick={(e) => handlePastEditClick(e, event)}
                                   className="p-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors"
-                                  aria-label="Edit event"
-                                  title="Edit"
+                                  aria-label={t("common.edit")}
+                                  title={t("common.edit")}
                                 >
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -260,8 +270,8 @@ const EventsView = () => {
                                     handlePastDeleteClick(e, event)
                                   }
                                   className="p-1 bg-red-100 hover:bg-red-200 text-red-700 rounded transition-colors"
-                                  aria-label="Delete event"
-                                  title="Delete"
+                                  aria-label={t("common.delete")}
+                                  title={t("common.delete")}
                                 >
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -292,13 +302,13 @@ const EventsView = () => {
                     onClick={handleExportPastEventsCsv}
                     className="rounded bg-yellow-600 px-3 py-2 text-sm font-medium text-white hover:bg-yellow-700"
                   >
-                    Export CSV
+                    {t("events.exportCsv")}
                   </button>
                 </div>
               </>
             ) : (
               <div className="rounded-lg border border-gray-200 bg-white p-6 text-center text-gray-500">
-                No past events
+                {t("events.noPast")}
               </div>
             )}
           </>
@@ -315,7 +325,7 @@ const EventsView = () => {
                   : "bg-gray-200 hover:bg-gray-300 text-gray-700"
               }`}
             >
-              Future Events
+              {t("events.future")}
             </button>
             <button
               onClick={() => setEventsView("past")}
@@ -325,14 +335,14 @@ const EventsView = () => {
                   : "bg-gray-200 hover:bg-gray-300 text-gray-700"
               }`}
             >
-              Past Events
+              {t("events.past")}
             </button>
           </div>
           <button
             className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-center block"
             onClick={() => setShowCreateModal(true)}
           >
-            Add New
+            {t("common.addNew")}
           </button>
         </div>
       )}
@@ -357,24 +367,23 @@ const EventsView = () => {
         <Modal>
           <div className="text-center space-y-4">
             <h2 className="text-xl font-semibold text-gray-800">
-              Delete Event?
+              {t("events.deleteTitle")}
             </h2>
             <p className="text-gray-600">
-              Are you sure you want to delete "{deleteConfirmation.title}"? This
-              will also delete all associated performances.
+              {t("events.deleteBody", { title: deleteConfirmation.title })}
             </p>
             <div className="flex gap-3 justify-center">
               <button
                 onClick={() => setDeleteConfirmation(null)}
                 className="px-6 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 onClick={() => confirmDelete(deleteConfirmation)}
                 className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
               >
-                Delete
+                {t("common.delete")}
               </button>
             </div>
           </div>

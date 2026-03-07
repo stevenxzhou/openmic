@@ -5,7 +5,7 @@ import Link from "next/link";
 import { apiUrl } from "@/lib/utils";
 
 const UserLoginView = () => {
-  const { user, dispatch } = useGlobalContext();
+  const { user, dispatch, t } = useGlobalContext();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -43,10 +43,7 @@ const UserLoginView = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        setError(
-          errorData.error ||
-            "Login failed. Please check your credentials and try again.",
-        );
+        setError(errorData.error || t("auth.error.loginFailed"));
         return;
       }
 
@@ -73,7 +70,7 @@ const UserLoginView = () => {
     } catch (error) {
       // Display error message on the login page
       console.error("Login failed:", error);
-      setError("Login failed. Please check your credentials and try again.");
+      setError(t("auth.error.loginFailed"));
     }
   };
 
@@ -96,7 +93,7 @@ const UserLoginView = () => {
         <div className="bg-white rounded-lg shadow-xl p-6 sm:p-8">
           {/* Form Header */}
           <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            Login
+            {t("auth.login")}
           </h2>
 
           {/* Error Message */}
@@ -114,7 +111,7 @@ const UserLoginView = () => {
                 htmlFor="username"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Username
+                {t("auth.username")}
               </label>
               <input
                 type="text"
@@ -123,7 +120,7 @@ const UserLoginView = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md 
                                         focus:outline-none focus:ring-2 focus:ring-yellow-500 
                                         focus:border-transparent"
-                placeholder="username"
+                placeholder={t("auth.username")}
                 onChange={handleChange}
                 required
               />
@@ -135,7 +132,7 @@ const UserLoginView = () => {
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Password
+                {t("auth.password")}
               </label>
               <input
                 type="password"
@@ -157,14 +154,14 @@ const UserLoginView = () => {
                                     focus:ring-yellow-500 focus:ring-offset-2 
                                     transition duration-150 ease-in-out"
             >
-              Login
+              {t("auth.login")}
             </button>
           </form>
 
           {/* Sign Up Link */}
           <div className="mt-6 text-center">
             <span className="text-sm text-gray-600">
-              Don't have an account?{" "}
+              {t("auth.noAccount")}{" "}
             </span>
             <button
               onClick={() => {
@@ -179,7 +176,7 @@ const UserLoginView = () => {
               }}
               className="text-sm text-yellow-600 hover:text-yellow-800 font-medium bg-transparent border-none cursor-pointer"
             >
-              Sign up
+              {t("auth.signUpLink")}
             </button>
           </div>
           <div className="mt-2 text-center">
@@ -196,7 +193,7 @@ const UserLoginView = () => {
               }}
               className="text-sm text-gray-500 hover:text-yellow-600 underline bg-transparent border-none cursor-pointer"
             >
-              Continue as guest
+              {t("auth.continueGuest")}
             </button>
           </div>
         </div>

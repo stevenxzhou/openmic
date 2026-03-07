@@ -1,8 +1,9 @@
-import { useState, useMemo, memo } from "react";
+import { useState, useMemo, memo, useContext } from "react";
 import Modal from "@/components/layouts/Modal";
 import QRCode from "@/components/utilities/QRCode";
 import { Event } from "@/hooks/useEvents";
 import { type PerformanceUser } from "@/hooks/usePerformances";
+import { GlobalContext } from "@/context/useGlobalContext";
 
 type EventDetailsCardProps = {
   eventDetails: Event;
@@ -10,9 +11,9 @@ type EventDetailsCardProps = {
   performances?: PerformanceUser[];
 };
 
-const formatEventDateTime = (dateString: string) => {
+const formatEventDateTime = (dateString: string, language: "en" | "zh") => {
   const date = new Date(dateString);
-  return date.toLocaleString("en-US", {
+  return date.toLocaleString(language === "zh" ? "zh-CN" : "en-US", {
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -29,6 +30,7 @@ export default memo(function EventDetailsCard({
   performances,
 }: EventDetailsCardProps) {
   const [showQRModal, setShowQRModal] = useState(false);
+  const { language, t } = useContext(GlobalContext);
 
   const topPerformer = useMemo(() => {
     if (!performances || performances.length === 0) return null;
@@ -55,8 +57,8 @@ export default memo(function EventDetailsCard({
               <button
                 onClick={() => setShowQRModal(true)}
                 className="p-1 hover:opacity-70 transition-opacity flex-shrink-0"
-                title="Share event"
-                aria-label="Share event"
+                title={t("eventDetails.share")}
+                aria-label={t("eventDetails.share")}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -87,7 +89,7 @@ export default memo(function EventDetailsCard({
                   />
                 </svg>
                 <span className="break-words">
-                  {formatEventDateTime(eventDetails.start_date)}
+                  {formatEventDateTime(eventDetails.start_date, language)}
                 </span>
               </div>
               <div className="flex items-start">
@@ -142,7 +144,9 @@ export default memo(function EventDetailsCard({
               </div>
               <div className="text-xs text-gray-600 mt-1">
                 {topPerformer.likes}{" "}
-                {topPerformer.likes === 1 ? "like" : "likes"}
+                {topPerformer.likes === 1
+                  ? t("eventDetails.like")
+                  : t("eventDetails.likes")}
               </div>
             </div>
           )}
@@ -153,11 +157,9 @@ export default memo(function EventDetailsCard({
         <Modal>
           <div className="text-center space-y-4">
             <h2 className="text-xl font-semibold text-gray-800">
-              Event QR Code
+              {t("eventDetails.qrTitle")}
             </h2>
-            <p className="text-gray-600">
-              Scan this code to view event performances
-            </p>
+            <p className="text-gray-600">{t("eventDetails.qrBody")}</p>
             <div className="flex justify-center">
               <div className="w-64 h-64">
                 <QRCode
@@ -170,7 +172,7 @@ export default memo(function EventDetailsCard({
               onClick={() => setShowQRModal(false)}
               className="w-full py-2 bg-gray-600 hover:bg-gray-700 text-white rounded"
             >
-              Close
+              {t("eventDetails.close")}
             </button>
           </div>
         </Modal>

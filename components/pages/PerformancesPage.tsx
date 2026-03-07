@@ -16,7 +16,7 @@ import { GlobalContext } from "@/context/useGlobalContext";
 
 const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
   const router = useRouter();
-  const { user } = useContext(GlobalContext);
+  const { user, t } = useContext(GlobalContext);
   const isAdminOrHost =
     user.role?.toLowerCase() === "admin" || user.role?.toLowerCase() === "host";
   const [eventId] = useState<number | null>(propEventId ?? null);
@@ -222,7 +222,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
       {showPerformanceAddedToast && (
         <div className="fixed top-[52px] left-1/2 z-50 -translate-x-1/2 px-4">
           <div className="rounded border border-green-200 bg-green-50 px-4 py-2 text-sm text-green-700 shadow">
-            Performance added successfully.
+            {t("performances.added")}
           </div>
         </div>
       )}
@@ -280,7 +280,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
                       : "bg-gray-200 hover:bg-gray-300 text-gray-700"
                   }`}
                 >
-                  Live
+                  {t("performances.live")}
                 </button>
                 <button
                   onClick={() => setActiveView("completed")}
@@ -290,7 +290,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
                       : "bg-gray-200 hover:bg-gray-300 text-gray-700"
                   }`}
                 >
-                  Finshed
+                  {t("performances.finished")}
                 </button>
               </div>
             )}
@@ -298,7 +298,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
               className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-center block"
               onClick={() => setShowSignupModal(true)}
             >
-              Add New
+              {t("common.addNew")}
             </button>
           </div>
         )}
@@ -316,16 +316,16 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
         {showSkipConfirm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full">
-              <h3 className="text-lg font-bold mb-4">Confirm Skip</h3>
-              <p className="mb-6">
-                Are you sure you want to skip this performer?
-              </p>
+              <h3 className="text-lg font-bold mb-4">
+                {t("performances.confirmSkip")}
+              </h3>
+              <p className="mb-6">{t("performances.confirmSkipBody")}</p>
               <div className="flex justify-end space-x-2">
                 <button
                   onClick={() => toggleSkipConfirmModal(false)}
                   className="px-4 py-2 border rounded hover:bg-gray-50"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button
                   onClick={() => {
@@ -340,7 +340,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
                   }}
                   className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded"
                 >
-                  Skip
+                  {t("performances.skip")}
                 </button>
               </div>
             </div>
@@ -352,24 +352,25 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
           <Modal>
             <div className="text-center space-y-4">
               <h2 className="text-xl font-semibold text-gray-800">
-                Mark as Completed?
+                {t("performances.markCompleted")}
               </h2>
               <p className="text-gray-600">
-                Are you sure you want to mark {completeConfirmation.performers}{" "}
-                as completed?
+                {t("performances.markCompletedBody", {
+                  name: completeConfirmation.performers || "",
+                })}
               </p>
               <div className="flex gap-3 justify-center">
                 <button
                   onClick={() => setCompleteConfirmation(null)}
                   className="px-6 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button
                   onClick={() => confirmComplete(completeConfirmation)}
                   className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
                 >
-                  Yes, Mark Done
+                  {t("performances.markDone")}
                 </button>
               </div>
             </div>
@@ -381,23 +382,25 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
           <Modal>
             <div className="text-center space-y-4">
               <h2 className="text-xl font-semibold text-gray-800">
-                Delete Performance?
+                {t("performances.deleteTitle")}
               </h2>
               <p className="text-gray-600">
-                Are you sure you want to delete {deleteConfirmation.performers}?
+                {t("performances.deleteBody", {
+                  name: deleteConfirmation.performers || "",
+                })}
               </p>
               <div className="flex gap-3 justify-center">
                 <button
                   onClick={() => setDeleteConfirmation(null)}
                   className="px-6 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button
                   onClick={() => confirmDelete(deleteConfirmation)}
                   className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
                 >
-                  Delete
+                  {t("common.delete")}
                 </button>
               </div>
             </div>

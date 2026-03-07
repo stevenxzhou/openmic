@@ -12,7 +12,7 @@ type EventCardProps = Event & {
 
 export const EventCard = (props: EventCardProps) => {
   const router = useRouter();
-  const { user } = useContext(GlobalContext);
+  const { user, language, t } = useContext(GlobalContext);
   const isAdmin = user.role?.toLowerCase() === "admin";
   const normalizedStatus = String(props.status || "NEW").toUpperCase();
   const isStarted = normalizedStatus === "IN_PROGRESS";
@@ -20,37 +20,37 @@ export const EventCard = (props: EventCardProps) => {
   const statusBadge = (() => {
     if (normalizedStatus === "IN_PROGRESS") {
       return {
-        label: "Started",
+        label: t("events.status.started"),
         className: "bg-emerald-100 text-emerald-700 border-emerald-200",
       };
     }
 
     if (normalizedStatus === "COMPLETED") {
       return {
-        label: "Completed",
+        label: t("events.status.completed"),
         className: "bg-gray-100 text-gray-700 border-gray-200",
       };
     }
 
     return {
-      label: "Not Started",
+      label: t("events.status.notStarted"),
       className: "bg-amber-100 text-amber-700 border-amber-200",
     };
   })();
 
   const convertDateFormat = (datestr: string): string => {
-    if (!datestr) return "Invalid date";
+    if (!datestr) return t("events.invalidDate");
 
     // Parse UTC datetime string (ISO format with Z)
     const date = new Date(datestr);
 
     // Check if date is valid
     if (isNaN(date.getTime())) {
-      return "Invalid date";
+      return t("events.invalidDate");
     }
 
     // Format in user's local timezone
-    return date.toLocaleString("en-US", {
+    return date.toLocaleString(language === "zh" ? "zh-CN" : "en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -104,7 +104,7 @@ export const EventCard = (props: EventCardProps) => {
         </div>
         <div
           className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-semibold whitespace-nowrap ${statusBadge.className}`}
-          title={`Event status: ${normalizedStatus}`}
+          title={normalizedStatus}
         >
           <span
             className={`h-1.5 w-1.5 rounded-full ${
@@ -121,9 +121,9 @@ export const EventCard = (props: EventCardProps) => {
           {props.onEdit && (
             <button
               className="p-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors"
-              aria-label="Edit event"
+              aria-label={t("common.edit")}
               onClick={handleEditClick}
-              title="Edit"
+              title={t("common.edit")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -144,9 +144,9 @@ export const EventCard = (props: EventCardProps) => {
           {props.onDelete && (
             <button
               className="p-1 bg-red-100 hover:bg-red-200 text-red-700 rounded transition-colors"
-              aria-label="Delete event"
+              aria-label={t("common.delete")}
               onClick={handleDeleteClick}
-              title="Delete"
+              title={t("common.delete")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

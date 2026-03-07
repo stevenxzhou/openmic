@@ -28,7 +28,7 @@ const CreateEventView = ({
   onAdded,
 }: CreateEventViewProps) => {
   const router = useRouter();
-  const { user } = useContext(GlobalContext);
+  const { user, t } = useContext(GlobalContext);
   const isAdmin = user.role?.toLowerCase() === "admin";
   const {
     createEvent: createEventHook,
@@ -140,7 +140,7 @@ const CreateEventView = ({
   // Add/edit event handler
   const addEventHandler = async () => {
     if (!title || !startTime || !location) {
-      alert("Please fill all required fields");
+      alert(t("createEvent.required"));
       return;
     }
 
@@ -148,7 +148,7 @@ const CreateEventView = ({
       const selectedDate = new Date(startTime);
       const now = new Date();
       if (selectedDate < now) {
-        alert("Please choose a date and time that is not in the past.");
+        alert(t("createEvent.notPast"));
         return;
       }
     }
@@ -250,17 +250,23 @@ const CreateEventView = ({
                 </svg>
               </div>
               <h2 className="text-xl font-semibold text-gray-800">
-                {editingEvent ? "Event Updated!" : "Event Created!"}
+                {editingEvent
+                  ? t("createEvent.updated")
+                  : t("createEvent.created")}
               </h2>
               <p className="text-gray-600">
-                {title} has been {editingEvent ? "updated" : "added"} in the
-                events list.
+                {t("createEvent.message", {
+                  title,
+                  action: editingEvent
+                    ? t("createEvent.updatedAction")
+                    : t("createEvent.addedAction"),
+                })}
               </p>
               <button
                 onClick={closeModal}
                 className="w-full py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded"
               >
-                Done
+                {t("common.done")}
               </button>
             </div>
           ) : (
@@ -273,21 +279,23 @@ const CreateEventView = ({
                       onClick={clearError}
                       className="text-xs font-semibold hover:underline"
                     >
-                      Try Again
+                      {t("common.tryAgain")}
                     </button>
                     {duplicateEventId && (
                       <a
                         href={`/openmic/performances?event_id=${duplicateEventId}`}
                         className="text-xs font-semibold hover:underline"
                       >
-                        View Performances
+                        {t("createEvent.duplicateView")}
                       </a>
                     )}
                   </div>
                 </div>
               )}
               <div>
-                <label className="block mb-1 font-medium">Event Name</label>
+                <label className="block mb-1 font-medium">
+                  {t("createEvent.eventName")}
+                </label>
                 <input
                   type="text"
                   value={title}
@@ -296,12 +304,14 @@ const CreateEventView = ({
                     clearError();
                   }}
                   className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                  placeholder="Enter Event Name"
+                  placeholder={t("createEvent.eventName")}
                 />
               </div>
 
               <div>
-                <label className="block mb-1 font-medium">Event Hosts</label>
+                <label className="block mb-1 font-medium">
+                  {t("createEvent.hosts")}
+                </label>
                 <input
                   type="text"
                   value={hostNames}
@@ -310,13 +320,15 @@ const CreateEventView = ({
                     clearError();
                   }}
                   className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                  placeholder="Enter host names"
+                  placeholder={t("createEvent.hosts")}
                 />
               </div>
 
               {isAdmin && (
                 <div>
-                  <label className="block mb-1 font-medium">Event Status</label>
+                  <label className="block mb-1 font-medium">
+                    {t("createEvent.status")}
+                  </label>
                   <select
                     value={status}
                     onChange={(e) => {
@@ -334,7 +346,7 @@ const CreateEventView = ({
 
               <div>
                 <label className="block mb-1 font-medium">
-                  Description (Optional)
+                  {t("createEvent.description")}
                 </label>
                 <input
                   type="text"
@@ -344,12 +356,14 @@ const CreateEventView = ({
                     clearError();
                   }}
                   className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                  placeholder="Enter Event Description"
+                  placeholder={t("createEvent.description")}
                 />
               </div>
 
               <div>
-                <label className="block mb-1 font-medium">Date & Time</label>
+                <label className="block mb-1 font-medium">
+                  {t("createEvent.dateTime")}
+                </label>
                 <input
                   type="datetime-local"
                   value={startTime}
@@ -367,7 +381,9 @@ const CreateEventView = ({
               </div>
 
               <div>
-                <label className="block mb-1 font-medium">Location</label>
+                <label className="block mb-1 font-medium">
+                  {t("createEvent.location")}
+                </label>
                 <input
                   type="text"
                   value={location}
@@ -385,7 +401,7 @@ const CreateEventView = ({
                 disabled={!!displayError}
                 className="w-full py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded"
               >
-                {editingEvent ? "Save Changes" : "Create Event"}
+                {editingEvent ? t("common.edit") : t("common.addNew")}
               </button>
             </>
           )}
@@ -401,21 +417,23 @@ const CreateEventView = ({
                     onClick={clearError}
                     className="text-xs font-semibold hover:underline"
                   >
-                    Try Again
+                    {t("common.tryAgain")}
                   </button>
                   {duplicateEventId && (
                     <a
                       href={`/openmic/performances?event_id=${duplicateEventId}`}
                       className="text-xs font-semibold hover:underline"
                     >
-                      View Performances
+                      {t("createEvent.duplicateView")}
                     </a>
                   )}
                 </div>
               </div>
             )}
             <div>
-              <label className="block mb-1 font-medium">Event Name</label>
+              <label className="block mb-1 font-medium">
+                {t("createEvent.eventName")}
+              </label>
               <input
                 type="text"
                 value={title}
@@ -424,12 +442,14 @@ const CreateEventView = ({
                   clearError();
                 }}
                 className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                placeholder="Enter Event Name"
+                placeholder={t("createEvent.eventName")}
               />
             </div>
 
             <div>
-              <label className="block mb-1 font-medium">Event Hosts</label>
+              <label className="block mb-1 font-medium">
+                {t("createEvent.hosts")}
+              </label>
               <input
                 type="text"
                 value={hostNames}
@@ -438,13 +458,15 @@ const CreateEventView = ({
                   clearError();
                 }}
                 className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                placeholder="Enter host names"
+                placeholder={t("createEvent.hosts")}
               />
             </div>
 
             {isAdmin && (
               <div>
-                <label className="block mb-1 font-medium">Event Status</label>
+                <label className="block mb-1 font-medium">
+                  {t("createEvent.status")}
+                </label>
                 <select
                   value={status}
                   onChange={(e) => {
@@ -462,7 +484,7 @@ const CreateEventView = ({
 
             <div>
               <label className="block mb-1 font-medium">
-                Description (Optional)
+                {t("createEvent.description")}
               </label>
               <input
                 type="text"
@@ -472,12 +494,14 @@ const CreateEventView = ({
                   clearError();
                 }}
                 className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                placeholder="Enter Event Description"
+                placeholder={t("createEvent.description")}
               />
             </div>
 
             <div>
-              <label className="block mb-1 font-medium">Date & Time</label>
+              <label className="block mb-1 font-medium">
+                {t("createEvent.dateTime")}
+              </label>
               <input
                 type="datetime-local"
                 value={startTime}
@@ -495,7 +519,9 @@ const CreateEventView = ({
             </div>
 
             <div>
-              <label className="block mb-1 font-medium">Location</label>
+              <label className="block mb-1 font-medium">
+                {t("createEvent.location")}
+              </label>
               <input
                 type="text"
                 value={location}
@@ -513,7 +539,7 @@ const CreateEventView = ({
               disabled={!!displayError}
               className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded"
             >
-              {editingEvent ? "Save Changes" : "Add"}
+              {editingEvent ? t("common.edit") : t("common.addNew")}
             </button>
           </div>
         </div>

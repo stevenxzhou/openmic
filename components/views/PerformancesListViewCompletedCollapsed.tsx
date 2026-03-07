@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import PerformanceCard from "@/components/cards/PerformanceCard";
 import { PerformanceStatus, PerformanceUser } from "@/hooks/usePerformances";
 import PerformancesListViewContainer from "@/components/views/PerformancesListViewContainer";
+import { GlobalContext } from "@/context/useGlobalContext";
 
 type Props = {
   performances: PerformanceUser[];
@@ -13,6 +14,7 @@ export default function PerformancesListViewCompletedCollapsed({
   title,
 }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { t } = useContext(GlobalContext);
 
   const completedPerformances = [...performances]
     .filter((performance) => performance.status === PerformanceStatus.COMPLETED)
@@ -24,7 +26,7 @@ export default function PerformancesListViewCompletedCollapsed({
       hasItems={completedPerformances.length > 0}
       emptyState={
         <div className="border p-4 rounded text-center text-gray-500">
-          No completed performances
+          {t("performances.noCompleted")}
         </div>
       }
     >
@@ -39,7 +41,9 @@ export default function PerformancesListViewCompletedCollapsed({
           <span className="mr-2 inline-block w-4">
             {isExpanded ? "-" : "+"}
           </span>
-          Completed Performances ({completedPerformances.length})
+          {t("performances.completedSection", {
+            count: completedPerformances.length,
+          })}
         </button>
 
         {isExpanded && (

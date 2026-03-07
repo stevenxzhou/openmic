@@ -27,7 +27,7 @@ export default function PerformancesCompactView({
   title,
   onDelete,
 }: Props) {
-  const { user } = useContext(GlobalContext);
+  const { user, t } = useContext(GlobalContext);
   const isAdmin = user.role?.toLowerCase() === "admin";
 
   const [sortConfig, setSortConfig] = useState<{
@@ -149,7 +149,7 @@ export default function PerformancesCompactView({
       hasItems={sortedPerformances.length > 0}
       emptyState={
         <div className="border p-4 rounded text-center text-gray-500">
-          No completed performances
+          {t("performances.noCompleted")}
         </div>
       }
     >
@@ -162,7 +162,7 @@ export default function PerformancesCompactView({
                 onClick={() => handleSort("performer")}
               >
                 <div className="flex items-center whitespace-nowrap">
-                  Performer
+                  {t("performances.table.performer")}
                   <SortIndicator column="performer" />
                 </div>
               </th>
@@ -171,7 +171,7 @@ export default function PerformancesCompactView({
                 onClick={() => handleSort("songs")}
               >
                 <div className="flex items-center whitespace-nowrap">
-                  Songs
+                  {t("performances.table.songs")}
                   <SortIndicator column="songs" />
                 </div>
               </th>
@@ -180,12 +180,14 @@ export default function PerformancesCompactView({
                 onClick={() => handleSort("likes")}
               >
                 <div className="flex items-center justify-end whitespace-nowrap">
-                  Likes
+                  {t("performances.table.likes")}
                   <SortIndicator column="likes" />
                 </div>
               </th>
               {isAdmin && onDelete && (
-                <th className="px-3 py-2 text-right">Action</th>
+                <th className="px-3 py-2 text-right">
+                  {t("performances.table.action")}
+                </th>
               )}
             </tr>
           </thead>
@@ -199,7 +201,9 @@ export default function PerformancesCompactView({
                 >
                   <td className="px-3 py-2 font-medium text-gray-900">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                      <span>{performance.performers || "Guest"}</span>
+                      <span>
+                        {performance.performers || t("performances.guest")}
+                      </span>
                     </div>
                   </td>
                   <td
@@ -215,8 +219,8 @@ export default function PerformancesCompactView({
                     <td className="px-3 py-2 text-right">
                       <button
                         className="rounded p-1 text-red-600 hover:bg-red-50 hover:text-red-700"
-                        aria-label="Delete performance"
-                        title="Delete"
+                        aria-label={t("common.delete")}
+                        title={t("common.delete")}
                         onClick={() => onDelete(performance)}
                       >
                         <svg
@@ -249,7 +253,7 @@ export default function PerformancesCompactView({
           disabled={sortedPerformances.length === 0}
           className="rounded bg-yellow-600 px-3 py-2 text-sm font-medium text-white hover:bg-yellow-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Export CSV
+          {t("events.exportCsv")}
         </button>
       </div>
     </PerformancesListViewContainer>

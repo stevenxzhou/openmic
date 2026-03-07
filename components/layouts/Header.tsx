@@ -16,7 +16,7 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
-  const { user, dispatch } = useGlobalContext();
+  const { user, dispatch, language, setLanguage, t } = useGlobalContext();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -64,7 +64,7 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
             <button
               className="hover:opacity-50 transition-opacity"
               onClick={() => router.back()}
-              aria-label="Go back"
+              aria-label={t("header.back")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -90,7 +90,7 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
                 <button
                   ref={buttonRef}
                   onClick={toggleProfileMenu}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-yellow-600 transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-yellow-500 transition-colors"
                 >
                   <span className="text-sm font-medium text-gray-900">
                     {user.first_name || user.email}
@@ -126,13 +126,13 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
                       onClick={() => setShowProfileMenu(false)}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                     >
-                      Events List
+                      {t("header.eventsList")}
                     </Link>
                     <button
                       onClick={userLogoutHandler}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                     >
-                      Logout
+                      {t("header.logout")}
                     </button>
                     <div className="px-4 py-3 border-t border-gray-200">
                       <p className="text-xs text-gray-400 font-mono text-center">
@@ -157,15 +157,42 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
                     }
                     router.push("/login");
                   }}
-                  className="px-3 py-2 text-sm font-medium text-gray-900 hover:bg-yellow-600 rounded-lg transition-colors bg-transparent border-none cursor-pointer"
+                  className="px-3 py-2 text-sm font-medium text-gray-900 hover:bg-yellow-500 rounded-lg transition-colors bg-transparent border-none cursor-pointer"
                 >
-                  Login
+                  {t("header.login")}
                 </button>
               </div>
             )}
           </div>
         </div>
-        <div className="flex-shrink-0 w-6" />
+        <div className="flex-shrink-0">
+          <div className="flex items-center gap-1 rounded-md bg-yellow-500/40 p-1">
+            <button
+              type="button"
+              onClick={() => setLanguage("en")}
+              className={`rounded px-2 py-1 text-xs font-semibold transition-colors ${
+                language === "en"
+                  ? "bg-white text-gray-900"
+                  : "text-gray-900 hover:bg-yellow-700/40"
+              }`}
+              aria-label="Switch language to English"
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              onClick={() => setLanguage("zh")}
+              className={`rounded px-2 py-1 text-xs font-semibold transition-colors ${
+                language === "zh"
+                  ? "bg-white text-gray-900"
+                  : "text-gray-900 hover:bg-yellow-700/40"
+              }`}
+              aria-label="切换语言到中文"
+            >
+              中文
+            </button>
+          </div>
+        </div>
       </header>
       <div className="h-[45px]" />
     </>

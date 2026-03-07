@@ -1,8 +1,9 @@
-import { useRef, useEffect, useMemo, useCallback } from "react";
+import { useRef, useEffect, useMemo, useContext } from "react";
 import PerformanceCard from "@/components/cards/PerformanceCard";
 import { PerformanceStatus, PerformanceUser } from "@/hooks/usePerformances";
 import useHelpers from "@/hooks/useHelpers";
 import PerformancesListViewContainer from "@/components/views/PerformancesListViewContainer";
+import { GlobalContext } from "@/context/useGlobalContext";
 
 type Props = {
   performances: PerformanceUser[];
@@ -36,6 +37,7 @@ export default function PerformancesView({
   isStartingEvent,
 }: Props) {
   const lastCardRef = useRef<HTMLDivElement | null>(null);
+  const { t } = useContext(GlobalContext);
 
   const sortedPerformances = useMemo(
     () =>
@@ -82,7 +84,7 @@ export default function PerformancesView({
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm text-center font-semibold text-yellow-800">
-                  Event has not started yet...
+                  {t("performances.eventNotStarted")}
                 </p>
               </div>
               {isAdminOrHost && (
@@ -92,7 +94,9 @@ export default function PerformancesView({
                   disabled={Boolean(isStartingEvent)}
                   className="rounded bg-yellow-600 px-4 py-2 text-sm font-semibold text-white hover:bg-yellow-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {isStartingEvent ? "Starting..." : "Start Event"}
+                  {isStartingEvent
+                    ? t("performances.starting")
+                    : t("performances.startEvent")}
                 </button>
               )}
             </div>
