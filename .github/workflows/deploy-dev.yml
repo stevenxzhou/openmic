@@ -35,6 +35,8 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
+          build-args: |
+            NEXT_PUBLIC_BASE_PATH=/openmic-dev
           tags: |
             stevenxzhou.com:5500/openmic-dev:latest
             stevenxzhou.com:5500/openmic-dev:${{ steps.app_version.outputs.version }}
