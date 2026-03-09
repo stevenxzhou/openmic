@@ -9,13 +9,13 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:3000/openmic/',
+    baseURL: `http://localhost:3000${process.env.NEXT_PUBLIC_BASE_PATH || '/openmic'}/`,
     trace: 'on-first-retry',
   },
 
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:3000/openmic/',
+    url: `http://localhost:3000${process.env.NEXT_PUBLIC_BASE_PATH || '/openmic'}/`,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },

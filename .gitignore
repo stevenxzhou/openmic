@@ -56,3 +56,6 @@ lerna-debug.log*
 *.key
 *.cert
 .env.production
+
+# Local prompt drafts
+.github/prompts/*.prompt.md

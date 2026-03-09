@@ -5,6 +5,7 @@ import { Event } from "@/hooks/useEvents";
 import { type PerformanceUser } from "@/hooks/usePerformances";
 import { GlobalContext } from "@/context/useGlobalContext";
 import { InstagramIcon } from "@/components/utilities/SocialMediaIcons";
+import { apiUrl } from "@/lib/utils";
 
 type EventDetailsCardProps = {
   eventDetails: Event;
@@ -289,7 +290,7 @@ export default memo(function EventDetailsCard({
             <div className="flex justify-center">
               <div className="w-64 h-64">
                 <QRCode
-                  url={`${typeof window !== "undefined" ? window.location.origin : ""}/openmic/performances?event_id=${eventId}`}
+                  url={`${typeof window !== "undefined" ? window.location.origin : ""}${apiUrl(`/performances?event_id=${eventId}`)}`}
                   size={256}
                 />
               </div>

@@ -1,6 +1,22 @@
-name: Run tests against feature branch
+name: Validation
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "app/**"
+      - "components/**"
+      - "views/**"
+      - "hooks/**"
+      - "lib/**"
+      - "context/**"
+      - "public/**"
+      - "*.ts"
+      - "*.tsx"
+      - "*.js"
+      - "*.json"
+      - ".github/workflows/**"
   pull_request:
     types: [opened, synchronize, reopened]
     paths:

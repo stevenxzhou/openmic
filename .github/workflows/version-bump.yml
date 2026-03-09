@@ -1,17 +1,10 @@
-name: Bump Web Version
+name: Version Bump
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "app/**"
-      - "components/**"
-      - "views/**"
-      - "hooks/**"
-      - "lib/**"
-      - "context/**"
-      - "package.json"
+  workflow_run:
+    workflows: ["Validation"]
+    types: [completed]
+    branches: [main]
 
 concurrency:
   group: bump-version

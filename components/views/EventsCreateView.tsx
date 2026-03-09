@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/layouts/Header";
 import Modal from "@/components/layouts/Modal";
 import { GlobalContext } from "@/context/useGlobalContext";
+import { apiUrl } from "@/lib/utils";
 
 type CreateEventViewProps = {
   isModal?: boolean;
@@ -283,7 +284,9 @@ const CreateEventView = ({
                     </button>
                     {duplicateEventId && (
                       <a
-                        href={`/openmic/performances?event_id=${duplicateEventId}`}
+                        href={apiUrl(
+                          `/performances?event_id=${duplicateEventId}`,
+                        )}
                         className="text-xs font-semibold hover:underline"
                       >
                         {t("createEvent.duplicateView")}
@@ -425,7 +428,9 @@ const CreateEventView = ({
                   </button>
                   {duplicateEventId && (
                     <a
-                      href={`/openmic/performances?event_id=${duplicateEventId}`}
+                      href={apiUrl(
+                        `/performances?event_id=${duplicateEventId}`,
+                      )}
                       className="text-xs font-semibold hover:underline"
                     >
                       {t("createEvent.duplicateView")}
