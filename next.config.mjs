@@ -16,6 +16,7 @@ const nextConfig = {
     trailingSlash: true,
     env: {
         NEXT_PUBLIC_APP_VERSION: process.env.APP_VERSION || packageJson.version,
+        NEXT_PUBLIC_NODE_ENV: process.env.NEXT_PUBLIC_NODE_ENV || process.env.NODE_ENV,
     },
 };
 
