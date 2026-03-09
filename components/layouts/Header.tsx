@@ -8,6 +8,8 @@ import {
 } from "@/context/useGlobalContext";
 import { apiUrl } from "@/lib/utils";
 
+const isDev = process.env.NEXT_PUBLIC_NODE_ENV === "development";
+
 interface HeaderProps {
   showBackButton?: boolean; // Optional prop to show/hide back button
 }
@@ -58,8 +60,14 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
 
   return (
     <>
-      <header className="flex items-center px-4 bg-yellow-500 w-full fixed z-50">
+      <header className="flex items-center px-4 bg-yellow-500 w-full fixed z-50 relative">
+        {/* Left */}
         <div className="flex-1 flex justify-start">
+          {isDev && (
+            <span className="mr-3 px-2 py-1 text-xs font-bold text-blue-700 bg-blue-100 rounded">
+              Development
+            </span>
+          )}
           {showBackButton && (
             <button
               className="hover:opacity-50 transition-opacity"
@@ -83,7 +91,8 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
             </button>
           )}
         </div>
-        <div className="flex-shrink-0">
+        {/* Center - absolute, perfectly centered */}
+        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
           <div className="flex items-center gap-1 rounded-md bg-yellow-500/40 p-1">
             <button
               type="button"
@@ -111,6 +120,7 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
             </button>
           </div>
         </div>
+        {/* Right */}
         <div className="flex-1 flex justify-end">
           <div className="relative" ref={menuRef}>
             {user.authenticated ? (
