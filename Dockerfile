@@ -7,6 +7,8 @@ COPY package*.json ./
 RUN npm ci
 
 FROM base AS builder
+ARG NEXT_PUBLIC_NODE_ENV
+ENV NEXT_PUBLIC_NODE_ENV=$NEXT_PUBLIC_NODE_ENV
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ARG NEXT_PUBLIC_BASE_PATH
