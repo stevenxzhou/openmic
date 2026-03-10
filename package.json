@@ -12,14 +12,15 @@
     "docker:build": "VERSION=${IMAGE_VERSION:-$(node -p \"require('./package.json').version\")} && VCS_REF=$(git rev-parse --short HEAD 2>/dev/null || echo nogit) && docker build --build-arg APP_VERSION=$VERSION --build-arg BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ) --build-arg VCS_REF=$VCS_REF -t openmic-web:$VERSION -t openmic-web:latest . && echo Built image tags: openmic-web:$VERSION, openmic-web:latest"
   },
   "dependencies": {
-    "bcryptjs": "^2.4.3",
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-slot": "^1.1.2",
+    "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.477.0",
     "mariadb": "3.4.2",
     "next": "14.2.16",
+    "qrcode": "^1.5.4",
     "react": "^18",
     "react-dom": "^18",
     "react-draggable": "^4.4.6",
