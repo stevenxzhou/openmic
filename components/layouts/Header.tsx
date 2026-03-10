@@ -204,7 +204,6 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
           </div>
         </div>
       </header>
-      <div className="h-[45px]" />
     </>
   );
 };
