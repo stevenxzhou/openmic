@@ -10,6 +10,7 @@ import Modal from "@/components/layouts/Modal";
 import { GlobalContext } from "@/context/useGlobalContext";
 import EventsCreateView from "../views/EventsCreateView";
 import { useRouter } from "next/navigation";
+import CarouselSlider from "../utilities/CarouselSlider";
 
 const EventsView = () => {
   const router = useRouter();
