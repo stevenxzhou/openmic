@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import QRCodeLib from "qrcode";
 
-interface QRCodeProps {
-  url: string;
-  size?: number;
-}
+// ...existing code...
 
 export default function QRCode({ url, size = 128 }: QRCodeProps) {
   const [svgString, setSvgString] = useState<string>("");

@@ -11,20 +11,9 @@ import React, {
 import { apiUrl } from "@/lib/utils";
 import { detectDeviceLanguage, Language, translate } from "@/lib/i18n";
 
-interface LoginUserType {
-  authenticated: boolean;
-  first_name: string;
-  email: string;
-  role: string;
-}
+// ...existing code...
 
-interface GlobalContextType {
-  user: LoginUserType;
-  dispatch: React.Dispatch<Action>;
-  language: Language;
-  setLanguage: (language: Language) => void;
-  t: (key: string, replacements?: Record<string, string | number>) => string;
-}
+// ...existing code...
 
 export const InitialUser = {
   authenticated: false,

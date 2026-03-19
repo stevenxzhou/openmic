@@ -10,9 +10,7 @@ import { apiUrl } from "@/lib/utils";
 
 const isDev = process.env.NEXT_PUBLIC_NODE_ENV === "development";
 
-interface HeaderProps {
-  showBackButton?: boolean; // Optional prop to show/hide back button
-}
+// ...existing code...
 const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
