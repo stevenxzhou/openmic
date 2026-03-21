@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useGlobalContext } from "@/context/useGlobalContext";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 const nextHostUrl = process.env.NEXT_PUBLIC_HOST_URL || "";
 
@@ -39,13 +39,14 @@ const UserLoginView = () => {
       const result = await signIn("credentials", {
         username: formData.username,
         password: formData.password,
+        redirect: false,
       });
 
-      console.log(result);
-
       if (result?.error) {
-        setError(result?.error);
+        setError(t("auth.error.loginFailed"));
         return;
+      } else {
+        router.push("/events");
       }
     } catch (error) {
       // Display error message on the login page

@@ -28,6 +28,7 @@ const EventsView = () => {
   const isAdmin = session?.user.role?.toLowerCase() === "admin";
   const isHost = session?.user.role?.toLowerCase() === "host";
   const isAdminOrHost = isAdmin || session?.user.role?.toLowerCase() === "host";
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
   const parseEventDate = (dateValue: string) => {
     const value = String(dateValue || "").trim();
@@ -75,9 +76,14 @@ const EventsView = () => {
   useEffect(() => {
     if (!events || isAdmin || isHost) return;
     if (futureEvents.length !== 1) return;
-
     router.push(`/performances?event_id=${futureEvents[0].event_id}`);
   }, [events, futureEvents, isAdmin, isHost, router]);
+
+  // Place this check before the return statement
+  if (!events || (futureEvents.length === 1 && !isAdmin && !isHost)) {
+    // Optionally show a loading spinner here
+    return null;
+  }
 
   const handleEdit = (event: Event) => {
     setEditingEvent(event);

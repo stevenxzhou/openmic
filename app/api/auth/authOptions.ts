@@ -72,13 +72,7 @@ export const authOptions: AuthOptions = {
           // Add logic here to look up the user from the credentials supplied
           const user = { id: String(data.id), email: data.email, first_name: data.first_name, role: data.role};
 
-          if (user) {
-            // Any object returned will be saved in `user` property of the JWT
-            return user;
-          } else {
-            // If you return null then an error will be displayed advising the user to check their details.
-            return null;
-          }
+          return user;
         } catch (error) {
           console.error("Authorize error:", error);
           return null;
