@@ -37,6 +37,7 @@ jobs:
           push: true
           build-args: |
             NEXT_PUBLIC_BASE_PATH=/openmic-dev
+            NEXT_PUBLIC_HOST_URL=https://stevenxzhou.com/openmic-dev
             NEXT_PUBLIC_NODE_ENV=development
           tags: |
             stevenxzhou.com:5500/openmic-dev:latest
