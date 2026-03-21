@@ -39,13 +39,14 @@ const UserLoginView = () => {
       const result = await signIn("credentials", {
         username: formData.username,
         password: formData.password,
+        redirect: false,
       });
 
-      console.log(result);
-
       if (result?.error) {
-        setError(result?.error);
+        setError(t("auth.error.loginFailed"));
         return;
+      } else {
+        router.push("/events");
       }
     } catch (error) {
       // Display error message on the login page
