@@ -4,8 +4,7 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useSession, signOut } from "next-auth/react";
 
-const nextHostUrl =
-  process.env.NEXT_PUBLIC_HOST_URL || "http://localhost:3000/openmic-dev";
+const nextHostUrl = process.env.NEXT_PUBLIC_HOST_URL || "";
 
 const UserLoginView = () => {
   const { t } = useGlobalContext();

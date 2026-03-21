@@ -10,7 +10,7 @@ interface GoogleProfile extends Profile {
 }
 
 const nextBaseUrl = process.env.NEXT_PUBLIC_BASE_PATH || "";
-const nextHostUrl = process.env.NEXT_PUBLIC_HOST_URL || "http://localhost:3000/openmic-dev";
+const nextHostUrl = process.env.NEXT_PUBLIC_HOST_URL || "";
 
 export const authOptions: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET!,
