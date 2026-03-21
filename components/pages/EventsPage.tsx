@@ -3,7 +3,7 @@
 import { type Event } from "@/hooks/useEvents";
 import { EventCard } from "@/components/cards/EventCard";
 import { useEvents } from "@/hooks/useEvents";
-import React, { useState, useContext, useEffect, useLayoutEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import ErrorPage from "./ErrorPage";
 import Header from "@/components/layouts/Header";
 import Modal from "@/components/layouts/Modal";
