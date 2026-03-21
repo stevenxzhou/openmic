@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useGlobalContext } from "@/context/useGlobalContext";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 const nextHostUrl = process.env.NEXT_PUBLIC_HOST_URL || "";
 
