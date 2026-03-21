@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useSession, signOut } from "next-auth/react";
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_PATH || "";
+const nextHostUrl =
+  process.env.NEXT_PUBLIC_HOST_URL || "http://localhost:3000/openmic-dev";
 
 const UserLoginView = () => {
   const { t } = useGlobalContext();
@@ -63,7 +64,7 @@ const UserLoginView = () => {
 
   const handleGoogleLogin = () => {
     signIn("google", {
-      callbackUrl: `${baseUrl}`,
+      callbackUrl: `${nextHostUrl}`,
     });
   };
 
@@ -147,62 +148,42 @@ const UserLoginView = () => {
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="w-full bg-yellow-600 text-white py-2 px-4 rounded-md mt-4
-                hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2
-                transition duration-150 ease-in-out flex items-center justify-center"
+            className="w-full mt-4 flex items-center justify-center gap-3 py-2 px-4 rounded-md border border-gray-300 bg-white text-gray-700 font-semibold shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150"
+            style={{ minHeight: 44, letterSpacing: 0.1, fontSize: 16 }}
+            aria-label="Sign in with Google"
           >
-            <svg
-              className="w-5 h-5 mr-2"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+            <span
+              className="flex items-center justify-center bg-white rounded-full"
+              style={{ width: 24, height: 24 }}
             >
-              <path
-                d="M21.805 10.023h-9.765v3.977h5.588c-.241 1.285-1.445 3.777-5.588 3.777-3.363 0-6.104-2.777-6.104-6.2 0-3.423 2.741-6.2 6.104-6.2 2.011 0 3.363.857 4.136 1.577l2.827-2.777c-1.857-1.714-4.241-2.777-6.963-2.777-5.241 0-9.5 4.257-9.5 9.477 0 5.22 4.259 9.477 9.5 9.477 5.445 0 9.063-3.857 9.063-9.477 0-.641-.073-1.285-.168-1.923z"
-                fill="#fff"
-              />
-            </svg>
-            Sign in with Google
-          </button>
-
-          {/* Sign Up Link */}
-          <div className="mt-6 text-center">
-            <span className="text-sm text-gray-600">
-              {t("auth.noAccount")}{" "}
+              <svg
+                version="1.1"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 48 48"
+                style={{ display: "block", width: 22, height: 22 }}
+                aria-hidden="true"
+              >
+                <path
+                  fill="#EA4335"
+                  d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+                ></path>
+                <path
+                  fill="#4285F4"
+                  d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+                ></path>
+                <path
+                  fill="#FBBC05"
+                  d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+                ></path>
+                <path
+                  fill="#34A853"
+                  d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+                ></path>
+                <path fill="none" d="M0 0h48v48H0z"></path>
+              </svg>
             </span>
-            <button
-              onClick={() => {
-                if (typeof window !== "undefined") {
-                  const params = new URLSearchParams(window.location.search);
-                  const eventId = params.get("event_id");
-                  if (eventId) {
-                    sessionStorage.setItem("eventId", eventId);
-                  }
-                }
-                router.push("/signup");
-              }}
-              className="text-sm text-yellow-600 hover:text-yellow-800 font-medium bg-transparent border-none cursor-pointer"
-            >
-              {t("auth.signUpLink")}
-            </button>
-          </div>
-          <div className="mt-2 text-center">
-            <button
-              onClick={() => {
-                const eventId = sessionStorage.getItem("eventId");
-
-                if (eventId) {
-                  sessionStorage.removeItem("eventId");
-                  router.push(`/performances?event_id=${eventId}`);
-                } else {
-                  router.push("/performances");
-                }
-              }}
-              className="text-sm text-gray-500 hover:text-yellow-600 underline bg-transparent border-none cursor-pointer"
-            >
-              {t("auth.continueGuest")}
-            </button>
-          </div>
+            <span className="ml-1">Sign in with Google</span>
+          </button>
         </div>
       </div>
     </div>

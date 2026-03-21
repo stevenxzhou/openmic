@@ -10,7 +10,7 @@ interface GoogleProfile extends Profile {
 }
 
 const nextBaseUrl = process.env.NEXT_PUBLIC_BASE_PATH || "";
-const nextHost = process.env.NEXT_PUBLIC_HOST || "http://localhost:3000/openmic-dev";
+const nextHostUrl = process.env.NEXT_PUBLIC_HOST_URL || "http://localhost:3000/openmic-dev";
 
 export const authOptions: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET!,
@@ -50,7 +50,7 @@ export const authOptions: AuthOptions = {
       async authorize(credentials, req) {
         try {
           const res = await fetch(
-            `${nextHost}/api/login`,
+            `${nextHostUrl}/api/login`,
             {
               method: "POST",
               headers: {
@@ -97,12 +97,12 @@ export const authOptions: AuthOptions = {
       if (!profile?.email) return false;
 
       const res = await fetch(
-        `${nextBaseUrl}/api/users/check?email=${encodeURIComponent(profile.email)}`
+        `${nextHostUrl}/api/users/check?email=${encodeURIComponent(profile.email)}`
       );
       const data = await res.json();
 
       if (!data.exists) {
-        return `${nextBaseUrl}/signup/profile?email=${encodeURIComponent(profile.email)}&first_name=${encodeURIComponent((profile as GoogleProfile).given_name)}&last_name=${encodeURIComponent((profile as GoogleProfile).family_name)}`;
+        return `${nextHostUrl}/signup/profile?email=${encodeURIComponent(profile.email)}&first_name=${encodeURIComponent((profile as GoogleProfile).given_name)}&last_name=${encodeURIComponent((profile as GoogleProfile).family_name)}`;
       }
 
       return true;
@@ -143,10 +143,10 @@ export const authOptions: AuthOptions = {
     },
 
     async redirect({ url, baseUrl }: {url: string, baseUrl: string }) {
-      return `${nextBaseUrl}/events`;
+      return `${nextHostUrl}/events`;
     }
   },
   pages: {
-    signIn: `${nextBaseUrl}/login`
+    signIn: `${nextHostUrl}/login`
   }
 };
