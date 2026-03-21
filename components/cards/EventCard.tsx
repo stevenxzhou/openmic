@@ -4,6 +4,7 @@ import { Event } from "@/hooks/useEvents";
 import { useRouter } from "next/navigation";
 import { useContext } from "react";
 import { GlobalContext } from "@/context/useGlobalContext";
+import { useSession, signOut } from "next-auth/react";
 
 type EventCardProps = Event & {
   onEdit?: (event: Event) => void;
@@ -12,8 +13,9 @@ type EventCardProps = Event & {
 
 export const EventCard = (props: EventCardProps) => {
   const router = useRouter();
-  const { user, language, t } = useContext(GlobalContext);
-  const isAdmin = user.role?.toLowerCase() === "admin";
+  const { language, t } = useContext(GlobalContext);
+  const { data: session, status } = useSession();
+  const isAdmin = session?.user.role?.toLowerCase() === "admin";
   const normalizedStatus = String(props.status || "NEW").toUpperCase();
   const isStarted = normalizedStatus === "IN_PROGRESS";
 

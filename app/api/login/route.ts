@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserByUsername } from "@/lib/data";
 import bcryptjs from "bcryptjs";
-import { createSessionToken } from "@/lib/session";
 
 export async function POST(request: NextRequest) {
     try {
-        const loginForm = await request.formData();
-        const username = loginForm.get('username') as string;
-        const password = loginForm.get('password') as string;
+        const body = await request.json();
+        const username = body.username as string;
+        const password = body.password as string;
 
         if (!username || !password) {
             return NextResponse.json(
@@ -36,23 +35,13 @@ export async function POST(request: NextRequest) {
 
         // Create session response
         const userData = {
+            id: user.user_id,
             email: user.email,
             first_name: user.first_name,
-            role: user.role || "Guest",
-            authenticated: true
+            role: user.role || "Guest"
         };
         
         const response = NextResponse.json(userData, { status: 200 });
-        
-        // Create encrypted session token
-        const sessionToken = createSessionToken(user.user_id, user.email);
-        response.cookies.set('user_session', sessionToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 60 * 60 * 24 * 7, // 7 days
-            path: '/'
-        });
         
         return response;
     } catch (error) {

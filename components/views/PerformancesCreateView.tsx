@@ -5,6 +5,7 @@ import Header from "@/components/layouts/Header";
 import Modal from "@/components/layouts/Modal";
 import { SocialIcon } from "react-social-icons";
 import { GlobalContext } from "@/context/useGlobalContext";
+import { useSession } from "next-auth/react";
 
 type SignUpViewProps = {
   eventId: number | string;
@@ -23,11 +24,13 @@ const SignUpView = ({
 }: SignUpViewProps) => {
   const router = useRouter();
   const eventId = parseInt(String(rawEventId), 10);
-  const { user, t } = useContext(GlobalContext);
+  const { t } = useContext(GlobalContext);
+  const { data: session, status: authStatus } = useSession();
 
   // Check if user is admin or host
   const isAdminOrHost =
-    user.role?.toLowerCase() === "admin" || user.role?.toLowerCase() === "host";
+    session?.user.role?.toLowerCase() === "admin" ||
+    session?.user.role?.toLowerCase() === "host";
   const storageKey = `performance_draft_${eventId}`;
 
   // Parse songs if editing

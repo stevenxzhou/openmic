@@ -1,22 +1,21 @@
+"use client";
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  ActionType,
-  useGlobalContext,
-  InitialUser,
-} from "@/context/useGlobalContext";
-import { apiUrl } from "@/lib/utils";
+import { useGlobalContext } from "@/context/useGlobalContext";
+import { useSession, signOut } from "next-auth/react";
 
 const isDev = process.env.NEXT_PUBLIC_NODE_ENV === "development";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 // ...existing code...
-const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
+const Header = ({ showBackButton = false }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
-  const { user, dispatch, language, setLanguage, t } = useGlobalContext();
+  const { language, setLanguage, t } = useGlobalContext();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -40,20 +39,7 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
 
   const userLogoutHandler = async () => {
     toggleProfileMenu();
-    const response = await fetch(apiUrl("/api/logout"), {
-      method: "POST",
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      throw new Error("Logout failed");
-    }
-
-    const logoutData: { authenticated: boolean } = await response.json();
-    dispatch({
-      type: ActionType.SET_USER,
-      payload: { ...InitialUser, authenticated: logoutData.authenticated },
-    });
+    await signOut({ callbackUrl: `${baseUrl}/login` });
   };
 
   return (
@@ -121,7 +107,7 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
         {/* Right */}
         <div className="flex-1 flex justify-end">
           <div className="relative" ref={menuRef}>
-            {user.authenticated ? (
+            {status === "authenticated" ? (
               <>
                 <button
                   ref={buttonRef}
@@ -129,7 +115,7 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
                   className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-yellow-500 transition-colors"
                 >
                   <span className="text-sm font-medium text-gray-900">
-                    {user.first_name || user.email}
+                    {session.user.first_name || session.user.email}
                   </span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -148,12 +134,14 @@ const Header: React.FC<HeaderProps> = ({ showBackButton = false }) => {
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-50">
                     <div className="px-4 py-3 border-b border-gray-200">
                       <p className="text-sm font-semibold text-gray-900">
-                        {user.first_name}
+                        {session.user.first_name}
                       </p>
-                      <p className="text-sm text-gray-600">{user.email}</p>
-                      {user.role && (
+                      <p className="text-sm text-gray-600">
+                        {session.user.email}
+                      </p>
+                      {session.user.role && (
                         <p className="text-xs text-gray-500 mt-1 capitalize">
-                          {user.role}
+                          {session.user.role}
                         </p>
                       )}
                     </div>

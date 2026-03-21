@@ -11,21 +11,23 @@ import { GlobalContext } from "@/context/useGlobalContext";
 import EventsCreateView from "../views/EventsCreateView";
 import { useRouter } from "next/navigation";
 import CarouselSlider from "../utilities/CarouselSlider";
+import { useSession } from "next-auth/react";
 
 const EventsView = () => {
   const router = useRouter();
   const { events, createEvent, updateEvent, deleteEvent, error } = useEvents();
-  const { user, language, t } = useContext(GlobalContext);
+  const { language, t } = useContext(GlobalContext);
   const [deleteConfirmation, setDeleteConfirmation] = useState<Event | null>(
     null,
   );
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [eventsView, setEventsView] = useState<"future" | "past">("future");
+  const { data: session, status: authStatus } = useSession();
 
-  const isAdmin = user.role?.toLowerCase() === "admin";
-  const isHost = user.role?.toLowerCase() === "host";
-  const isAdminOrHost = isAdmin || user.role?.toLowerCase() === "host";
+  const isAdmin = session?.user.role?.toLowerCase() === "admin";
+  const isHost = session?.user.role?.toLowerCase() === "host";
+  const isAdminOrHost = isAdmin || session?.user.role?.toLowerCase() === "host";
 
   const parseEventDate = (dateValue: string) => {
     const value = String(dateValue || "").trim();

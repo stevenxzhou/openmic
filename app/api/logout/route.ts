@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
     try {
-        const res = NextResponse.json({ authenticated: false }, { status: 200 });
+        const res = NextResponse.json({}, { status: 200 });
         // Clear the user session cookie
         res.cookies.delete('user_session');
         return res;

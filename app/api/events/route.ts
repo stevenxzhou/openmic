@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { getEvents, createEvent } from "@/lib/data";
-import { validateSessionToken } from "@/lib/session";
+import { authOptions } from "../auth/authOptions";
 
 export async function GET(request: NextRequest) {
     try {
@@ -17,16 +17,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     try {
-        const sessionToken = request.cookies.get('user_session')?.value;
-        if (!sessionToken) {
-            return NextResponse.json(
-                { error: 'Unauthorized' },
-                { status: 401 }
-            );
-        }
-
-        const sessionData = validateSessionToken(sessionToken);
-        if (!sessionData?.userId) {
+        // Use NextAuth to get the user session
+        const { getServerSession } = await import("next-auth/next");
+        const session = await getServerSession(authOptions);
+        if (!session || !session.user || !session.user.id) {
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
@@ -91,7 +85,7 @@ export async function POST(request: NextRequest) {
         console.log('No duplicate found, creating event');
         const event = await createEvent({
             ...eventData,
-            created_by: sessionData.userId,
+            created_by: session.user.id,
         });
         return NextResponse.json(event, { status: 201 });
     } catch (error) {

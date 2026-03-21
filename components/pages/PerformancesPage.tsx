@@ -15,14 +15,18 @@ import { apiUrl } from "@/lib/utils";
 import { Event } from "@/hooks/useEvents";
 import EventDetailsCard from "@/components/cards/EventDetailsCard";
 import { GlobalContext } from "@/context/useGlobalContext";
+import { useSession } from "next-auth/react";
 
 const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
   const router = useRouter();
-  const { user, t } = useContext(GlobalContext);
+  const { t } = useContext(GlobalContext);
+  const { data: session, status: authStatus } = useSession();
+
   const isAdminOrHost =
-    user.role?.toLowerCase() === "admin" || user.role?.toLowerCase() === "host";
-  const isAdmin = user.role?.toLowerCase() === "admin";
-  const isHost = user.role?.toLowerCase() === "host";
+    session?.user.role?.toLowerCase() === "admin" ||
+    session?.user.role?.toLowerCase() === "host";
+  const isAdmin = session?.user.role?.toLowerCase() === "admin";
+  const isHost = session?.user.role?.toLowerCase() === "host";
   const [eventId] = useState<number | null>(propEventId ?? null);
   const [eventValidationError, setEventValidationError] = useState("");
   const [eventDetails, setEventDetails] = useState<Event | null>(null);

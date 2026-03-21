@@ -1,22 +1,23 @@
 import { ChangeEvent, FormEvent, useState, useEffect } from "react";
 import { useGlobalContext } from "@/context/useGlobalContext";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { apiUrl } from "@/lib/utils";
+import { useSession, signOut } from "next-auth/react";
 
 const UserSignupView = () => {
-  const { user, t } = useGlobalContext();
+  const { t } = useGlobalContext();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    if (user.authenticated) {
+    if (session?.user) {
       router.push("/events");
     } else {
       setIsLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user.authenticated]);
+  }, [session?.user]);
 
   const [formData, setFormData] = useState({
     username: "",

@@ -1,3 +1,4 @@
+
 import mariadb from 'mariadb';
 import dotenv from 'dotenv';
 
@@ -311,6 +312,17 @@ export async function movePerformanceNext(performanceId: number, eventId: number
 }
 
 // Users
+export async function createUserIfValid(username: string, email: string, firstName: string, lastName: string, instagram?: string, ) {
+    // Check if username exists
+    const existing = await query('SELECT username FROM users WHERE username = ?', [username]);
+    if (existing.length > 0) {
+        return { success: false };
+    }
+    // Insert new user with optional instagram handle and email
+    await query('INSERT INTO users (first_name, last_name, username, role, social_medias, email) VALUES (?, ?, ?, ?, ?, ?)', [firstName, lastName, username, 'user', instagram || null, email]);
+    return { success: true };
+}
+
 export async function getUserByEmail(email: string) {
     const result = await query('SELECT * FROM users WHERE email = ?', [email]);
     return result?.[0] || null;

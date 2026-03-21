@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserByEmail, getUserByUsername, createUser } from "@/lib/data";
 import bcryptjs from "bcryptjs";
-import { createSessionToken } from "@/lib/session";
 
 export async function POST(request: NextRequest) {
     try {
@@ -52,21 +51,10 @@ export async function POST(request: NextRequest) {
         const userData = {
             email: newUser.email,
             first_name: newUser.first_name,
-            role: "Guest",
-            authenticated: true
+            role: "Guest"
         };
         
         const response = NextResponse.json(userData, { status: 201 });
-        
-        // Create encrypted session token
-        const sessionToken = createSessionToken(newUser.user_id, email);
-        response.cookies.set('user_session', sessionToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 60 * 60 * 24 * 7, // 7 days
-            path: '/'
-        });
         
         return response;
     } catch (error) {

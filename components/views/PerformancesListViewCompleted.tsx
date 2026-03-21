@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { PerformanceStatus, PerformanceUser } from "@/hooks/usePerformances";
 import { GlobalContext } from "@/context/useGlobalContext";
 import PerformancesListViewContainer from "@/components/views/PerformancesListViewContainer";
+import { useSession } from "next-auth/react";
 
 type Props = {
   performances: PerformanceUser[];
@@ -27,8 +28,9 @@ export default function PerformancesCompactView({
   title,
   onDelete,
 }: Props) {
-  const { user, t } = useContext(GlobalContext);
-  const isAdmin = user.role?.toLowerCase() === "admin";
+  const { t } = useContext(GlobalContext);
+  const { data: session, status } = useSession();
+  const isAdmin = session?.user.role?.toLowerCase() === "admin";
 
   const [sortConfig, setSortConfig] = useState<{
     key: "performer" | "songs" | "likes" | null;

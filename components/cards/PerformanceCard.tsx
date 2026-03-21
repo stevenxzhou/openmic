@@ -13,6 +13,7 @@ import {
 import { InstagramIcon } from "../utilities/SocialMediaIcons";
 import { apiUrl } from "@/lib/utils";
 import { GlobalContext } from "@/context/useGlobalContext";
+import { useSession, signOut } from "next-auth/react";
 
 const LIKED_PERFORMANCES_KEY = "likedPerformances";
 const MAX_LIKES_PER_EVENT = 50;
@@ -55,11 +56,12 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
     const heartAnimationTimeoutRef = useRef<ReturnType<
       typeof setTimeout
     > | null>(null);
-    const { user } = useContext(GlobalContext);
+    const { data: session, status } = useSession();
+
     const isAdminOrHost =
-      user.role?.toLowerCase() === "admin" ||
-      user.role?.toLowerCase() === "host";
-    const isAdmin = user.role?.toLowerCase() === "admin";
+      session?.user.role?.toLowerCase() === "admin" ||
+      session?.user.role?.toLowerCase() === "host";
+    const isAdmin = session?.user.role?.toLowerCase() === "admin";
 
     // Sync likes whenever performance prop updates
     useEffect(() => {

@@ -5,6 +5,7 @@ import Header from "@/components/layouts/Header";
 import Modal from "@/components/layouts/Modal";
 import { GlobalContext } from "@/context/useGlobalContext";
 import { apiUrl } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 
 type CreateEventViewProps = {
   isModal?: boolean;
@@ -29,8 +30,9 @@ const CreateEventView = ({
   onAdded,
 }: CreateEventViewProps) => {
   const router = useRouter();
-  const { user, t } = useContext(GlobalContext);
-  const isAdmin = user.role?.toLowerCase() === "admin";
+  const { t } = useContext(GlobalContext);
+  const { data: session, status: authStatus } = useSession();
+  const isAdmin = session?.user.role?.toLowerCase() === "admin";
   const {
     createEvent: createEventHook,
     updateEvent: updateEventHook,
