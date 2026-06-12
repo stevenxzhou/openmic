@@ -127,8 +127,6 @@ export const authOptions: AuthOptions = {
 
     async session({ session, token }) {
 
-      console.log(session);
-
       // Copy custom fields from token to session.user
       if (session.user) {
         session.user.id = (token as any).id;
