@@ -24,7 +24,7 @@ export const authOptions: AuthOptions = {
       options: {
         httpOnly: true,
         sameSite: "lax",
-        path: `${nextBaseUrl}/api/auth`,
+        path: `${nextBaseUrl}`,
         secure: true,
         maxAge: 900
       },
@@ -126,6 +126,7 @@ export const authOptions: AuthOptions = {
     },
 
     async session({ session, token }) {
+
       // Copy custom fields from token to session.user
       if (session.user) {
         session.user.id = (token as any).id;
