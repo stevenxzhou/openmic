@@ -132,7 +132,7 @@ const translations: Record<Language, Record<string, string>> = {
     "common.delete": "删除",
     "common.edit": "编辑",
     "common.update": "更新",
-    "common.addNew": "演出登记",
+    "common.addNew": "登记表演",
     "common.done": "完成",
     "common.tryAgain": "重试",
     "auth.username": "用户名",
