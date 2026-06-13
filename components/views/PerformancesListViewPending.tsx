@@ -98,7 +98,7 @@ export default function PerformancesView({
                 index={index}
                 displayNumber={currentPerformanceIndex + idx + 1}
                 calculateWaitTime={calculateWaitTime}
-                showWaitTime={true}
+                showWaitTime={false}
                 showActions={showActions}
                 onComplete={onComplete}
                 onDelete={onDelete}
