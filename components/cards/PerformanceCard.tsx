@@ -377,7 +377,9 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
           {showActions &&
             isAdminOrHost &&
             (onComplete || onDelete || onMoveNext || onEdit) && (
-              <div className="flex flex-wrap items-end gap-2 justify-between">
+              <div
+                className={`flex flex-wrap items-end gap-2 ${performance.inputs ? "justify-between" : "justify-end"}`}
+              >
                 {/* Inputs display */}
                 {performance.inputs && (
                   <p className="text-xs text-gray-600 mb-1 md:order-2">

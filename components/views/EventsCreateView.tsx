@@ -410,7 +410,7 @@ const CreateEventView = ({
                 disabled={!!displayError}
                 className="w-full py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded"
               >
-                {editingEvent ? t("common.edit") : t("common.addNew")}
+                {editingEvent ? t("common.edit") : t("common.addNewEvent")}
               </button>
             </>
           )}
@@ -554,7 +554,7 @@ const CreateEventView = ({
               disabled={!!displayError}
               className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded"
             >
-              {editingEvent ? t("common.edit") : t("common.addNew")}
+              {editingEvent ? t("common.edit") : t("common.addNewEvent")}
             </button>
           </div>
         </div>

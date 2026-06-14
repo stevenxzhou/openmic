@@ -160,6 +160,14 @@ export async function deleteNonCompletedPerformancesByEventId(eventId: number) {
     return Number(result?.affectedRows || 0);
 }
 
+export async function cancelNonCompletedPerformancesByEventId(eventId: number) {
+    const result = await query(
+        "UPDATE performances SET status = 'CANCELED' WHERE status = 'PENDING' and event_id = ?",
+        [eventId]
+    );
+    return Number(result?.affectedRows || 0);
+}
+
 // Performances
 export async function getPerformancesByEventId(eventId: number) {
     return query(`

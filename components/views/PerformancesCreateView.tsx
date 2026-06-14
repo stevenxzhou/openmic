@@ -128,7 +128,7 @@ const SignUpView = ({
 
   // Add/Update performance handler
   const addPerformanceHandler = async () => {
-    if (!performer || !songs) {
+    if (!performer || !songs || !inputs) {
       alert(t("signupView.fillAll"));
       return;
     }

@@ -489,7 +489,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
               className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-center block"
               onClick={() => setShowSignupModal(true)}
             >
-              {t("common.addNew")}
+              {t("common.addNewPerformance")}
             </button>
           </div>
         )}
