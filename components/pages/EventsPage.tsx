@@ -350,7 +350,7 @@ const EventsView = () => {
             className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-center block"
             onClick={() => setShowCreateModal(true)}
           >
-            {t("common.addNewPerformance")}
+            {t("common.addNewEvent")}
           </button>
         </div>
       )}
