@@ -5,7 +5,8 @@ import { apiUrl } from "@/lib/utils";
 
 export enum PerformanceStatus {
     COMPLETED = "COMPLETED",
-    PENDING = "PENDING"
+    PENDING = "PENDING",
+    DELETED = "DELETED"
 }
 
 export type Performance = {

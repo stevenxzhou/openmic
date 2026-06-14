@@ -33,11 +33,11 @@ export default function PerformancesCompactView({
   const isAdmin = session?.user.role?.toLowerCase() === "admin";
 
   const [sortConfig, setSortConfig] = useState<{
-    key: "performer" | "songs" | "likes" | null;
+    key: "performer" | "songs" | "likes" | "status" | null;
     direction: "asc" | "desc";
   }>({ key: "likes", direction: "desc" });
 
-  const handleSort = (key: "performer" | "songs" | "likes") => {
+  const handleSort = (key: "performer" | "songs" | "likes" | "status") => {
     setSortConfig((prev) => ({
       key,
       direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
@@ -45,7 +45,7 @@ export default function PerformancesCompactView({
   };
 
   let sortedPerformances = [...performances].filter(
-    (performance) => performance.status === PerformanceStatus.COMPLETED,
+    (performance) => performance.status !== PerformanceStatus.DELETED,
   );
 
   if (sortConfig.key) {
@@ -111,7 +111,6 @@ export default function PerformancesCompactView({
       "performance_id",
       "event_id",
       "performance_index",
-      "status",
     ]);
 
     const allKeys = Array.from(
@@ -178,6 +177,15 @@ export default function PerformancesCompactView({
                 </div>
               </th>
               <th
+                className="px-3 py-2 text-left border-r border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                onClick={() => handleSort("status")}
+              >
+                <div className="flex items-center whitespace-nowrap">
+                  {t("performances.table.status")}
+                  <SortIndicator column="status" />
+                </div>
+              </th>
+              <th
                 className="px-3 py-2 text-right border-r border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort("likes")}
               >
@@ -213,6 +221,11 @@ export default function PerformancesCompactView({
                     title={songsText}
                   >
                     {songsText || "-"}
+                  </td>
+                  <td className="px-3 py-2 text-left text-gray-700">
+                    {performance.status === PerformanceStatus.COMPLETED
+                      ? t("performances.status.completed")
+                      : t("performances.status.canceled")}
                   </td>
                   <td className="px-3 py-2 text-right text-gray-700">
                     {performance.likes || 0}

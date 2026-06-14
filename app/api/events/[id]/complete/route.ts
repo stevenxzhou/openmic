@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  deleteNonCompletedPerformancesByEventId,
+  cancelNonCompletedPerformancesByEventId,
   getEventById,
   updateEvent,
 } from "@/lib/data";
@@ -21,7 +21,7 @@ export async function POST(
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
-    const removedCount = await deleteNonCompletedPerformancesByEventId(eventId);
+    const canceledCount = await cancelNonCompletedPerformancesByEventId(eventId);
 
     const updatedEvent = await updateEvent(eventId, {
       ...event,
@@ -29,7 +29,7 @@ export async function POST(
     });
 
     return NextResponse.json(
-      { event: updatedEvent, removedCount },
+      { event: updatedEvent, canceledCount },
       { status: 200 },
     );
   } catch (error) {
