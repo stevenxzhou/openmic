@@ -190,20 +190,28 @@ const EventsView = () => {
     <>
       <Header />
       <div className={`p-4 space-y-4 ${isAdminOrHost ? "pb-32" : ""}`}>
-        {(eventsView === "future" || !isAdminOrHost) && (
+        {eventsView === "future" && (
           <>
-            {futureEvents.map((event: Event) => (
-              <EventCard
-                key={event.event_id}
-                {...event}
-                onEdit={isAdmin ? handleEdit : undefined}
-                onDelete={isAdmin ? handleDelete : undefined}
-              />
-            ))}
+            {futureEvents.length > 0 ? (
+              futureEvents.map((event: Event) => (
+                <EventCard
+                  key={event.event_id}
+                  {...event}
+                  onEdit={isAdmin ? handleEdit : undefined}
+                  onDelete={isAdmin ? handleDelete : undefined}
+                />
+              ))
+            ) : (
+              <div className="flex min-h-[calc(100vh-12rem)] items-center justify-center">
+                <p className="text-center font-medium text-gray-600">
+                  {t("events.future.empty")}
+                </p>
+              </div>
+            )}
           </>
         )}
 
-        {isAdminOrHost && eventsView === "past" && (
+        {eventsView === "past" && (
           <>
             {pastEvents.length > 0 ? (
               <>
