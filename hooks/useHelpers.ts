@@ -1,34 +1,13 @@
 
 import usePerformances, { Performance, PerformanceUser, PerformanceStatus } from "./usePerformances";
 
-export type helperParams = {currentPerformanceIndex: number, eventId: number, toggleSkipConfirmModal: any};
+export type helperParams = {eventId: number, toggleSkipConfirmModal: any};
 
-export default function useHelpers({currentPerformanceIndex, eventId, toggleSkipConfirmModal}: helperParams) {
+export default function useHelpers({eventId, toggleSkipConfirmModal}: helperParams) {
 
     const { performances, updatePerformance, error } = usePerformances(eventId);
 
     const pendingPerformances: Performance[] = performances.filter((performance) => performance.status === PerformanceStatus.PENDING);
-
-    // Calculate wait time based on number of songs
-    const calculateWaitTime = (index: number) => {
-        if (index <= currentPerformanceIndex) return "Now"
-
-        let totalMinutes = 0
-        // Count songs for all performers from current to this one
-        for (let i = currentPerformanceIndex; i < index; i++) {
-            const performance = performances[i]
-            const songCount = performance?.songs?.length ?? 0
-            totalMinutes += songCount * 5
-        }
-
-        if (totalMinutes < 60) {
-            return `${totalMinutes} min`
-        } else {
-            const hours = Math.floor(totalMinutes / 60)
-            const minutes = totalMinutes % 60
-            return `${hours}h ${minutes}m`
-        }
-    }
 
     const moveUpPerformanceHandler = (performance: PerformanceUser, index: number) => {
 
@@ -50,7 +29,6 @@ export default function useHelpers({currentPerformanceIndex, eventId, toggleSkip
     }
 
     return {
-        calculateWaitTime, 
         moveUpPerformanceHandler,
         activatePerformanceHandler
     }

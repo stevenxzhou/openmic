@@ -11,6 +11,7 @@ import PerformancesCreateView from "../views/PerformancesCreateView";
 import PerformancesChecklistView from "../views/PerformancesChecklistView";
 import EventsCreateView from "../views/EventsCreateView";
 import Modal from "@/components/layouts/Modal";
+import useHelpers from "@/hooks/useHelpers";
 import { apiUrl } from "@/lib/utils";
 import { Event } from "@/hooks/useEvents";
 import EventDetailsCard from "@/components/cards/EventDetailsCard";
@@ -37,6 +38,7 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
     updatePerformance,
     removePerformance,
     fetchPerformances,
+    setPerformances,
     moveNext,
   } = usePerformances(eventId ?? 0);
 
@@ -81,6 +83,109 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
       router.replace("/");
     }
   }, [eventId, router]);
+
+  // Calculate estimated clock time based on event start_date and songs before this performer
+  const calculateEstimatedTimeByIndex = (
+    index: number,
+    pendingPerformances = [...performances]
+      .filter((performance) => performance.status === PerformanceStatus.PENDING)
+      .sort((a, b) => (a.performance_index ?? 0) - (b.performance_index ?? 0)),
+    baseStartDate?: Date,
+  ) => {
+    const eventStartDate = eventDetails?.start_date
+      ? new Date(eventDetails.start_date)
+      : null;
+
+    if (!eventStartDate || Number.isNaN(eventStartDate.getTime())) {
+      return "";
+    }
+
+    const effectiveStartDate =
+      baseStartDate ?? new Date(Math.max(eventStartDate.getTime(), Date.now()));
+
+    let totalMinutes = 0;
+    // Count songs for all performers from current to this one
+    for (let i = currentPerformanceIndex; i < index; i++) {
+      const performance = pendingPerformances[i];
+      const songCount = performance?.songs?.length ?? 0;
+      totalMinutes += songCount * 5;
+    }
+
+    const estimatedDate = new Date(
+      effectiveStartDate.getTime() + totalMinutes * 60000,
+    );
+
+    return new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    }).format(estimatedDate);
+  };
+
+  const calculateEstimatedPerformanceTime = () => {
+    // Re-calculate estimatedPerformanceTime for each pending performance.
+    setPerformances((currentPerformances) => {
+      const pendingPerformances = [...currentPerformances]
+        .filter(
+          (performance) => performance.status === PerformanceStatus.PENDING,
+        )
+        .sort(
+          (a, b) => (a.performance_index ?? 0) - (b.performance_index ?? 0),
+        );
+
+      const eventStartDate = eventDetails?.start_date
+        ? new Date(eventDetails.start_date)
+        : null;
+      const baseStartDate =
+        eventStartDate && !Number.isNaN(eventStartDate.getTime())
+          ? new Date(Math.max(eventStartDate.getTime(), Date.now()))
+          : null;
+
+      const pendingPerformanceIds = new Set(
+        pendingPerformances.map((performance) => performance.performance_id),
+      );
+
+      const updatedPerformances = currentPerformances.map((performance) => {
+        if (!pendingPerformanceIds.has(performance.performance_id)) {
+          return {
+            ...performance,
+            estimatedPerformanceTime:
+              performance.estimatedPerformanceTime ?? "",
+          };
+        }
+
+        const pendingIndex = pendingPerformances.findIndex(
+          (item) => item.performance_id === performance.performance_id,
+        );
+
+        return {
+          ...performance,
+          estimatedPerformanceTime:
+            pendingIndex < 0 || !baseStartDate
+              ? ""
+              : calculateEstimatedTimeByIndex(
+                  pendingIndex,
+                  pendingPerformances,
+                  baseStartDate,
+                ),
+        };
+      });
+
+      const hasChanged = updatedPerformances.some(
+        (performance, index) =>
+          performance.estimatedPerformanceTime !==
+          currentPerformances[index]?.estimatedPerformanceTime,
+      );
+
+      return hasChanged ? updatedPerformances : currentPerformances;
+    });
+  };
+
+  useEffect(() => {
+    if (performances.length === 0 || !eventDetails?.start_date) return;
+
+    calculateEstimatedPerformanceTime();
+  }, [performances, eventDetails?.start_date]);
 
   // Validate event when page is accessed with event_id in URL
   useEffect(() => {
@@ -499,6 +604,9 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
             eventId={eventId!}
             isModal={true}
             onAdded={handlePerformanceAdded}
+            calculateEstimatedPerformanceTime={
+              calculateEstimatedPerformanceTime
+            }
             onClose={() => setShowSignupModal(false)}
           />
         )}
@@ -513,6 +621,9 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
               setEditingPerformance(null);
             }}
             onAdded={handlePerformanceUpdated}
+            calculateEstimatedPerformanceTime={
+              calculateEstimatedPerformanceTime
+            }
           />
         )}
 
