@@ -54,7 +54,6 @@ export default function PerformancesListViewCompletedCollapsed({
                 performance={performance}
                 index={idx + 1}
                 displayNumber={idx + 1}
-                calculateWaitTime={() => ""}
                 showWaitTime={false}
                 showActions={false}
                 enableHeartAnimation={true}
