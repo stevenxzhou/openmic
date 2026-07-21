@@ -13,7 +13,7 @@ type SignUpViewProps = {
   editingPerformance?: PerformanceUser | null;
   onClose?: () => void;
   onAdded?: () => void;
-  calculateEstimatedPerformanceTime: () => void;
+  calculateEstimatedPerformanceTime?: () => void;
 };
 
 const SignUpView = ({
@@ -75,7 +75,7 @@ const SignUpView = ({
       setInputs(editingPerformance.inputs || "");
       setSocialMedia(editingPerformance.social_medias || "");
       setStatus((editingPerformance.status || "PENDING").toUpperCase());
-      calculateEstimatedPerformanceTime();
+      calculateEstimatedPerformanceTime!();
       return;
     }
 
@@ -187,7 +187,7 @@ const SignUpView = ({
 
       const isAdded = await addPerformance(eventId, newPerformance);
 
-      calculateEstimatedPerformanceTime();
+      calculateEstimatedPerformanceTime!();
 
       if (!isAdded) return;
     }
