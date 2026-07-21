@@ -19,6 +19,7 @@ export type Performance = {
     inputs?: string;
     social_medias?: string;
     likes?: number;
+    estimatedPerformanceTime?: string;
 };
 
 export type PerformanceUser = Performance;

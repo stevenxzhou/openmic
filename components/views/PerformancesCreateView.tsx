@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import usePerformances, { type PerformanceUser } from "@/hooks/usePerformances";
 import { useRouter } from "next/navigation";
 import Header from "@/components/layouts/Header";
@@ -13,6 +13,7 @@ type SignUpViewProps = {
   editingPerformance?: PerformanceUser | null;
   onClose?: () => void;
   onAdded?: () => void;
+  calculateEstimatedPerformanceTime: () => void;
 };
 
 const SignUpView = ({
@@ -21,6 +22,7 @@ const SignUpView = ({
   editingPerformance,
   onClose,
   onAdded,
+  calculateEstimatedPerformanceTime,
 }: SignUpViewProps) => {
   const router = useRouter();
   const eventId = parseInt(String(rawEventId), 10);
@@ -53,6 +55,7 @@ const SignUpView = ({
     editingPerformance?.performers || "",
   );
   const [songs, setSongs] = useState(parseSongs(editingPerformance?.songs));
+  const songsContainerRef = useRef<HTMLDivElement | null>(null); // refer to the songs wrapping element.
   const [inputs, setInputs] = useState(editingPerformance?.inputs || "");
   const [socialMedia, setSocialMedia] = useState(
     editingPerformance?.social_medias || "",
@@ -72,6 +75,7 @@ const SignUpView = ({
       setInputs(editingPerformance.inputs || "");
       setSocialMedia(editingPerformance.social_medias || "");
       setStatus((editingPerformance.status || "PENDING").toUpperCase());
+      calculateEstimatedPerformanceTime();
       return;
     }
 
@@ -112,7 +116,7 @@ const SignUpView = ({
     if (!value) return true; // Empty is okay (optional field)
     // Instagram handles: 1-30 characters, letters, numbers, periods, underscores
     // Can't start with a number
-    const instagramRegex = /^[a-zA-Z_][a-zA-Z0-9_.]{0,29}$/;
+    const instagramRegex = /^[a-zA-Z0-9_.]{0,29}$/;
     return instagramRegex.test(value);
   };
 
@@ -128,24 +132,31 @@ const SignUpView = ({
 
   // Add/Update performance handler
   const addPerformanceHandler = async () => {
-    if (!performer || !songs || !inputs) {
+    // collecting songs from under songs element
+    const songContainerEl = songsContainerRef.current;
+
+    const songList = songContainerEl
+      ? Array.from(songContainerEl.querySelectorAll("input"))
+          .map((input) => input.value.trim())
+          .filter(Boolean)
+      : songs
+          .split(",")
+          .map((song) => song.trim())
+          .filter(Boolean);
+
+    if (!performer || !inputs) {
       alert(t("signupView.fillAll"));
+      return;
+    }
+
+    if (songList.length === 0) {
+      alert(t("signupView.oneSong"));
       return;
     }
 
     // Validate Instagram handle if provided
     if (socialMedia && !isValidInstagramHandle(socialMedia)) {
       alert(t("signupView.invalidInstagramBody"));
-      return;
-    }
-
-    const songList = songs
-      .split(",")
-      .map((song) => song.trim())
-      .filter(Boolean);
-
-    if (songList.length === 0) {
-      alert(t("signupView.oneSong"));
       return;
     }
 
@@ -158,6 +169,7 @@ const SignUpView = ({
         status,
         inputs: inputs,
         social_medias: socialMedia,
+        estimatedPerformanceTime: "",
       };
       await updatePerformance(eventId, updatedPerformance);
     } else {
@@ -170,9 +182,13 @@ const SignUpView = ({
         performers: performer,
         inputs: inputs,
         social_medias: socialMedia,
+        estimatedPerformanceTime: "",
       };
 
       const isAdded = await addPerformance(eventId, newPerformance);
+
+      calculateEstimatedPerformanceTime();
+
       if (!isAdded) return;
     }
 
@@ -208,16 +224,21 @@ const SignUpView = ({
               />
             </div>
 
-            <div>
+            <div ref={songsContainerRef}>
               <label className="block mb-1 font-medium">
                 {t("signupView.songs")}
               </label>
               <input
                 type="text"
-                value={songs}
-                onChange={(e) => setSongs(e.target.value)}
+                defaultValue={songs.split(",")[0]?.trim() || ""}
                 className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                placeholder={t("signupView.placeholder.songs")}
+                placeholder={t("signupView.placeholder.firstSong")}
+              />
+              <input
+                type="text"
+                defaultValue={songs.split(",")[1]?.trim() || ""}
+                className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none mt-2"
+                placeholder={t("signupView.placeholder.secondSong")}
               />
             </div>
 

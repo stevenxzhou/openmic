@@ -1,7 +1,6 @@
 import { useMemo, useContext } from "react";
 import PerformanceCard from "@/components/cards/PerformanceCard";
 import { PerformanceStatus, PerformanceUser } from "@/hooks/usePerformances";
-import useHelpers from "@/hooks/useHelpers";
 import PerformancesListViewContainer from "@/components/views/PerformancesListViewContainer";
 import { GlobalContext } from "@/context/useGlobalContext";
 
@@ -50,12 +49,6 @@ export default function PerformancesView({
     [performances],
   );
 
-  const { calculateWaitTime } = useHelpers({
-    currentPerformanceIndex,
-    eventId,
-    toggleSkipConfirmModal,
-  });
-
   const showActions = Boolean(onComplete || onDelete);
 
   return (
@@ -97,8 +90,7 @@ export default function PerformancesView({
                 performance={performance}
                 index={index}
                 displayNumber={currentPerformanceIndex + idx + 1}
-                calculateWaitTime={calculateWaitTime}
-                showWaitTime={false}
+                showWaitTime={true}
                 showActions={showActions}
                 onComplete={onComplete}
                 onDelete={onDelete}

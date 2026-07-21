@@ -22,7 +22,6 @@ type PerformanceCardProps = {
   performance: PerformanceUser;
   index: number;
   displayNumber?: number;
-  calculateWaitTime: (index: number) => string;
   showWaitTime?: boolean;
   showActions?: boolean;
   enableHeartAnimation?: boolean;
@@ -37,7 +36,6 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
     performance,
     index,
     displayNumber,
-    calculateWaitTime,
     showWaitTime = true,
     showActions = false,
     enableHeartAnimation = false,
@@ -359,11 +357,11 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
             </div>
           )}
 
-          {/* Wait time - only show for 2nd card onward in lineup */}
+          {/* Estimated performance time - only show for 2nd card onward in lineup */}
           {showWaitTime && index > 0 && (
             <div className="absolute top-0 right-0 flex items-start">
               <span className="text-sm text-gray-600 font-medium">
-                ⏱ {calculateWaitTime(index)}
+                ⏱ {performance.estimatedPerformanceTime}
               </span>
             </div>
           )}
