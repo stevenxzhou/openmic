@@ -347,7 +347,6 @@ const EventsView = () => {
       {/* Create Event Modal */}
       {showCreateModal && (
         <EventsCreateView
-          isModal={true}
           createEvent={createEvent}
           updateEvent={updateEvent}
           editingEvent={editingEvent}

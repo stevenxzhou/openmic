@@ -9,7 +9,6 @@ import { useSession } from "next-auth/react";
 import { Check } from "lucide-react";
 
 type CreateEventViewProps = {
-  isModal?: boolean;
   createEvent?: (
     event: Event,
   ) => Promise<{ success: boolean; error?: string; eventId?: number }>;
@@ -23,7 +22,6 @@ type CreateEventViewProps = {
 };
 
 const CreateEventView = ({
-  isModal = false,
   createEvent: createEventProp,
   updateEvent: updateEventProp,
   editingEvent,
@@ -209,12 +207,8 @@ const CreateEventView = ({
     // Success - clear hook error and proceed
     setHookError(null);
     onAdded?.();
-
-    if (isModal) {
-      setShowConfirmation(true);
-      return;
-    }
-    router.push(`/events/`);
+    setShowConfirmation(true);
+    return;
   };
 
   const closeModal = () => {
@@ -231,185 +225,36 @@ const CreateEventView = ({
 
   return (
     <>
-      {!isModal && <Header showBackButton />}
-      {isModal ? (
-        <Modal
-          onClose={showConfirmation || displayError ? undefined : closeModal}
-        >
-          {showConfirmation ? (
-            <div className="text-center space-y-4">
-              <div className="flex justify-center">
-                <Check
-                  className="h-12 w-12 text-green-600"
-                  aria-hidden="true"
-                />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-800">
-                {editingEvent
-                  ? t("createEvent.updated")
-                  : t("createEvent.created")}
-              </h2>
-              <p className="text-gray-600">
-                {t("createEvent.message", {
-                  title,
-                  action: editingEvent
-                    ? t("createEvent.updatedAction")
-                    : t("createEvent.addedAction"),
-                })}
-              </p>
-              <button
-                onClick={closeModal}
-                className="w-full py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded"
-              >
-                {t("common.done")}
-              </button>
+      <Modal
+        onClose={showConfirmation || displayError ? undefined : closeModal}
+      >
+        {showConfirmation ? (
+          <div className="text-center space-y-4">
+            <div className="flex justify-center">
+              <Check className="h-12 w-12 text-green-600" aria-hidden="true" />
             </div>
-          ) : (
-            <>
-              {displayError && (
-                <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm space-y-2">
-                  <p>{displayError}</p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={clearError}
-                      className="text-xs font-semibold hover:underline"
-                    >
-                      {t("common.tryAgain")}
-                    </button>
-                    {duplicateEventId && (
-                      <a
-                        href={apiUrl(
-                          `/performances?event_id=${duplicateEventId}`,
-                        )}
-                        className="text-xs font-semibold hover:underline"
-                      >
-                        {t("createEvent.duplicateView")}
-                      </a>
-                    )}
-                  </div>
-                </div>
-              )}
-              <div>
-                <label className="block mb-1 font-medium">
-                  {t("createEvent.eventName")}
-                </label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => {
-                    setTitle(e.target.value);
-                    clearError();
-                  }}
-                  className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                  placeholder={t("createEvent.eventName")}
-                />
-              </div>
-
-              <div>
-                <label className="block mb-1 font-medium">
-                  {t("createEvent.hosts")}
-                </label>
-                <input
-                  type="text"
-                  value={hostNames}
-                  onChange={(e) => {
-                    setHostNames(e.target.value);
-                    clearError();
-                  }}
-                  className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                  placeholder={t("createEvent.hosts")}
-                />
-              </div>
-
-              {isAdmin && (
-                <div>
-                  <label className="block mb-1 font-medium">
-                    {t("createEvent.status")}
-                  </label>
-                  <select
-                    value={status}
-                    onChange={(e) => {
-                      setStatus(e.target.value);
-                      clearError();
-                    }}
-                    className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                  >
-                    <option value="NEW">{t("createEvent.statusNew")}</option>
-                    <option value="IN_PROGRESS">
-                      {t("createEvent.statusInProgress")}
-                    </option>
-                    <option value="COMPLETED">
-                      {t("createEvent.statusCompleted")}
-                    </option>
-                  </select>
-                </div>
-              )}
-
-              <div>
-                <label className="block mb-1 font-medium">
-                  {t("createEvent.description")}
-                </label>
-                <input
-                  type="text"
-                  value={description}
-                  onChange={(e) => {
-                    setDescription(e.target.value);
-                    clearError();
-                  }}
-                  className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                  placeholder={t("createEvent.description")}
-                />
-              </div>
-
-              <div>
-                <label className="block mb-1 font-medium">
-                  {t("createEvent.dateTime")}
-                </label>
-                <input
-                  type="datetime-local"
-                  value={startTime}
-                  min={minStartTime}
-                  onChange={(e) => {
-                    setStartTime(e.target.value);
-                    clearError();
-                  }}
-                  className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none text-base"
-                  style={{
-                    WebkitAppearance: "none",
-                    appearance: "none",
-                  }}
-                />
-              </div>
-
-              <div>
-                <label className="block mb-1 font-medium">
-                  {t("createEvent.location")}
-                </label>
-                <input
-                  type="text"
-                  value={location}
-                  onChange={(e) => {
-                    setLocation(e.target.value);
-                    clearError();
-                  }}
-                  className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                  placeholder="Story Coffee"
-                />
-              </div>
-
-              <button
-                onClick={addEventHandler}
-                disabled={!!displayError}
-                className="w-full py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded"
-              >
-                {editingEvent ? t("common.edit") : t("common.addNewEvent")}
-              </button>
-            </>
-          )}
-        </Modal>
-      ) : (
-        <div className="min-h-[calc(100vh-64px)] flex items-center justify-center p-0 sm:p-4">
-          <div className="w-full max-w-md bg-white border rounded-lg shadow-xl p-4 sm:p-6 space-y-4">
+            <h2 className="text-xl font-semibold text-gray-800">
+              {editingEvent
+                ? t("createEvent.updated")
+                : t("createEvent.created")}
+            </h2>
+            <p className="text-gray-600">
+              {t("createEvent.message", {
+                title,
+                action: editingEvent
+                  ? t("createEvent.updatedAction")
+                  : t("createEvent.addedAction"),
+              })}
+            </p>
+            <button
+              onClick={closeModal}
+              className="w-full py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded"
+            >
+              {t("common.done")}
+            </button>
+          </div>
+        ) : (
+          <>
             {displayError && (
               <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm space-y-2">
                 <p>{displayError}</p>
@@ -444,7 +289,7 @@ const CreateEventView = ({
                   setTitle(e.target.value);
                   clearError();
                 }}
-                className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+                className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
                 placeholder={t("createEvent.eventName")}
               />
             </div>
@@ -460,7 +305,7 @@ const CreateEventView = ({
                   setHostNames(e.target.value);
                   clearError();
                 }}
-                className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+                className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
                 placeholder={t("createEvent.hosts")}
               />
             </div>
@@ -476,7 +321,7 @@ const CreateEventView = ({
                     setStatus(e.target.value);
                     clearError();
                   }}
-                  className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+                  className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
                 >
                   <option value="NEW">{t("createEvent.statusNew")}</option>
                   <option value="IN_PROGRESS">
@@ -500,7 +345,7 @@ const CreateEventView = ({
                   setDescription(e.target.value);
                   clearError();
                 }}
-                className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+                className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
                 placeholder={t("createEvent.description")}
               />
             </div>
@@ -517,7 +362,7 @@ const CreateEventView = ({
                   setStartTime(e.target.value);
                   clearError();
                 }}
-                className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none text-base"
+                className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none text-base"
                 style={{
                   WebkitAppearance: "none",
                   appearance: "none",
@@ -536,7 +381,7 @@ const CreateEventView = ({
                   setLocation(e.target.value);
                   clearError();
                 }}
-                className="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+                className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
                 placeholder="Story Coffee"
               />
             </div>
@@ -544,13 +389,13 @@ const CreateEventView = ({
             <button
               onClick={addEventHandler}
               disabled={!!displayError}
-              className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded"
+              className="w-full py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded"
             >
               {editingEvent ? t("common.edit") : t("common.addNewEvent")}
             </button>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </>
   );
 };

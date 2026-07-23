@@ -4,7 +4,6 @@ import QRCode from "@/components/utilities/QRCode";
 import { Event } from "@/hooks/useEvents";
 import { type PerformanceUser } from "@/hooks/usePerformances";
 import { GlobalContext } from "@/context/useGlobalContext";
-import { InstagramIcon } from "@/components/utilities/SocialMediaIcons";
 import { apiUrl } from "@/lib/utils";
 import {
   CalendarDays,

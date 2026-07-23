@@ -10,9 +10,7 @@ import {
   type PerformanceUser,
   PerformanceStatus,
 } from "@/hooks/usePerformances";
-import { InstagramIcon } from "../utilities/SocialMediaIcons";
 import { apiUrl } from "@/lib/utils";
-import { GlobalContext } from "@/context/useGlobalContext";
 import { useSession, signOut } from "next-auth/react";
 import { ArrowUp, Check, Heart, Pencil, Trash2 } from "lucide-react";
 
@@ -348,7 +346,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
           )}
 
           {/* Estimated performance time - only show for 2nd card onward in lineup */}
-          {showWaitTime && index > 0 && (
+          {showWaitTime && isAdminOrHost && index > 0 && (
             <div className="absolute top-0 right-0 flex items-start">
               <span className="text-sm text-gray-600 font-medium">
                 ⏱ {performance.estimatedPerformanceTime}
@@ -407,7 +405,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
                       <Check className="h-5 w-5" aria-hidden="true" />
                     </button>
                   )}
-                  {onEdit && isAdmin && (
+                  {onEdit && (
                     <button
                       className="p-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors"
                       aria-label="Edit performance"
