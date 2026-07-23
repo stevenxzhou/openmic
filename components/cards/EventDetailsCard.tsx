@@ -4,8 +4,15 @@ import QRCode from "@/components/utilities/QRCode";
 import { Event } from "@/hooks/useEvents";
 import { type PerformanceUser } from "@/hooks/usePerformances";
 import { GlobalContext } from "@/context/useGlobalContext";
-import { InstagramIcon } from "@/components/utilities/SocialMediaIcons";
 import { apiUrl } from "@/lib/utils";
+import {
+  CalendarDays,
+  Check,
+  MapPin,
+  Mic2,
+  Pencil,
+  Share2,
+} from "lucide-react";
 
 type EventDetailsCardProps = {
   eventDetails: Event;
@@ -113,77 +120,35 @@ export default memo(function EventDetailsCard({
                 title={t("eventDetails.share")}
                 aria-label={t("eventDetails.share")}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
+                <Share2
                   className="h-5 w-5 sm:h-6 sm:w-6 text-gray-700"
-                  viewBox="0 0 122.88 122.88"
-                >
-                  <path
-                    fill="currentColor"
-                    d="M61.44,0A61.46,61.46,0,1,1,18,18,61.21,61.21,0,0,1,61.44,0ZM64.5,75.82,50,69.15A11.82,11.82,0,1,1,49,52.71l15.4-6.43a12.7,12.7,0,0,1-.14-1.85A11.81,11.81,0,0,1,76,32.62h0A11.82,11.82,0,1,1,68.45,53.5L52.76,60q.08.68.09,1.35L69.16,68.9a11.76,11.76,0,1,1-5,9.6,12.11,12.11,0,0,1,.31-2.68ZM97.89,25A51.54,51.54,0,1,0,113,61.44,51.38,51.38,0,0,0,97.89,25Z"
-                  />
-                </svg>
+                  aria-hidden="true"
+                />
               </button>
             </div>
             <div className="space-y-1 text-xs sm:text-sm text-gray-700">
               <div className="flex items-start">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-gray-500 flex-shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
+                <CalendarDays
+                  className="mr-2 h-4 w-4 flex-shrink-0 text-gray-500 sm:h-5 sm:w-5"
+                  aria-hidden="true"
+                />
                 <span className="break-words">
                   {formatEventDateTime(eventDetails.start_date, language)}
                 </span>
               </div>
               <div className="flex items-start">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-gray-500 flex-shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
+                <MapPin
+                  className="mr-2 h-4 w-4 flex-shrink-0 text-gray-500 sm:h-5 sm:w-5"
+                  aria-hidden="true"
+                />
                 <span className="break-words">{eventDetails.location}</span>
               </div>
               {eventDetails.host_names?.trim() && (
                 <div className="flex items-start">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-gray-500 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 1a3 3 0 00-3 3v7a3 3 0 006 0V4a3 3 0 00-3-3zm7 10a1 1 0 10-2 0 5 5 0 01-10 0 1 1 0 10-2 0 7 7 0 006 6.92V21H8a1 1 0 000 2h8a1 1 0 100-2h-3v-3.08A7 7 0 0019 11z"
-                    />
-                  </svg>
+                  <Mic2
+                    className="mr-2 h-4 w-4 flex-shrink-0 text-gray-500 sm:h-5 sm:w-5"
+                    aria-hidden="true"
+                  />
                   <span className="break-words">{eventDetails.host_names}</span>
                 </div>
               )}
@@ -234,20 +199,7 @@ export default memo(function EventDetailsCard({
                         : t("eventDetails.completeEvent")
                     }
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={3}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
+                    <Check className="h-5 w-5" aria-hidden="true" />
                   </button>
                 )}
                 {canEdit && (
@@ -258,20 +210,7 @@ export default memo(function EventDetailsCard({
                     aria-label={t("common.edit")}
                     title={t("common.edit")}
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                      />
-                    </svg>
+                    <Pencil className="h-5 w-5" aria-hidden="true" />
                   </button>
                 )}
               </div>

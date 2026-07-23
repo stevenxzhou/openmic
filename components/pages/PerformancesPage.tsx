@@ -602,7 +602,6 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
         {!isCompletedEvent && showSignupModal && (
           <PerformancesCreateView
             eventId={eventId!}
-            isModal={true}
             onAdded={handlePerformanceAdded}
             calculateEstimatedPerformanceTime={
               calculateEstimatedPerformanceTime
@@ -614,7 +613,6 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
         {showPerformanceEditModal && editingPerformance && (
           <PerformancesCreateView
             eventId={eventId!}
-            isModal={true}
             editingPerformance={editingPerformance}
             onClose={() => {
               setShowPerformanceEditModal(false);
@@ -645,7 +643,6 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
 
         {showEventEditModal && editingEvent && (
           <EventsCreateView
-            isModal={true}
             editingEvent={editingEvent}
             onClose={() => {
               setShowEventEditModal(false);

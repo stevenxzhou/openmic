@@ -10,10 +10,9 @@ import {
   type PerformanceUser,
   PerformanceStatus,
 } from "@/hooks/usePerformances";
-import { InstagramIcon } from "../utilities/SocialMediaIcons";
 import { apiUrl } from "@/lib/utils";
-import { GlobalContext } from "@/context/useGlobalContext";
 import { useSession, signOut } from "next-auth/react";
+import { ArrowUp, Check, Heart, Pencil, Trash2 } from "lucide-react";
 
 const LIKED_PERFORMANCES_KEY = "likedPerformances";
 const MAX_LIKES_PER_EVENT = 50;
@@ -282,22 +281,16 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
               PerformanceStatus.COMPLETED && (
               <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
                 <div className="relative h-20 w-20">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
+                  <Heart
                     className="absolute inset-0 h-20 w-20 text-pink-300 opacity-70 heart-glow-ease-out"
                     fill="currentColor"
-                  >
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                  </svg>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  />
+                  <Heart
                     className="relative h-20 w-20 text-pink-500 heart-pop-ease-out drop-shadow"
                     fill="currentColor"
-                  >
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                  </svg>
+                    aria-hidden="true"
+                  />
                 </div>
               </div>
             )}
@@ -335,19 +328,14 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
                 className={`absolute top-2 right-0 p-2 pr-0 rounded-lg transition-colors flex items-center justify-center cursor-pointer ${isLiking ? "opacity-50" : ""} ${hasUserLiked ? "focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0" : ""}`}
                 title="Like"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
+                <Heart
                   className="h-8 w-8"
-                  viewBox="0 0 24 24"
                   fill={hasUserLiked ? "currentColor" : "none"}
                   stroke={hasUserLiked ? "none" : "currentColor"}
                   strokeWidth={hasUserLiked ? 0 : 2}
-                  style={{
-                    color: hasUserLiked ? "#ec4899" : "#d1d5db",
-                  }}
-                >
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </svg>
+                  style={{ color: hasUserLiked ? "#ec4899" : "#d1d5db" }}
+                  aria-hidden="true"
+                />
               </button>
             )}
 
@@ -358,7 +346,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
           )}
 
           {/* Estimated performance time - only show for 2nd card onward in lineup */}
-          {showWaitTime && index > 0 && (
+          {showWaitTime && isAdminOrHost && index > 0 && (
             <div className="absolute top-0 right-0 flex items-start">
               <span className="text-sm text-gray-600 font-medium">
                 ⏱ {performance.estimatedPerformanceTime}
@@ -393,20 +381,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
                       onClick={() => onDelete(performance)}
                       title="Delete"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
+                      <Trash2 className="h-5 w-5" aria-hidden="true" />
                     </button>
                   )}
 
@@ -417,20 +392,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
                       onClick={() => onMoveNext(performance)}
                       title="Move Next"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 10l7-7m0 0l7 7m-7-7v18"
-                        />
-                      </svg>
+                      <ArrowUp className="h-5 w-5" aria-hidden="true" />
                     </button>
                   )}
                   {onComplete && index === 0 && (
@@ -440,43 +402,17 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
                       onClick={() => onComplete(performance)}
                       title="Complete"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={3}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
+                      <Check className="h-5 w-5" aria-hidden="true" />
                     </button>
                   )}
-                  {onEdit && isAdmin && (
+                  {onEdit && (
                     <button
                       className="p-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors"
                       aria-label="Edit performance"
                       onClick={() => onEdit(performance)}
                       title="Edit"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                        />
-                      </svg>
+                      <Pencil className="h-5 w-5" aria-hidden="true" />
                     </button>
                   )}
                 </div>

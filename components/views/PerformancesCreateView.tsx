@@ -9,7 +9,6 @@ import { useSession } from "next-auth/react";
 
 type SignUpViewProps = {
   eventId: number | string;
-  isModal?: boolean;
   editingPerformance?: PerformanceUser | null;
   onClose?: () => void;
   onAdded?: () => void;
@@ -18,7 +17,6 @@ type SignUpViewProps = {
 
 const SignUpView = ({
   eventId: rawEventId,
-  isModal = false,
   editingPerformance,
   onClose,
   onAdded,
@@ -194,10 +192,7 @@ const SignUpView = ({
 
     onAdded?.();
 
-    if (isModal) {
-      return;
-    }
-    router.back();
+    return;
   };
 
   const closeModal = () => {
@@ -207,213 +202,108 @@ const SignUpView = ({
 
   return (
     <>
-      {!isModal && <Header showBackButton />}
-      {isModal ? (
-        <Modal onClose={closeModal}>
-          <>
-            <div>
-              <label className="block mb-1 font-medium">
-                {t("signupView.performers")}
-              </label>
-              <input
-                type="text"
-                value={performer}
-                onChange={(e) => setPerformer(e.target.value)}
-                className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                placeholder={t("signupView.placeholder.performer")}
-              />
-            </div>
-
-            <div ref={songsContainerRef}>
-              <label className="block mb-1 font-medium">
-                {t("signupView.songs")}
-              </label>
-              <input
-                type="text"
-                defaultValue={songs.split(",")[0]?.trim() || ""}
-                className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                placeholder={t("signupView.placeholder.firstSong")}
-              />
-              <input
-                type="text"
-                defaultValue={songs.split(",")[1]?.trim() || ""}
-                className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none mt-2"
-                placeholder={t("signupView.placeholder.secondSong")}
-              />
-            </div>
-
-            <div>
-              <label className="block mb-1 font-medium">
-                {t("signupView.inputs")}
-              </label>
-              <input
-                type="text"
-                value={inputs}
-                onChange={(e) => setInputs(e.target.value)}
-                className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                placeholder={t("signupView.placeholder.inputs")}
-              />
-            </div>
-
-            <div>
-              {editingPerformance && (
-                <div>
-                  <label className="block mb-1 font-medium">
-                    {t("signupView.status")}
-                  </label>
-                  <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                    className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                  >
-                    <option value="PENDING">
-                      {t("signupView.statusPending")}
-                    </option>
-                    <option value="COMPLETED">
-                      {t("signupView.statusCompleted")}
-                    </option>
-                  </select>
-                </div>
-              )}
-
-              <div>
-                <label className="block mb-1 font-medium">
-                  {t("signupView.instagram")}
-                </label>
-                <div className="relative">
-                  {socialMedia && isValidInstagramHandle(socialMedia) && (
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center text-pink-600">
-                      <SocialIcon
-                        url={`https://instagram.com/${socialMedia}`}
-                        style={{ height: 20, width: 20 }}
-                      />
-                    </div>
-                  )}
-                  <input
-                    type="text"
-                    value={socialMedia}
-                    onChange={(e) => handleSocialMediaChange(e.target.value)}
-                    className={`w-full p-3 pr-10 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none ${socialMediaError ? "border-red-500" : ""}`}
-                    placeholder={t("signupView.placeholder.instagram")}
-                  />
-                </div>
-                {socialMediaError && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {socialMediaError}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <button
-              onClick={addPerformanceHandler}
-              className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded"
-            >
-              {editingPerformance ? t("common.update") : t("signupView.add")}
-            </button>
-          </>
-        </Modal>
-      ) : (
-        <div className="min-h-[calc(100vh-64px)] flex items-center justify-center p-0 sm:p-4">
-          <div className="w-full max-w-md bg-white border rounded-lg shadow-xl p-4 sm:p-6 space-y-4">
-            <div>
-              <label className="block mb-1 font-medium">
-                {t("signupView.performers")}
-              </label>
-              <input
-                type="text"
-                value={performer}
-                onChange={(e) => setPerformer(e.target.value)}
-                className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                placeholder={t("signupView.placeholder.performer")}
-              />
-            </div>
-
-            <div>
-              <label className="block mb-1 font-medium">
-                {t("signupView.songs")}
-              </label>
-              <input
-                type="text"
-                value={songs}
-                onChange={(e) => setSongs(e.target.value)}
-                className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                placeholder={t("signupView.placeholder.songs")}
-              />
-            </div>
-
-            <div>
-              <label className="block mb-1 font-medium">
-                {t("signupView.inputs")}
-              </label>
-              <input
-                type="text"
-                value={inputs}
-                onChange={(e) => setInputs(e.target.value)}
-                className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                placeholder={t("signupView.placeholder.inputs")}
-              />
-            </div>
-
-            <div>
-              {editingPerformance && (
-                <div>
-                  <label className="block mb-1 font-medium">
-                    {t("signupView.status")}
-                  </label>
-                  <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                    className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
-                  >
-                    <option value="PENDING">
-                      {t("signupView.statusPending")}
-                    </option>
-                    <option value="COMPLETED">
-                      {t("signupView.statusCompleted")}
-                    </option>
-                  </select>
-                </div>
-              )}
-
-              <div>
-                <label className="block mb-1 font-medium">
-                  {t("signupView.instagram")}
-                </label>
-                <div className="relative">
-                  {socialMedia && isValidInstagramHandle(socialMedia) && (
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center text-pink-600">
-                      <SocialIcon
-                        url={`https://instagram.com/${socialMedia}`}
-                        style={{ height: 20, width: 20 }}
-                      />
-                    </div>
-                  )}
-                  <input
-                    type="text"
-                    value={socialMedia}
-                    onChange={(e) => handleSocialMediaChange(e.target.value)}
-                    className={`w-full p-3 pr-10 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none ${socialMediaError ? "border-red-500" : ""}`}
-                    placeholder={t("signupView.placeholder.instagram")}
-                  />
-                </div>
-                {socialMediaError && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {socialMediaError}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <button
-              onClick={addPerformanceHandler}
-              className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded"
-            >
-              {editingPerformance ? t("common.update") : t("signupView.add")}
-            </button>
+      <Modal onClose={closeModal}>
+        <>
+          <div>
+            <label className="block mb-1 font-medium">
+              {t("signupView.performers")}
+            </label>
+            <input
+              type="text"
+              value={performer}
+              onChange={(e) => setPerformer(e.target.value)}
+              className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+              placeholder={t("signupView.placeholder.performer")}
+            />
           </div>
-        </div>
-      )}
+
+          <div ref={songsContainerRef}>
+            <label className="block mb-1 font-medium">
+              {t("signupView.songs")}
+            </label>
+            <input
+              type="text"
+              defaultValue={songs.split(",")[0]?.trim() || ""}
+              className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+              placeholder={t("signupView.placeholder.firstSong")}
+            />
+            <input
+              type="text"
+              defaultValue={songs.split(",")[1]?.trim() || ""}
+              className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none mt-2"
+              placeholder={t("signupView.placeholder.secondSong")}
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium">
+              {t("signupView.inputs")}
+            </label>
+            <input
+              type="text"
+              value={inputs}
+              onChange={(e) => setInputs(e.target.value)}
+              className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+              placeholder={t("signupView.placeholder.inputs")}
+            />
+          </div>
+
+          <div>
+            {editingPerformance && (
+              <div>
+                <label className="block mb-1 font-medium">
+                  {t("signupView.status")}
+                </label>
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                  className="w-full p-3 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none"
+                >
+                  <option value="PENDING">
+                    {t("signupView.statusPending")}
+                  </option>
+                  <option value="COMPLETED">
+                    {t("signupView.statusCompleted")}
+                  </option>
+                </select>
+              </div>
+            )}
+
+            <div>
+              <label className="block mb-1 font-medium">
+                {t("signupView.instagram")}
+              </label>
+              <div className="relative">
+                {socialMedia && isValidInstagramHandle(socialMedia) && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center text-pink-600">
+                    <SocialIcon
+                      url={`https://instagram.com/${socialMedia}`}
+                      style={{ height: 20, width: 20 }}
+                    />
+                  </div>
+                )}
+                <input
+                  type="text"
+                  value={socialMedia}
+                  onChange={(e) => handleSocialMediaChange(e.target.value)}
+                  className={`w-full p-3 pr-10 border rounded focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none ${socialMediaError ? "border-red-500" : ""}`}
+                  placeholder={t("signupView.placeholder.instagram")}
+                />
+              </div>
+              {socialMediaError && (
+                <p className="text-red-500 text-sm mt-1">{socialMediaError}</p>
+              )}
+            </div>
+          </div>
+
+          <button
+            onClick={addPerformanceHandler}
+            className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded"
+          >
+            {editingPerformance ? t("common.update") : t("signupView.add")}
+          </button>
+        </>
+      </Modal>
     </>
   );
 };
