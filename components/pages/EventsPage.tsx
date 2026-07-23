@@ -267,7 +267,10 @@ const EventsView = () => {
                                   aria-label={t("common.edit")}
                                   title={t("common.edit")}
                                 >
-                                  <Pencil className="h-5 w-5" aria-hidden="true" />
+                                  <Pencil
+                                    className="h-5 w-5"
+                                    aria-hidden="true"
+                                  />
                                 </button>
                                 <button
                                   onClick={(e) =>
@@ -277,7 +280,10 @@ const EventsView = () => {
                                   aria-label={t("common.delete")}
                                   title={t("common.delete")}
                                 >
-                                  <Trash2 className="h-5 w-5" aria-hidden="true" />
+                                  <Trash2
+                                    className="h-5 w-5"
+                                    aria-hidden="true"
+                                  />
                                 </button>
                               </div>
                             </td>

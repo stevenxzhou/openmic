@@ -6,7 +6,14 @@ import { type PerformanceUser } from "@/hooks/usePerformances";
 import { GlobalContext } from "@/context/useGlobalContext";
 import { InstagramIcon } from "@/components/utilities/SocialMediaIcons";
 import { apiUrl } from "@/lib/utils";
-import { CalendarDays, Check, MapPin, Mic2, Pencil, Share2 } from "lucide-react";
+import {
+  CalendarDays,
+  Check,
+  MapPin,
+  Mic2,
+  Pencil,
+  Share2,
+} from "lucide-react";
 
 type EventDetailsCardProps = {
   eventDetails: Event;
@@ -114,23 +121,35 @@ export default memo(function EventDetailsCard({
                 title={t("eventDetails.share")}
                 aria-label={t("eventDetails.share")}
               >
-                <Share2 className="h-5 w-5 sm:h-6 sm:w-6 text-gray-700" aria-hidden="true" />
+                <Share2
+                  className="h-5 w-5 sm:h-6 sm:w-6 text-gray-700"
+                  aria-hidden="true"
+                />
               </button>
             </div>
             <div className="space-y-1 text-xs sm:text-sm text-gray-700">
               <div className="flex items-start">
-                <CalendarDays className="mr-2 h-4 w-4 flex-shrink-0 text-gray-500 sm:h-5 sm:w-5" aria-hidden="true" />
+                <CalendarDays
+                  className="mr-2 h-4 w-4 flex-shrink-0 text-gray-500 sm:h-5 sm:w-5"
+                  aria-hidden="true"
+                />
                 <span className="break-words">
                   {formatEventDateTime(eventDetails.start_date, language)}
                 </span>
               </div>
               <div className="flex items-start">
-                <MapPin className="mr-2 h-4 w-4 flex-shrink-0 text-gray-500 sm:h-5 sm:w-5" aria-hidden="true" />
+                <MapPin
+                  className="mr-2 h-4 w-4 flex-shrink-0 text-gray-500 sm:h-5 sm:w-5"
+                  aria-hidden="true"
+                />
                 <span className="break-words">{eventDetails.location}</span>
               </div>
               {eventDetails.host_names?.trim() && (
                 <div className="flex items-start">
-                  <Mic2 className="mr-2 h-4 w-4 flex-shrink-0 text-gray-500 sm:h-5 sm:w-5" aria-hidden="true" />
+                  <Mic2
+                    className="mr-2 h-4 w-4 flex-shrink-0 text-gray-500 sm:h-5 sm:w-5"
+                    aria-hidden="true"
+                  />
                   <span className="break-words">{eventDetails.host_names}</span>
                 </div>
               )}

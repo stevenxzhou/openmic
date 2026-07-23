@@ -283,8 +283,16 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
               PerformanceStatus.COMPLETED && (
               <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
                 <div className="relative h-20 w-20">
-                  <Heart className="absolute inset-0 h-20 w-20 text-pink-300 opacity-70 heart-glow-ease-out" fill="currentColor" aria-hidden="true" />
-                  <Heart className="relative h-20 w-20 text-pink-500 heart-pop-ease-out drop-shadow" fill="currentColor" aria-hidden="true" />
+                  <Heart
+                    className="absolute inset-0 h-20 w-20 text-pink-300 opacity-70 heart-glow-ease-out"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  />
+                  <Heart
+                    className="relative h-20 w-20 text-pink-500 heart-pop-ease-out drop-shadow"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  />
                 </div>
               </div>
             )}

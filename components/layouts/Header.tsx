@@ -105,7 +105,10 @@ const Header = ({ showBackButton = false }) => {
                   <span className="text-sm font-medium text-gray-900">
                     {session.user.first_name || session.user.email}
                   </span>
-                  <ChevronDown className="h-5 w-5 text-gray-900" aria-hidden="true" />
+                  <ChevronDown
+                    className="h-5 w-5 text-gray-900"
+                    aria-hidden="true"
+                  />
                 </button>
                 {showProfileMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-50">

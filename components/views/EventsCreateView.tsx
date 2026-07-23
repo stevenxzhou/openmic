@@ -239,7 +239,10 @@ const CreateEventView = ({
           {showConfirmation ? (
             <div className="text-center space-y-4">
               <div className="flex justify-center">
-                <Check className="h-12 w-12 text-green-600" aria-hidden="true" />
+                <Check
+                  className="h-12 w-12 text-green-600"
+                  aria-hidden="true"
+                />
               </div>
               <h2 className="text-xl font-semibold text-gray-800">
                 {editingEvent
