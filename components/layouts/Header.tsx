@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useGlobalContext } from "@/context/useGlobalContext";
 import { useSession, signOut } from "next-auth/react";
+import { ChevronDown, ChevronLeft } from "lucide-react";
 
 const isDev = process.env.NEXT_PUBLIC_NODE_ENV === "development";
 const baseUrl = process.env.NEXT_PUBLIC_BASE_PATH || "";
@@ -58,20 +59,7 @@ const Header = ({ showBackButton = false }) => {
               onClick={() => router.back()}
               aria-label={t("header.back")}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
+              <ChevronLeft className="h-6 w-6" aria-hidden="true" />
             </button>
           )}
         </div>
@@ -117,18 +105,7 @@ const Header = ({ showBackButton = false }) => {
                   <span className="text-sm font-medium text-gray-900">
                     {session.user.first_name || session.user.email}
                   </span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-900"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <ChevronDown className="h-5 w-5 text-gray-900" aria-hidden="true" />
                 </button>
                 {showProfileMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-50">

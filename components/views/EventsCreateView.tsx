@@ -6,6 +6,7 @@ import Modal from "@/components/layouts/Modal";
 import { GlobalContext } from "@/context/useGlobalContext";
 import { apiUrl } from "@/lib/utils";
 import { useSession } from "next-auth/react";
+import { Check } from "lucide-react";
 
 type CreateEventViewProps = {
   isModal?: boolean;
@@ -238,19 +239,7 @@ const CreateEventView = ({
           {showConfirmation ? (
             <div className="text-center space-y-4">
               <div className="flex justify-center">
-                <svg
-                  className="w-12 h-12 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                <Check className="h-12 w-12 text-green-600" aria-hidden="true" />
               </div>
               <h2 className="text-xl font-semibold text-gray-800">
                 {editingEvent

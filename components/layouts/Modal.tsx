@@ -1,4 +1,5 @@
 import React, { ReactNode } from "react";
+import { X } from "lucide-react";
 
 type ModalProps = {
   children: ReactNode;
@@ -28,19 +29,7 @@ const Modal = ({ children, onClose }: ModalProps) => {
             className="w-10 h-10 rounded-full hover:bg-gray-200 text-gray-600 hover:text-gray-800 flex items-center justify-center transition-colors"
             aria-label="Close"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <X className="w-6 h-6" aria-hidden="true" />
           </button>
         )}
       </div>

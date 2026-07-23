@@ -1,5 +1,3 @@
-// filepath: /Users/steven/Coding/fun/apps/openmic/web/app/layout.tsx
-
 import "./globals.css"; // Adjust the path if needed
 import { GlobalContextProvider } from "@/context/useGlobalContext";
 import { SessionProviderWrapper } from "./SessionProviderWrapper";
