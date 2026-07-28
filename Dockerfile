@@ -3,7 +3,7 @@ WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 
 FROM base AS deps
-COPY package*.json ./
+COPY package*.json .npmrc ./
 RUN npm ci
 
 FROM base AS builder
@@ -29,7 +29,7 @@ ENV APP_VERSION=$APP_VERSION
 
 RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
 
-COPY package*.json ./
+COPY package*.json .npmrc ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --from=builder /app/.next ./.next
