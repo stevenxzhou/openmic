@@ -12,7 +12,7 @@ import {
 } from "@/hooks/usePerformances";
 import { apiUrl } from "@/lib/utils";
 import { useSession, signOut } from "next-auth/react";
-import { ArrowUp, Check, Heart, Pencil, Trash2 } from "lucide-react";
+import { Check, Heart, Pencil, Trash2 } from "lucide-react";
 
 const LIKED_PERFORMANCES_KEY = "likedPerformances";
 const MAX_LIKES_PER_EVENT = 50;
@@ -26,7 +26,6 @@ type PerformanceCardProps = {
   enableHeartAnimation?: boolean;
   onComplete?: (performance: PerformanceUser) => void;
   onDelete?: (performance: PerformanceUser) => void;
-  onMoveNext?: (performance: PerformanceUser) => void;
   onEdit?: (performance: PerformanceUser) => void;
 };
 
@@ -40,7 +39,6 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
     enableHeartAnimation = false,
     onComplete,
     onDelete,
-    onMoveNext,
     onEdit,
   }) => {
     const [likes, setLikes] = useState(performance.likes || 0);
@@ -362,7 +360,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
           {/* Action buttons and inputs */}
           {showActions &&
             isAdminOrHost &&
-            (onComplete || onDelete || onMoveNext || onEdit) && (
+            (onComplete || onDelete || onEdit) && (
               <div
                 className={`flex flex-wrap items-end gap-2 ${performance.inputs ? "justify-between" : "justify-end"}`}
               >
@@ -382,17 +380,6 @@ const PerformanceCard: React.FC<PerformanceCardProps> = memo(
                       title="Delete"
                     >
                       <Trash2 className="h-5 w-5" aria-hidden="true" />
-                    </button>
-                  )}
-
-                  {onMoveNext && index >= 2 && (
-                    <button
-                      className="p-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors"
-                      aria-label="Move next"
-                      onClick={() => onMoveNext(performance)}
-                      title="Move Next"
-                    >
-                      <ArrowUp className="h-5 w-5" aria-hidden="true" />
                     </button>
                   )}
                   {onComplete && index === 0 && (

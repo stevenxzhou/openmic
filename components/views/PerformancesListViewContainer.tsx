@@ -21,15 +21,7 @@ export default function PerformancesViewContainer({
       <div className="w-full text-lg font-semibold text-gray-600 mb-2">
         <span>{title}</span>
       </div>
-      <div>
-        {hasItems
-          ? children
-          : emptyState || (
-              <div className="border p-4 rounded text-center text-gray-500">
-                {t("performances.noQueue")}
-              </div>
-            )}
-      </div>
+      <div>{hasItems ? children : emptyState || ""}</div>
     </div>
   );
 }

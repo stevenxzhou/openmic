@@ -46,7 +46,9 @@ export default function PerformancesCompactView({
   };
 
   let sortedPerformances = [...performances].filter(
-    (performance) => performance.status !== PerformanceStatus.DELETED,
+    (performance) =>
+      performance.status !== PerformanceStatus.DELETED &&
+      performance.status !== PerformanceStatus.PENDING,
   );
 
   if (sortConfig.key) {

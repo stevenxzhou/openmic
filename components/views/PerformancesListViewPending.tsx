@@ -1,8 +1,102 @@
-import { useMemo, useContext } from "react";
+import { useMemo, useContext, useEffect, useState } from "react";
 import PerformanceCard from "@/components/cards/PerformanceCard";
 import { PerformanceStatus, PerformanceUser } from "@/hooks/usePerformances";
 import PerformancesListViewContainer from "@/components/views/PerformancesListViewContainer";
 import { GlobalContext } from "@/context/useGlobalContext";
+import { SortableContainer, SortableElement } from "react-sortable-hoc";
+
+const moveArrayItem = <T,>(items: T[], fromIndex: number, toIndex: number) => {
+  const updatedItems = [...items];
+  const [movedItem] = updatedItems.splice(fromIndex, 1);
+  updatedItems.splice(toIndex, 0, movedItem);
+  return updatedItems;
+};
+
+type SortablePerformanceItemProps = {
+  performance: PerformanceUser;
+  cardIndex: number;
+  displayNumber: number;
+  showActions: boolean;
+  onComplete?: (performance: PerformanceUser) => void;
+  onDelete?: (performance: PerformanceUser) => void;
+  onEdit?: (performance: PerformanceUser) => void;
+};
+
+const SortablePerformanceItem = SortableElement<SortablePerformanceItemProps>(
+  (props: SortablePerformanceItemProps) => {
+    const {
+      performance,
+      cardIndex,
+      displayNumber,
+      showActions,
+      onComplete,
+      onDelete,
+      onEdit,
+    } = props;
+
+    return (
+      <div>
+        <PerformanceCard
+          performance={performance}
+          index={cardIndex}
+          displayNumber={displayNumber}
+          showWaitTime={true}
+          showActions={showActions}
+          onComplete={onComplete}
+          onDelete={onDelete}
+          onEdit={onEdit}
+        />
+      </div>
+    );
+  },
+);
+
+type SortablePerformanceListProps = {
+  items: PerformanceUser[];
+  currentPerformanceIndex: number;
+  eventStatus?: string;
+  showActions: boolean;
+  onComplete?: (performance: PerformanceUser) => void;
+  onDelete?: (performance: PerformanceUser) => void;
+  onEdit?: (performance: PerformanceUser) => void;
+};
+
+const SortablePerformanceList = SortableContainer<SortablePerformanceListProps>(
+  (props: SortablePerformanceListProps) => {
+    const {
+      items,
+      currentPerformanceIndex,
+      eventStatus,
+      showActions,
+      onComplete,
+      onDelete,
+      onEdit,
+    } = props;
+
+    return (
+      <div className="space-y-4">
+        {items.map((performance: PerformanceUser, idx: number) => {
+          const indexOffset = eventStatus === "NEW" ? 1 : 0;
+          const cardIndex = currentPerformanceIndex + idx + indexOffset;
+
+          return (
+            <SortablePerformanceItem
+              key={performance.performance_id}
+              index={idx}
+              performance={performance}
+              cardIndex={cardIndex}
+              displayNumber={currentPerformanceIndex + idx + 1}
+              showActions={showActions}
+              onComplete={onComplete}
+              onDelete={onDelete}
+              onEdit={onEdit}
+            />
+          );
+        })}
+      </div>
+    );
+  },
+);
 
 type Props = {
   performances: PerformanceUser[];
@@ -12,12 +106,17 @@ type Props = {
   toggleSkipConfirmModal: any;
   onComplete?: (performance: PerformanceUser) => void;
   onDelete?: (performance: PerformanceUser) => void;
-  onMoveNext?: (performance: PerformanceUser) => void;
   onEdit?: (performance: PerformanceUser) => void;
+  onReorder?: (
+    oldIndex: number,
+    newIndex: number,
+    orderedPerformanceIds: number[],
+  ) => Promise<void> | void;
   eventStatus?: string;
   isAdminOrHost?: boolean;
   onStartEvent?: () => void;
   isStartingEvent?: boolean;
+  isReordering?: boolean;
 };
 
 export default function PerformancesView({
@@ -28,12 +127,13 @@ export default function PerformancesView({
   toggleSkipConfirmModal,
   onComplete,
   onDelete,
-  onMoveNext,
   onEdit,
+  onReorder,
   eventStatus,
   isAdminOrHost,
   onStartEvent,
   isStartingEvent,
+  isReordering,
 }: Props) {
   const { t } = useContext(GlobalContext);
 
@@ -49,12 +149,59 @@ export default function PerformancesView({
     [performances],
   );
 
+  const [orderedPerformances, setOrderedPerformances] =
+    useState<PerformanceUser[]>(sortedPerformances);
+
+  useEffect(() => {
+    setOrderedPerformances(sortedPerformances);
+  }, [sortedPerformances]);
+
   const showActions = Boolean(onComplete || onDelete);
+  const canSort = Boolean(
+    isAdminOrHost &&
+    onReorder &&
+    orderedPerformances.length > 1 &&
+    !isReordering,
+  );
+
+  const handleSortEnd = async ({
+    oldIndex,
+    newIndex,
+  }: {
+    oldIndex: number;
+    newIndex: number;
+  }) => {
+    if (oldIndex === newIndex) return;
+
+    const reorderedItems = moveArrayItem(
+      orderedPerformances,
+      oldIndex,
+      newIndex,
+    );
+    setOrderedPerformances(reorderedItems);
+
+    if (!onReorder) return;
+
+    const orderedPerformanceIds = orderedPerformances.map(
+      (performance) => performance.performance_id ?? -1,
+    );
+
+    try {
+      await onReorder(oldIndex, newIndex, orderedPerformanceIds);
+    } catch {
+      setOrderedPerformances(sortedPerformances);
+    }
+  };
 
   return (
     <PerformancesListViewContainer
       title={title}
       hasItems={sortedPerformances.slice(currentPerformanceIndex).length > 0}
+      emptyState={
+        <div className="border p-4 rounded text-center text-gray-500">
+          {t("performances.noQueue")}
+        </div>
+      }
     >
       <div className="space-y-4">
         {eventStatus === "NEW" && (
@@ -81,25 +228,41 @@ export default function PerformancesView({
           </div>
         )}
 
-        {sortedPerformances.map((performance, idx) => {
-          const indexOffset = eventStatus === "NEW" ? 1 : 0;
-          const index = currentPerformanceIndex + idx + indexOffset;
-          return (
-            <div key={performance.performance_id}>
-              <PerformanceCard
-                performance={performance}
-                index={index}
-                displayNumber={currentPerformanceIndex + idx + 1}
-                showWaitTime={true}
-                showActions={showActions}
-                onComplete={onComplete}
-                onDelete={onDelete}
-                onMoveNext={onMoveNext}
-                onEdit={onEdit}
-              />
-            </div>
-          );
-        })}
+        {canSort ? (
+          <SortablePerformanceList
+            items={orderedPerformances}
+            currentPerformanceIndex={currentPerformanceIndex}
+            eventStatus={eventStatus}
+            showActions={showActions}
+            onComplete={onComplete}
+            onDelete={onDelete}
+            onEdit={onEdit}
+            onSortEnd={handleSortEnd}
+            axis="y"
+            lockAxis="y"
+            pressDelay={120}
+            helperClass="z-50"
+          />
+        ) : (
+          orderedPerformances.map((performance, idx) => {
+            const indexOffset = eventStatus === "NEW" ? 1 : 0;
+            const index = currentPerformanceIndex + idx + indexOffset;
+            return (
+              <div key={performance.performance_id}>
+                <PerformanceCard
+                  performance={performance}
+                  index={index}
+                  displayNumber={currentPerformanceIndex + idx + 1}
+                  showWaitTime={true}
+                  showActions={showActions}
+                  onComplete={onComplete}
+                  onDelete={onDelete}
+                  onEdit={onEdit}
+                />
+              </div>
+            );
+          })
+        )}
       </div>
     </PerformancesListViewContainer>
   );
