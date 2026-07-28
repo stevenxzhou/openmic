@@ -24,11 +24,6 @@ export default function PerformancesListViewCompletedCollapsed({
     <PerformancesListViewContainer
       title={title}
       hasItems={completedPerformances.length > 0}
-      emptyState={
-        <div className="border p-4 rounded text-center text-gray-500">
-          {t("performances.noCompleted")}
-        </div>
-      }
     >
       <div className="space-y-3">
         <button

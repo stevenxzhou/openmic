@@ -59,6 +59,8 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
     useState(false);
   const [editingPerformance, setEditingPerformance] =
     useState<PerformanceUser | null>(null);
+  const [isReorderingPerformances, setIsReorderingPerformances] =
+    useState(false);
   const [isCompletingEvent, setIsCompletingEvent] = useState(false);
   const [showCompleteEventConfirmModal, setShowCompleteEventConfirmModal] =
     useState(false);
@@ -338,9 +340,36 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
     setDeleteConfirmation(null);
   };
 
-  const handleMoveNext = (performance: PerformanceUser) => {
-    if (performance.performance_id) {
-      moveNext(eventId!, performance.performance_id);
+  const handleReorder = async (
+    oldIndex: number,
+    newIndex: number,
+    orderedPerformanceIds: number[],
+  ) => {
+    if (!eventId || oldIndex === newIndex || isReorderingPerformances) return;
+
+    setIsReorderingPerformances(true);
+
+    try {
+      if (oldIndex > newIndex) {
+        const movingPerformanceId = orderedPerformanceIds[oldIndex];
+        if (!movingPerformanceId) return;
+
+        for (let step = oldIndex; step > newIndex; step -= 1) {
+          await moveNext(eventId, movingPerformanceId);
+        }
+      } else {
+        for (let step = oldIndex + 1; step <= newIndex; step += 1) {
+          const performanceToLiftId = orderedPerformanceIds[step];
+          if (!performanceToLiftId) continue;
+          await moveNext(eventId, performanceToLiftId);
+        }
+      }
+
+      await fetchPerformances(eventId);
+    } catch (error) {
+      console.error("Error reordering performances:", error);
+    } finally {
+      setIsReorderingPerformances(false);
     }
   };
 
@@ -540,12 +569,13 @@ const PerformancesView = ({ eventId: propEventId }: { eventId?: number }) => {
             toggleSkipConfirmModal={toggleSkipConfirmModal}
             onComplete={handleComplete}
             onDelete={handleDelete}
-            onMoveNext={handleMoveNext}
             onEdit={handleEdit}
+            onReorder={handleReorder}
             eventStatus={eventDetails?.status}
             isAdminOrHost={isAdminOrHost}
             onStartEvent={openStartChecklistModal}
             isStartingEvent={isStartingEvent}
+            isReordering={isReorderingPerformances}
           />
         )}
 

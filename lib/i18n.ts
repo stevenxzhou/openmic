@@ -80,7 +80,7 @@ const translations: Record<Language, Record<string, string>> = {
     "performances.table.status": "Status",
     "performances.table.action": "Action",
     "performances.status.completed": "Completed",
-    "performances.status.canceled": "Canceled",
+    "performances.status.canceled": "InCompleted",
     "performances.guest": "Guest",
     "eventDetails.share": "Share event",
     "eventDetails.qrTitle": "Event QR Code",

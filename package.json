@@ -16,6 +16,7 @@
     "@radix-ui/react-slot": "^1.1.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/qrcode": "^1.5.6",
+    "@types/react-sortable-hoc": "^0.6.6",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -28,6 +29,7 @@
     "react-dom": "^18",
     "react-draggable": "^4.4.6",
     "react-social-icons": "^6.25.0",
+    "react-sortable-hoc": "^2.0.0",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7"
   },
